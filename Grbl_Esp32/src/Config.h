@@ -98,8 +98,7 @@ const int MAX_N_AXIS = 6;
 #define ENABLE_TELNET              //enable telnet
 #define ENABLE_TELNET_WELCOME_MSG  //display welcome string when connect to telnet
 #define ENABLE_MDNS                //enable mDNS discovery
-#define ENABLE_SSDP                //enable UPNP discovery
-#define ENABLE_NOTIFICATIONS       //enable notifications
+
 
 #define ENABLE_SERIAL2SOCKET_IN
 #define ENABLE_SERIAL2SOCKET_OUT

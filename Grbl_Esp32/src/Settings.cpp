@@ -626,8 +626,6 @@ const char* FlagSetting::getCompatibleValue() {
     return get() ? "1" : "0";
 }
 
-#include <WiFi.h>
-
 IPaddrSetting::IPaddrSetting(const char*   description,
                              type_t        type,
                              permissions_t permissions,

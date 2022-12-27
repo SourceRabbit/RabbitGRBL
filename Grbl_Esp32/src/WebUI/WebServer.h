@@ -56,9 +56,6 @@ namespace WebUI {
         static String              get_Splited_Value(String data, char separator, int index);
         static AuthenticationLevel is_authenticated();
 
-#ifdef ENABLE_SSDP
-        static void handle_SSDP();
-#endif
         static void handle_root();
         static void handle_login();
         static void handle_not_found();
