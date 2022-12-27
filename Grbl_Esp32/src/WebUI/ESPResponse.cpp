@@ -19,10 +19,7 @@
 */
 #include "../Grbl.h"
 #include "ESPResponse.h"
-#if defined(ENABLE_HTTP) && defined(ENABLE_WIFI)
-#    include "WebServer.h"
-#    include <WebServer.h>
-#endif
+
 
 namespace WebUI {
 #if defined(ENABLE_HTTP) && defined(ENABLE_WIFI)

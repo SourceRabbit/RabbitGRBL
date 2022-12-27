@@ -64,12 +64,7 @@ void grbl_init() {
     }
 #endif
     Spindles::Spindle::select();
-#ifdef ENABLE_WIFI
-    WebUI::wifi_config.begin();
-#endif
-#ifdef ENABLE_BLUETOOTH
-    WebUI::bt_config.begin();
-#endif
+
     WebUI::inputBuffer.begin();
 }
 

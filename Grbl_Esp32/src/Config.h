@@ -92,19 +92,6 @@ const int MAX_N_AXIS = 6;
 // serial monitor, sender, etc uses a different value than 115200
 #define BAUD_RATE 115200
 
-//Connect to your local AP with these credentials
-//#define CONNECT_TO_SSID  "your SSID"
-//#define SSID_PASSWORD  "your SSID password"
-//CONFIGURE_EYECATCH_BEGIN (DO NOT MODIFY THIS LINE)
-//#define ENABLE_BLUETOOTH  // enable bluetooth
-
-//#define ENABLE_SD_CARD  // enable use of SD Card to run jobs
-
-//#define ENABLE_WIFI  //enable wifi
-
-#if defined(ENABLE_WIFI) || defined(ENABLE_BLUETOOTH)
-#    define WIFI_OR_BLUETOOTH
-#endif
 
 #define ENABLE_HTTP                //enable HTTP and all related services
 #define ENABLE_OTA                 //enable OTA
@@ -123,20 +110,6 @@ const int MAX_N_AXIS = 6;
 // WiFi that takes you a special page as soon as you connect to that AP.
 #define ENABLE_CAPTIVE_PORTAL
 
-// Warning! The current authentication implementation is too weak to provide
-// security against an attacker, since passwords are stored and transmitted
-// "in the clear" over unsecured channels.  It should be treated as a
-// "friendly suggestion" to prevent unwitting dangerous actions, rather than
-// as effective security against malice.
-// #define ENABLE_AUTHENTICATION
-//CONFIGURE_EYECATCH_END (DO NOT MODIFY THIS LINE)
-
-#ifdef ENABLE_AUTHENTICATION
-const char* const DEFAULT_ADMIN_PWD   = "admin";
-const char* const DEFAULT_USER_PWD    = "user";
-const char* const DEFAULT_ADMIN_LOGIN = "admin";
-const char* const DEFAULT_USER_LOGIN  = "user";
-#endif
 
 //Radio Mode
 const int ESP_RADIO_OFF = 0;
