@@ -31,10 +31,6 @@
 #    include <WiFi.h>
 #    include <FS.h>
 #    include <SPIFFS.h>
-#    ifdef ENABLE_SD_CARD
-#        include <SD.h>
-#        include "../SDCard.h"
-#    endif
 #    include <WebServer.h>
 #    include <ESP32SSDP.h>
 #    include <StreamString.h>

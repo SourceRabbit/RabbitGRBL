@@ -44,7 +44,6 @@ const char* const GRBL_VERSION_BUILD = "20210419";
 #include "WebUI/Commands.h"
 #include "Probe.h"
 #include "System.h"
-
 #include "GCode.h"
 #include "Planner.h"
 #include "CoolantControl.h"
@@ -67,9 +66,6 @@ const char* const GRBL_VERSION_BUILD = "20210419";
 #include "UserOutput.h"
 
 #include <Wire.h>
-
-// Do not guard this because it is needed for local files too
-#include "SDCard.h"
 
 #ifdef ENABLE_BLUETOOTH
 #    include "WebUI/BTConfig.h"
