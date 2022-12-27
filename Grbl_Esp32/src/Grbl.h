@@ -22,22 +22,19 @@
 
 // Grbl versioning system
 const char* const GRBL_VERSION       = "1.3a";
-const char* const GRBL_VERSION_BUILD = "20210419";
+const char* const GRBL_VERSION_BUILD = "20221227";
 
-//#include <sdkconfig.h>
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <driver/rmt.h>
 #include <esp_task_wdt.h>
 #include <freertos/task.h>
 #include <Preferences.h>
-
 #include <driver/timer.h>
 
 // Define the Grbl system include files. NOTE: Do not alter organization.
 #include "Config.h"
 #include "NutsBolts.h"
-
 #include "Defaults.h"
 #include "Error.h"
 #include "WebUI/Authentication.h"
@@ -62,9 +59,7 @@ const char* const GRBL_VERSION_BUILD = "20210419";
 #include "Settings.h"
 #include "SettingsDefinitions.h"
 #include "UserOutput.h"
-
 #include <Wire.h>
-
 #include "I2SOut.h"
 
 void grbl_init();

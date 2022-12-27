@@ -179,32 +179,13 @@ void clientCheckTask(void* pvParameters) {
             if (is_realtime_command(data)) {
                 execute_realtime_command(static_cast<Cmd>(data), client);
             } else {
-#if defined(ENABLE_SD_CARD)
-                if (get_sd_state(false) < SDState::Busy) {
-#endif  //ENABLE_SD_CARD
-                    vTaskEnterCritical(&myMutex);
-                    client_buffer[client].write(data);
-                    vTaskExitCritical(&myMutex);
-#if defined(ENABLE_SD_CARD)
-                } else {
-                    if (data == '\r' || data == '\n') {
-                        grbl_sendf(client, "error %d\r\n", Error::AnotherInterfaceBusy);
-                        grbl_msg_sendf(client, MsgLevel::Info, "SD card job running");
-                    }
-                }
-#endif  //ENABLE_SD_CARD
+                vTaskEnterCritical(&myMutex);
+                client_buffer[client].write(data);
+                vTaskExitCritical(&myMutex);
             }
         }  // if something available
         WebUI::COMMANDS::handle();
-#ifdef ENABLE_WIFI
-        WebUI::wifi_config.handle();
-#endif
-#ifdef ENABLE_BLUETOOTH
-        WebUI::bt_config.handle();
-#endif
-#if defined(ENABLE_WIFI) && defined(ENABLE_HTTP) && defined(ENABLE_SERIAL2SOCKET_IN)
-        WebUI::Serial2Socket.handle_flush();
-#endif
+
         vTaskDelay(1 / portTICK_RATE_MS);  // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
@@ -350,22 +331,7 @@ void client_write(uint8_t client, const char* text) {
     if (client == CLIENT_INPUT) {
         return;
     }
-#ifdef ENABLE_BLUETOOTH
-    if (WebUI::SerialBT.hasClient() && (client == CLIENT_BT || client == CLIENT_ALL)) {
-        WebUI::SerialBT.print(text);
-        //delay(10); // possible fix for dropped characters
-    }
-#endif
-#if defined(ENABLE_WIFI) && defined(ENABLE_HTTP) && defined(ENABLE_SERIAL2SOCKET_OUT)
-    if (client == CLIENT_WEBUI || client == CLIENT_ALL) {
-        WebUI::Serial2Socket.write((const uint8_t*)text, strlen(text));
-    }
-#endif
-#if defined(ENABLE_WIFI) && defined(ENABLE_TELNET)
-    if (client == CLIENT_TELNET || client == CLIENT_ALL) {
-        WebUI::telnet_server.write((const uint8_t*)text, strlen(text));
-    }
-#endif
+
     if (client == CLIENT_SERIAL || client == CLIENT_ALL) {
 #ifdef REVERT_TO_ARDUINO_SERIAL
         Serial.write(text);
