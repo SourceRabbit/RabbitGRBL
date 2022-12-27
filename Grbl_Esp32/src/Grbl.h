@@ -61,28 +61,9 @@ const char* const GRBL_VERSION_BUILD = "20210419";
 #include "WebUI/InputBuffer.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
-//#include "WebUI/WebSettings.h"
-
 #include "UserOutput.h"
 
 #include <Wire.h>
-
-#ifdef ENABLE_BLUETOOTH
-#    include "WebUI/BTConfig.h"
-#endif
-
-#ifdef ENABLE_WIFI
-#    include "WebUI/WifiConfig.h"
-#    ifdef ENABLE_HTTP
-#        include "WebUI/Serial2Socket.h"
-#    endif
-#    ifdef ENABLE_TELNET
-#        include "WebUI/TelnetServer.h"
-#    endif
-#    ifdef ENABLE_NOTIFICATIONS
-#        include "WebUI/NotificationsService.h"
-#    endif
-#endif
 
 #include "I2SOut.h"
 
