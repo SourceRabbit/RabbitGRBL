@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="../src" name="0">
+      <df name="Motors">
+        <in>Dynamixel2.cpp</in>
+        <in>Motor.cpp</in>
+        <in>Motors.cpp</in>
+        <in>NullMotor.cpp</in>
+        <in>RcServo.cpp</in>
+        <in>Servo.cpp</in>
+        <in>StandardStepper.cpp</in>
+        <in>TrinamicDriver.cpp</in>
+        <in>TrinamicUartDriverClass.cpp</in>
+        <in>UnipolarMotor.cpp</in>
+      </df>
+      <df name="Spindles">
+        <in>10vSpindle.cpp</in>
+        <in>BESCSpindle.cpp</in>
+        <in>DacSpindle.cpp</in>
+        <in>H2ASpindle.cpp</in>
+        <in>HuanyangSpindle.cpp</in>
+        <in>Laser.cpp</in>
+        <in>NullSpindle.cpp</in>
+        <in>PWMSpindle.cpp</in>
+        <in>RelaySpindle.cpp</in>
+        <in>Spindle.cpp</in>
+        <in>VFDSpindle.cpp</in>
+        <in>YL620Spindle.cpp</in>
+      </df>
+      <df name="WebUI">
+        <in>Authentication.cpp</in>
+        <in>BTConfig.cpp</in>
+        <in>Commands.cpp</in>
+        <in>ESPResponse.cpp</in>
+        <in>InputBuffer.cpp</in>
+        <in>JSONEncoder.cpp</in>
+        <in>NotificationsService.cpp</in>
+        <in>Serial2Socket.cpp</in>
+        <in>TelnetServer.cpp</in>
+        <in>WebServer.cpp</in>
+        <in>WebSettings.cpp</in>
+        <in>WifiConfig.cpp</in>
+        <in>WifiServices.cpp</in>
+      </df>
+      <in>CoolantControl.cpp</in>
+      <in>CustomCode.cpp</in>
+      <in>Error.cpp</in>
+      <in>Exec.cpp</in>
+      <in>GCode.cpp</in>
+      <in>Grbl.cpp</in>
+      <in>I2SOut.cpp</in>
+      <in>Jog.cpp</in>
+      <in>Limits.cpp</in>
+      <in>MotionControl.cpp</in>
+      <in>NutsBolts.cpp</in>
+      <in>Pins.cpp</in>
+      <in>Planner.cpp</in>
+      <in>Probe.cpp</in>
+      <in>ProcessSettings.cpp</in>
+      <in>Protocol.cpp</in>
+      <in>Regex.cpp</in>
+      <in>Report.cpp</in>
+      <in>SDCard.cpp</in>
+      <in>Serial.cpp</in>
+      <in>Settings.cpp</in>
+      <in>SettingsDefinitions.cpp</in>
+      <in>Stepper.cpp</in>
+      <in>System.cpp</in>
+      <in>Uart.cpp</in>
+      <in>UserOutput.cpp</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>nbproject/private/launcher.properties</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>../src</Elem>
+  </sourceRootList>
+  <projectmakefile></projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>../src</buildCommandWorkingDir>
+          <buildCommand>echo build</buildCommand>
+          <cleanCommand>echo clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
+          <preBuildCommand></preBuildCommand>
+        </preBuild>
+      </makefileType>
+      <item path="../src/CoolantControl.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/CustomCode.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Error.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Exec.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/GCode.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Grbl.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/I2SOut.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Jog.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Limits.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/MotionControl.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/Dynamixel2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/Motor.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/Motors.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/NullMotor.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/RcServo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/Servo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/StandardStepper.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/TrinamicDriver.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Motors/TrinamicUartDriverClass.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../src/Motors/UnipolarMotor.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/NutsBolts.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Pins.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Planner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Probe.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/ProcessSettings.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Protocol.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Regex.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Report.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/SDCard.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Serial.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Settings.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/SettingsDefinitions.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/10vSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/BESCSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/DacSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/H2ASpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/HuanyangSpindle.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../src/Spindles/Laser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/NullSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/PWMSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/RelaySpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/Spindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/VFDSpindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Spindles/YL620Spindle.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Stepper.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/System.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Uart.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/UserOutput.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/Authentication.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/BTConfig.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/Commands.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/ESPResponse.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/InputBuffer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/JSONEncoder.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/NotificationsService.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../src/WebUI/Serial2Socket.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/TelnetServer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/WebServer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/WebSettings.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/WifiConfig.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/WebUI/WifiServices.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
