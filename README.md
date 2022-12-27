@@ -8,4 +8,4 @@ GRBL ESP32
 
 We keep this fork updated in order to be fully compatible with our products.
 Find information on how to build this project in the Wiki
-https://github.com/SourceRabbit/Grbl_Esp32/wiki
+https://github.com/SourceRabbit/Grbl_ESP32/wiki
