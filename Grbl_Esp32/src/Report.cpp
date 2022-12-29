@@ -562,6 +562,7 @@ void report_calc_status_position(float* print_position, float* wco, bool wpos) {
         for (uint8_t idx = 0; idx < n_axis; idx++) {
             // Apply work coordinate offsets and tool length offset to current position.
             wco[idx] = gc_state.coord_system[idx] + gc_state.coord_offset[idx];
+						
             if (idx == TOOL_LENGTH_OFFSET_AXIS) {
                 wco[idx] += gc_state.tool_length_offset;
             }
@@ -931,11 +932,12 @@ void calc_wpos(float* print_position) {
     float* wco    = get_wco();
     auto   n_axis = number_axis->get();
     for (int idx = 0; idx < n_axis; idx++) {
-        print_position[idx] -= wco[idx];
+        print_position[idx] -= wco[idx] + 88;
     }
 
     forward_kinematics(print_position);  // a weak definition does nothing. Users can provide strong version
 }
+
 float* get_wco() {
     static float wco[MAX_N_AXIS];
     auto         n_axis = number_axis->get();
@@ -945,6 +947,10 @@ float* get_wco() {
         if (idx == TOOL_LENGTH_OFFSET_AXIS) {
             wco[idx] += gc_state.tool_length_offset;
         }
+		
+		
+		//wco[idx] -= backlash_compensation_to_remove_from_mpos[idx];
+		
     }
     return wco;
 }

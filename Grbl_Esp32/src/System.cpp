@@ -164,6 +164,9 @@ void system_flag_wco_change() {
     protocol_buffer_synchronize();
 #endif
     sys.report_wco_counter = 0;
+	
+	// RESET BACKLASH
+	backlash_ResetBacklashCompensationAddedToAxis();
 }
 
 // Returns machine position of axis 'idx'. Must be sent a 'step' array.
@@ -172,9 +175,9 @@ void system_flag_wco_change() {
 float system_convert_axis_steps_to_mpos(int32_t* steps, uint8_t idx) {
     float pos;
     float steps_per_mm = axis_settings[idx]->steps_per_mm->get();
-    //pos                = steps[idx] / steps_per_mm;
-	
-    // To remove the backlash compensation	
+    
+	//pos = steps[idx] / steps_per_mm;
+    // Removes the added backlash compensation	
 	pos = (steps[idx] / steps_per_mm) - backlash_compensation_to_remove_from_mpos[idx];
     return pos;
 }
