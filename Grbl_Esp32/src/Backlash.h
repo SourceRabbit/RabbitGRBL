@@ -12,7 +12,6 @@
 // This array contains the backlash that has beed added to an axes in order
 // to remove it later from the Report (System.cpp--> system_convert_axis_steps_to_mpos)
 extern float backlash_compensation_to_remove_from_mpos[MAX_N_AXIS];
-extern float backlash_compensation_to_remove_after_position_reset[MAX_N_AXIS];
 
 void backlash_ini();
 
