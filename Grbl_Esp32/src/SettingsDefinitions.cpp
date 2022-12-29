@@ -112,6 +112,7 @@ typedef struct {
     float       hold_current;
     uint16_t    microsteps;
     uint16_t    stallguard;
+    float backlash;
 } axis_defaults_t;
 axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_X_STEPS_PER_MM,
@@ -122,7 +123,9 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_X_CURRENT,
                                       DEFAULT_X_HOLD_CURRENT,
                                       DEFAULT_X_MICROSTEPS,
-                                      DEFAULT_X_STALLGUARD },
+                                      DEFAULT_X_STALLGUARD,
+									  DEFAULT_X_BACKLASH
+									  },
                                     { "Y",
                                       DEFAULT_Y_STEPS_PER_MM,
                                       DEFAULT_Y_MAX_RATE,
@@ -132,7 +135,9 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_Y_CURRENT,
                                       DEFAULT_Y_HOLD_CURRENT,
                                       DEFAULT_Y_MICROSTEPS,
-                                      DEFAULT_Y_STALLGUARD },
+                                      DEFAULT_Y_STALLGUARD,
+									  DEFAULT_Y_BACKLASH
+									  },
                                     { "Z",
                                       DEFAULT_Z_STEPS_PER_MM,
                                       DEFAULT_Z_MAX_RATE,
@@ -142,7 +147,9 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_Z_CURRENT,
                                       DEFAULT_Z_HOLD_CURRENT,
                                       DEFAULT_Z_MICROSTEPS,
-                                      DEFAULT_Z_STALLGUARD },
+                                      DEFAULT_Z_STALLGUARD,
+									  DEFAULT_Z_BACKLASH
+									  },
                                     { "A",
                                       DEFAULT_A_STEPS_PER_MM,
                                       DEFAULT_A_MAX_RATE,
@@ -152,7 +159,9 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_A_CURRENT,
                                       DEFAULT_A_HOLD_CURRENT,
                                       DEFAULT_A_MICROSTEPS,
-                                      DEFAULT_A_STALLGUARD },
+                                      DEFAULT_A_STALLGUARD,
+									  DEFAULT_A_BACKLASH
+									  },
                                     { "B",
                                       DEFAULT_B_STEPS_PER_MM,
                                       DEFAULT_B_MAX_RATE,
@@ -162,7 +171,9 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_B_CURRENT,
                                       DEFAULT_B_HOLD_CURRENT,
                                       DEFAULT_B_MICROSTEPS,
-                                      DEFAULT_B_STALLGUARD },
+                                      DEFAULT_B_STALLGUARD,
+									  DEFAULT_B_BACKLASH
+									  },
                                     { "C",
                                       DEFAULT_C_STEPS_PER_MM,
                                       DEFAULT_C_MAX_RATE,
@@ -172,7 +183,8 @@ axis_defaults_t axis_defaults[] = { { "X",
                                       DEFAULT_C_CURRENT,
                                       DEFAULT_C_HOLD_CURRENT,
                                       DEFAULT_C_MICROSTEPS,
-                                      DEFAULT_C_STALLGUARD } };
+                                      DEFAULT_C_STALLGUARD,
+									  DEFAULT_C_BACKLASH} };
 
 // Construct e.g. X_MAX_RATE from axisName "X" and tail "_MAX_RATE"
 // in dynamically allocated memory that will not be freed.
@@ -271,6 +283,15 @@ void make_settings() {
     a_axis_settings = axis_settings[A_AXIS];
     b_axis_settings = axis_settings[B_AXIS];
     c_axis_settings = axis_settings[C_AXIS];
+	
+	// Backlash Compensation Settings 
+    for (axis = MAX_N_AXIS - 1; axis >= 0; axis--) {
+        def = &axis_defaults[axis];
+        auto setting = new FloatSetting(GRBL, WG, makeGrblName(axis, 180), makename(def->name, "Backlash"), def->backlash, 0, 10);
+        setting->setAxis(axis);
+        axis_settings[axis]->backlash = setting;
+    }
+	
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--) {
         def          = &axis_defaults[axis];
         auto setting = new IntSetting(

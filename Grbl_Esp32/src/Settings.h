@@ -441,6 +441,7 @@ public:
     FloatSetting* home_mpos;
     IntSetting*   microsteps;
     IntSetting*   stallguard;
+	FloatSetting* backlash;
 
     AxisSettings(const char* axisName);
 };

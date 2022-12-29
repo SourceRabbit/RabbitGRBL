@@ -8,7 +8,7 @@
 #define N_AXIS 4
 
 
-#define DEFAULT_STEP_PULSE_MICROSECONDS     8       // $0
+#define DEFAULT_STEP_PULSE_MICROSECONDS     5       // $0
 #define DEFAULT_STEPPER_IDLE_LOCK_TIME      255     // $1 KEEP MOTORS ALWAYS ON
 
 #define DEFAULT_JUNCTION_DEVIATION          0.010   // $11 mm
@@ -38,14 +38,17 @@
 #define DEFAULT_X_STEPS_PER_MM              400.0
 #define DEFAULT_X_MAX_RATE                  5000.0  // mm/min
 #define DEFAULT_X_ACCELERATION              100.0
+#define DEFAULT_X_BACKLASH             		0.072
 
 #define DEFAULT_Y_STEPS_PER_MM              400.0
 #define DEFAULT_Y_MAX_RATE                  5000.0  // mm/min
 #define DEFAULT_Y_ACCELERATION              100.0
+#define DEFAULT_Y_BACKLASH             		0.05
 
 #define DEFAULT_Z_STEPS_PER_MM              400.0
 #define DEFAULT_Z_MAX_RATE                  2000.0  // mm/min
 #define DEFAULT_Z_ACCELERATION              40.0
+#define DEFAULT_Z_BACKLASH             		0.12
 
 #define DEFAULT_A_STEPS_PER_MM              26.666 // Steps / Degree
 #define DEFAULT_A_MAX_RATE                  72000.0  // degrees/min

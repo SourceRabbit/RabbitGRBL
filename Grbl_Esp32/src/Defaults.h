@@ -404,6 +404,26 @@
 #    define DEFAULT_C_CURRENT 0.25  // $145 current in amps (extended set)
 #endif
 
+// ========== Backlash Settings =============
+#ifndef DEFAULT_X_BACKLASH
+#define DEFAULT_X_BACKLASH 0   // $180 backlash
+#endif
+#ifndef DEFAULT_Y_BACKLASH
+#define DEFAULT_Y_BACKLASH 0  // $181 backlash
+#endif
+#ifndef DEFAULT_Z_BACKLASH
+#define DEFAULT_Z_BACKLASH 0  // $182 backlash
+#endif
+#ifndef DEFAULT_A_BACKLASH
+#define DEFAULT_A_BACKLASH 0  // $183 backlash
+#endif
+#ifndef DEFAULT_B_BACKLASH
+#define DEFAULT_B_BACKLASH 0  // $184 backlash
+#endif
+#ifndef DEFAULT_C_BACKLASH
+#define DEFAULT_C_BACKLASH 0  // $185 backlash
+#endif
+
 // ========== Motor hold current (SPI Drivers ) =============
 
 #ifndef DEFAULT_X_HOLD_CURRENT
