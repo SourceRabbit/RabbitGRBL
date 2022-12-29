@@ -203,33 +203,10 @@ static String report_util_axis_values(const float* axis_value) {
 void report_status_message(Error status_code, uint8_t client) {
     switch (status_code) {
         case Error::Ok:  // Error::Ok
-#ifdef ENABLE_SD_CARD
-            if (get_sd_state(false) == SDState::BusyPrinting) {
-                SD_ready_next = true;  // flag so system_execute_line() will send the next line
-            } else {
-                grbl_send(client, "ok\r\n");
-            }
-#else
             grbl_send(client, "ok\r\n");
-#endif
             break;
         default:
-#ifdef ENABLE_SD_CARD
-            // do we need to stop a running SD job?
-            if (get_sd_state(false) == SDState::BusyPrinting) {
-                if (status_code == Error::GcodeUnsupportedCommand) {
-                    grbl_sendf(client, "error:%d\r\n", status_code);  // most senders seem to tolerate this error and keep on going
-                    grbl_sendf(CLIENT_ALL, "error:%d in SD file at line %d\r\n", status_code, sd_get_current_line_number());
-                    // don't close file
-                    SD_ready_next = true;  // flag so system_execute_line() will send the next line
-                } else {
-                    grbl_notifyf("SD print error", "Error:%d during SD file at line: %d", status_code, sd_get_current_line_number());
-                    grbl_sendf(CLIENT_ALL, "error:%d in SD file at line %d\r\n", status_code, sd_get_current_line_number());
-                    closeFile();
-                }
-                return;
-            }
-#endif
+
             // With verbose errors, the message text is displayed instead of the number.
             // Grbl 0.9 used to display the text, while Grbl 1.1 switched to the number.
             // Many senders support both formats.
@@ -624,17 +601,7 @@ void report_realtime_status(uint8_t client) {
 #ifdef REPORT_FIELD_BUFFER_STATE
     if (bit_istrue(status_mask->get(), RtStatus::Buffer)) {
         int bufsize = DEFAULTBUFFERSIZE;
-#    if defined(ENABLE_WIFI) && defined(ENABLE_TELNET)
-        if (client == CLIENT_TELNET) {
-            bufsize = WebUI::telnet_server.get_rx_buffer_available();
-        }
-#    endif  //ENABLE_WIFI && ENABLE_TELNET
-#    if defined(ENABLE_BLUETOOTH)
-        if (client == CLIENT_BT) {
-            //TODO FIXME
-            bufsize = 512 - WebUI::SerialBT.available();
-        }
-#    endif  //ENABLE_BLUETOOTH
+
         if (client == CLIENT_SERIAL) {
             bufsize = client_get_rx_buffer_available(CLIENT_SERIAL);
         }
@@ -790,14 +757,7 @@ void report_realtime_status(uint8_t client) {
         }
     }
 #endif
-#ifdef ENABLE_SD_CARD
-    if (get_sd_state(false) == SDState::BusyPrinting) {
-        sprintf(temp, "|SD:%4.2f,", sd_report_perc_complete());
-        strcat(status, temp);
-        sd_get_current_filename(temp);
-        strcat(status, temp);
-    }
-#endif
+
 #ifdef REPORT_HEAP
     sprintf(temp, "|Heap:%d", esp.getHeapSize());
     strcat(status, temp);
