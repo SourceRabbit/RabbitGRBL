@@ -560,17 +560,8 @@ void report_build_info(const char *line, uint8_t client)
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
     grbl_send(client, "A");
 #endif
-#ifdef ENABLE_BLUETOOTH
-    grbl_send(client, "B");
-#endif
-#ifdef ENABLE_SD_CARD
-    grbl_send(client, "S");
-#endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
     grbl_send(client, "R");
-#endif
-#if defined(ENABLE_WIFI)
-    grbl_send(client, "W");
 #endif
 #ifndef ENABLE_RESTORE_WIPE_ALL // NOTE: Shown when disabled.
     grbl_send(client, "*");
@@ -591,12 +582,6 @@ void report_build_info(const char *line, uint8_t client)
     // These will likely have a comma delimiter to separate them.
     grbl_send(client, "]\r\n");
     report_machine_type(client);
-#if defined(ENABLE_WIFI)
-    grbl_send(client, (char *)WebUI::wifi_config.info());
-#endif
-#if defined(ENABLE_BLUETOOTH)
-    grbl_send(client, (char *)WebUI::bt_config.info());
-#endif
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,

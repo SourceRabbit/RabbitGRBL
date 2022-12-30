@@ -24,11 +24,6 @@ void grbl_init() {
 #ifdef USE_I2S_OUT
     i2s_out_init();  // The I2S out must be initialized before it can access the expanded GPIO port
 #endif
-    //WiFi.persistent(false);
-    //WiFi.disconnect(true);
-    //WiFi.enableSTA(false);
-    //WiFi.enableAP(false);
-    //WiFi.mode(WIFI_OFF);
     client_init();  // Setup serial baud rate and interrupts
     display_init();
     grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Grbl_ESP32 Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD);  // print grbl_esp32 verion info

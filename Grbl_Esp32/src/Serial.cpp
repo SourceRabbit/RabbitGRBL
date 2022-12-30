@@ -3,8 +3,8 @@
   Part of Grbl
   Copyright (c) 2014-2016 Sungeun K. Jeon for Gnea Research LLC
 
-	2018 -	Bart Dring This file was modified for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+    2018 -	Bart Dring This file was modified for use on the ESP32
+                    CPU. Do not use this with Grbl for atMega328P
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,10 +67,11 @@ portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 static TaskHandle_t clientCheckTaskHandle = 0;
 
-WebUI::InputBuffer client_buffer[CLIENT_COUNT];  // create a buffer for each client
+WebUI::InputBuffer client_buffer[CLIENT_COUNT]; // create a buffer for each client
 
 // Returns the number of bytes available in a client buffer.
-uint8_t client_get_rx_buffer_available(uint8_t client) {
+uint8_t client_get_rx_buffer_available(uint8_t client)
+{
 #ifdef REVERT_TO_ARDUINO_SERIAL
     return 128 - Serial.available();
 #else
@@ -79,15 +80,18 @@ uint8_t client_get_rx_buffer_available(uint8_t client) {
     //    return client_buffer[client].availableforwrite();
 }
 
-void heapCheckTask(void* pvParameters) {
+void heapCheckTask(void *pvParameters)
+{
     static uint32_t heapSize = 0;
-    while (true) {
+    while (true)
+    {
         uint32_t newHeapSize = xPortGetFreeHeapSize();
-        if (newHeapSize != heapSize) {
+        if (newHeapSize != heapSize)
+        {
             heapSize = newHeapSize;
             grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "heap %d", heapSize);
         }
-        vTaskDelay(3000 / portTICK_RATE_MS);  // Yield to other tasks
+        vTaskDelay(3000 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
 #ifdef DEBUG_TASK_STACK
@@ -96,7 +100,8 @@ void heapCheckTask(void* pvParameters) {
     }
 }
 
-void client_init() {
+void client_init()
+{
 #ifdef DEBUG_REPORT_HEAP_SIZE
     // For a 2000-word stack, uxTaskGetStackHighWaterMark reports 288 words available
     xTaskCreatePinnedToCore(heapCheckTask, "heapTask", 2000, NULL, 1, NULL, 1);
@@ -105,88 +110,78 @@ void client_init() {
 #ifdef REVERT_TO_ARDUINO_SERIAL
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
     client_reset_read_buffer(CLIENT_ALL);
-    Serial.write("\r\n");  // create some white space after ESP32 boot info
+    Serial.write("\r\n"); // create some white space after ESP32 boot info
 #else
-    Uart0.setPins(1, 3);  // Tx 1, Rx 3 - standard hardware pins
+    Uart0.setPins(1, 3); // Tx 1, Rx 3 - standard hardware pins
     Uart0.begin(BAUD_RATE, Uart::Data::Bits8, Uart::Stop::Bits1, Uart::Parity::None);
 
     client_reset_read_buffer(CLIENT_ALL);
-    Uart0.write("\r\n");  // create some white space after ESP32 boot info
+    Uart0.write("\r\n"); // create some white space after ESP32 boot info
 #endif
     clientCheckTaskHandle = 0;
     // create a task to check for incoming data
     // For a 4096-word stack, uxTaskGetStackHighWaterMark reports 244 words available
     // after WebUI attaches.
-    xTaskCreatePinnedToCore(clientCheckTask,    // task
-                            "clientCheckTask",  // name for task
-                            4096,               // size of task stack
-                            NULL,               // parameters
-                            1,                  // priority
+    xTaskCreatePinnedToCore(clientCheckTask,   // task
+                            "clientCheckTask", // name for task
+                            4096,              // size of task stack
+                            NULL,              // parameters
+                            1,                 // priority
                             &clientCheckTaskHandle,
-                            SUPPORT_TASK_CORE  // must run the task on same core
-                                               // core
+                            SUPPORT_TASK_CORE // must run the task on same core
+                                              // core
     );
 }
 
-static uint8_t getClientChar(uint8_t* data) {
+static uint8_t getClientChar(uint8_t *data)
+{
     int res;
 #ifdef REVERT_TO_ARDUINO_SERIAL
-    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Serial.read()) != -1) {
+    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Serial.read()) != -1)
+    {
 #else
-    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Uart0.read()) != -1) {
+    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Uart0.read()) != -1)
+    {
 #endif
         *data = res;
         return CLIENT_SERIAL;
     }
-    if (WebUI::inputBuffer.available()) {
+    if (WebUI::inputBuffer.available())
+    {
         *data = WebUI::inputBuffer.read();
         return CLIENT_INPUT;
     }
-    //currently is wifi or BT but better to prepare both can be live
-#ifdef ENABLE_BLUETOOTH
-    if (WebUI::SerialBT.hasClient()) {
-        if ((res = WebUI::SerialBT.read()) != -1) {
-            *data = res;
-            return CLIENT_BT;
-        }
-    }
-#endif
-#if defined(ENABLE_WIFI) && defined(ENABLE_HTTP) && defined(ENABLE_SERIAL2SOCKET_IN)
-    if (WebUI::Serial2Socket.available()) {
-        *data = WebUI::Serial2Socket.read();
-        return CLIENT_WEBUI;
-    }
-#endif
-#if defined(ENABLE_WIFI) && defined(ENABLE_TELNET)
-    if (WebUI::telnet_server.available()) {
-        *data = WebUI::telnet_server.read();
-        return CLIENT_TELNET;
-    }
-#endif
+
     return CLIENT_ALL;
 }
 
 // this task runs and checks for data on all interfaces
 // REaltime stuff is acted upon, then characters are added to the appropriate buffer
-void clientCheckTask(void* pvParameters) {
-    uint8_t            data = 0;
-    uint8_t            client;  // who sent the data
+void clientCheckTask(void *pvParameters)
+{
+    uint8_t data = 0;
+    uint8_t client; // who sent the data
     static UBaseType_t uxHighWaterMark = 0;
-    while (true) {  // run continuously
-        while ((client = getClientChar(&data)) != CLIENT_ALL) {
+    while (true)
+    { // run continuously
+        while ((client = getClientChar(&data)) != CLIENT_ALL)
+        {
             // Pick off realtime command characters directly from the serial stream. These characters are
             // not passed into the main buffer, but these set system state flag bits for realtime execution.
-            if (is_realtime_command(data)) {
+            if (is_realtime_command(data))
+            {
                 execute_realtime_command(static_cast<Cmd>(data), client);
-            } else {
+            }
+            else
+            {
                 vTaskEnterCritical(&myMutex);
                 client_buffer[client].write(data);
                 vTaskExitCritical(&myMutex);
             }
-        }  // if something available
+        } // if something available
         WebUI::COMMANDS::handle();
 
-        vTaskDelay(1 / portTICK_RATE_MS);  // Yield to other tasks
+        vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
 #ifdef DEBUG_TASK_STACK
@@ -195,16 +190,20 @@ void clientCheckTask(void* pvParameters) {
     }
 }
 
-void client_reset_read_buffer(uint8_t client) {
-    for (uint8_t client_num = 0; client_num < CLIENT_COUNT; client_num++) {
-        if (client == client_num || client == CLIENT_ALL) {
+void client_reset_read_buffer(uint8_t client)
+{
+    for (uint8_t client_num = 0; client_num < CLIENT_COUNT; client_num++)
+    {
+        if (client == client_num || client == CLIENT_ALL)
+        {
             client_buffer[client_num].begin();
         }
     }
 }
 
 // Fetches the first byte in the client read buffer. Called by protocol loop.
-int client_read(uint8_t client) {
+int client_read(uint8_t client)
+{
     vTaskEnterCritical(&myMutex);
     int data = client_buffer[client].read();
     vTaskExitCritical(&myMutex);
@@ -212,8 +211,10 @@ int client_read(uint8_t client) {
 }
 
 // checks to see if a character is a realtime character
-bool is_realtime_command(uint8_t data) {
-    if (data >= 0x80) {
+bool is_realtime_command(uint8_t data)
+{
+    if (data >= 0x80)
+    {
         return true;
     }
     auto cmd = static_cast<Cmd>(data);
@@ -221,118 +222,132 @@ bool is_realtime_command(uint8_t data) {
 }
 
 // Act upon a realtime character
-void execute_realtime_command(Cmd command, uint8_t client) {
-    switch (command) {
-        case Cmd::Reset:
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Cmd::Reset");
-            mc_reset();  // Call motion control reset routine.
-            break;
-        case Cmd::StatusReport:
-            report_realtime_status(client);  // direct call instead of setting flag
-            break;
-        case Cmd::CycleStart:
-            sys_rt_exec_state.bit.cycleStart = true;
-            break;
-        case Cmd::FeedHold:
-            sys_rt_exec_state.bit.feedHold = true;
-            break;
-        case Cmd::SafetyDoor:
-            sys_rt_exec_state.bit.safetyDoor = true;
-            break;
-        case Cmd::JogCancel:
-            if (sys.state == State::Jog) {  // Block all other states from invoking motion cancel.
-                sys_rt_exec_state.bit.motionCancel = true;
-            }
-            break;
-        case Cmd::DebugReport:
+void execute_realtime_command(Cmd command, uint8_t client)
+{
+    switch (command)
+    {
+    case Cmd::Reset:
+        grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Cmd::Reset");
+        mc_reset(); // Call motion control reset routine.
+        break;
+    case Cmd::StatusReport:
+        report_realtime_status(client); // direct call instead of setting flag
+        break;
+    case Cmd::CycleStart:
+        sys_rt_exec_state.bit.cycleStart = true;
+        break;
+    case Cmd::FeedHold:
+        sys_rt_exec_state.bit.feedHold = true;
+        break;
+    case Cmd::SafetyDoor:
+        sys_rt_exec_state.bit.safetyDoor = true;
+        break;
+    case Cmd::JogCancel:
+        if (sys.state == State::Jog)
+        { // Block all other states from invoking motion cancel.
+            sys_rt_exec_state.bit.motionCancel = true;
+        }
+        break;
+    case Cmd::DebugReport:
 #ifdef DEBUG
-            sys_rt_exec_debug = true;
+        sys_rt_exec_debug = true;
 #endif
-            break;
-        case Cmd::SpindleOvrStop:
-            sys_rt_exec_accessory_override.bit.spindleOvrStop = 1;
-            break;
-        case Cmd::FeedOvrReset:
-            sys_rt_f_override = FeedOverride::Default;
-            break;
-        case Cmd::FeedOvrCoarsePlus:
-            sys_rt_f_override += FeedOverride::CoarseIncrement;
-            if (sys_rt_f_override > FeedOverride::Max) {
-                sys_rt_f_override = FeedOverride::Max;
-            }
-            break;
-        case Cmd::FeedOvrCoarseMinus:
-            sys_rt_f_override -= FeedOverride::CoarseIncrement;
-            if (sys_rt_f_override < FeedOverride::Min) {
-                sys_rt_f_override = FeedOverride::Min;
-            }
-            break;
-        case Cmd::FeedOvrFinePlus:
-            sys_rt_f_override += FeedOverride::FineIncrement;
-            if (sys_rt_f_override > FeedOverride::Max) {
-                sys_rt_f_override = FeedOverride::Max;
-            }
-            break;
-        case Cmd::FeedOvrFineMinus:
-            sys_rt_f_override -= FeedOverride::FineIncrement;
-            if (sys_rt_f_override < FeedOverride::Min) {
-                sys_rt_f_override = FeedOverride::Min;
-            }
-            break;
-        case Cmd::RapidOvrReset:
-            sys_rt_r_override = RapidOverride::Default;
-            break;
-        case Cmd::RapidOvrMedium:
-            sys_rt_r_override = RapidOverride::Medium;
-            break;
-        case Cmd::RapidOvrLow:
-            sys_rt_r_override = RapidOverride::Low;
-            break;
-        case Cmd::RapidOvrExtraLow:
-            sys_rt_r_override = RapidOverride::ExtraLow;
-            break;
-        case Cmd::SpindleOvrReset:
-            sys_rt_s_override = SpindleSpeedOverride::Default;
-            break;
-        case Cmd::SpindleOvrCoarsePlus:
-            sys_rt_s_override += SpindleSpeedOverride::CoarseIncrement;
-            if (sys_rt_s_override > SpindleSpeedOverride::Max) {
-                sys_rt_s_override = SpindleSpeedOverride::Max;
-            }
-            break;
-        case Cmd::SpindleOvrCoarseMinus:
-            sys_rt_s_override -= SpindleSpeedOverride::CoarseIncrement;
-            if (sys_rt_s_override < SpindleSpeedOverride::Min) {
-                sys_rt_s_override = SpindleSpeedOverride::Min;
-            }
-            break;
-        case Cmd::SpindleOvrFinePlus:
-            sys_rt_s_override += SpindleSpeedOverride::FineIncrement;
-            if (sys_rt_s_override > SpindleSpeedOverride::Max) {
-                sys_rt_s_override = SpindleSpeedOverride::Max;
-            }
-            break;
-        case Cmd::SpindleOvrFineMinus:
-            sys_rt_s_override -= SpindleSpeedOverride::FineIncrement;
-            if (sys_rt_s_override < SpindleSpeedOverride::Min) {
-                sys_rt_s_override = SpindleSpeedOverride::Min;
-            }
-            break;
-        case Cmd::CoolantFloodOvrToggle:
-            sys_rt_exec_accessory_override.bit.coolantFloodOvrToggle = 1;
-            break;
-        case Cmd::CoolantMistOvrToggle:
-            sys_rt_exec_accessory_override.bit.coolantMistOvrToggle = 1;
-            break;
+        break;
+    case Cmd::SpindleOvrStop:
+        sys_rt_exec_accessory_override.bit.spindleOvrStop = 1;
+        break;
+    case Cmd::FeedOvrReset:
+        sys_rt_f_override = FeedOverride::Default;
+        break;
+    case Cmd::FeedOvrCoarsePlus:
+        sys_rt_f_override += FeedOverride::CoarseIncrement;
+        if (sys_rt_f_override > FeedOverride::Max)
+        {
+            sys_rt_f_override = FeedOverride::Max;
+        }
+        break;
+    case Cmd::FeedOvrCoarseMinus:
+        sys_rt_f_override -= FeedOverride::CoarseIncrement;
+        if (sys_rt_f_override < FeedOverride::Min)
+        {
+            sys_rt_f_override = FeedOverride::Min;
+        }
+        break;
+    case Cmd::FeedOvrFinePlus:
+        sys_rt_f_override += FeedOverride::FineIncrement;
+        if (sys_rt_f_override > FeedOverride::Max)
+        {
+            sys_rt_f_override = FeedOverride::Max;
+        }
+        break;
+    case Cmd::FeedOvrFineMinus:
+        sys_rt_f_override -= FeedOverride::FineIncrement;
+        if (sys_rt_f_override < FeedOverride::Min)
+        {
+            sys_rt_f_override = FeedOverride::Min;
+        }
+        break;
+    case Cmd::RapidOvrReset:
+        sys_rt_r_override = RapidOverride::Default;
+        break;
+    case Cmd::RapidOvrMedium:
+        sys_rt_r_override = RapidOverride::Medium;
+        break;
+    case Cmd::RapidOvrLow:
+        sys_rt_r_override = RapidOverride::Low;
+        break;
+    case Cmd::RapidOvrExtraLow:
+        sys_rt_r_override = RapidOverride::ExtraLow;
+        break;
+    case Cmd::SpindleOvrReset:
+        sys_rt_s_override = SpindleSpeedOverride::Default;
+        break;
+    case Cmd::SpindleOvrCoarsePlus:
+        sys_rt_s_override += SpindleSpeedOverride::CoarseIncrement;
+        if (sys_rt_s_override > SpindleSpeedOverride::Max)
+        {
+            sys_rt_s_override = SpindleSpeedOverride::Max;
+        }
+        break;
+    case Cmd::SpindleOvrCoarseMinus:
+        sys_rt_s_override -= SpindleSpeedOverride::CoarseIncrement;
+        if (sys_rt_s_override < SpindleSpeedOverride::Min)
+        {
+            sys_rt_s_override = SpindleSpeedOverride::Min;
+        }
+        break;
+    case Cmd::SpindleOvrFinePlus:
+        sys_rt_s_override += SpindleSpeedOverride::FineIncrement;
+        if (sys_rt_s_override > SpindleSpeedOverride::Max)
+        {
+            sys_rt_s_override = SpindleSpeedOverride::Max;
+        }
+        break;
+    case Cmd::SpindleOvrFineMinus:
+        sys_rt_s_override -= SpindleSpeedOverride::FineIncrement;
+        if (sys_rt_s_override < SpindleSpeedOverride::Min)
+        {
+            sys_rt_s_override = SpindleSpeedOverride::Min;
+        }
+        break;
+    case Cmd::CoolantFloodOvrToggle:
+        sys_rt_exec_accessory_override.bit.coolantFloodOvrToggle = 1;
+        break;
+    case Cmd::CoolantMistOvrToggle:
+        sys_rt_exec_accessory_override.bit.coolantMistOvrToggle = 1;
+        break;
     }
 }
 
-void client_write(uint8_t client, const char* text) {
-    if (client == CLIENT_INPUT) {
+void client_write(uint8_t client, const char *text)
+{
+    if (client == CLIENT_INPUT)
+    {
         return;
     }
 
-    if (client == CLIENT_SERIAL || client == CLIENT_ALL) {
+    if (client == CLIENT_SERIAL || client == CLIENT_ALL)
+    {
 #ifdef REVERT_TO_ARDUINO_SERIAL
         Serial.write(text);
 #else

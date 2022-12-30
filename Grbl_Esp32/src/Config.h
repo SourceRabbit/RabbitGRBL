@@ -7,8 +7,8 @@
   Copyright (c) 2012-2016 Sungeun K. Jeon for Gnea Research LLC
   Copyright (c) 2009-2011 Simen Svale Skogsrud
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-		CPU. Do not use this with Grbl for atMega328P
+    2018 -	Bart Dring This file was modifed for use on the ESP32
+        CPU. Do not use this with Grbl for atMega328P
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ Some features should not be changed. See notes below.
 // that the machine file might choose to undefine.
 
 // Note: HOMING_CYCLES are now settings
-#define SUPPORT_TASK_CORE 1  // Reference: CONFIG_ARDUINO_RUNNING_CORE = 1
+#define SUPPORT_TASK_CORE 1 // Reference: CONFIG_ARDUINO_RUNNING_CORE = 1
 
 // Inverts pin logic of the control command pins based on a mask. This essentially means you can use
 // normally-closed switches on the specified pins, rather than the default normally-open switches.
@@ -57,7 +57,7 @@ Some features should not be changed. See notes below.
 #define INVERT_CONTROL_PIN_MASK B00001111
 
 // #define ENABLE_CONTROL_SW_DEBOUNCE     // Default disabled. Uncomment to enable.
-#define CONTROL_SW_DEBOUNCE_PERIOD 32  // in milliseconds default 32 microseconds
+#define CONTROL_SW_DEBOUNCE_PERIOD 32 // in milliseconds default 32 microseconds
 
 #define USE_RMT_STEPS
 
@@ -70,9 +70,9 @@ Some features should not be changed. See notes below.
 
 // Adjust exclusive definitions for steppers
 #ifdef USE_I2S_STEPS
-#    ifdef USE_RMT_STEPS
-#        undef USE_RMT_STEPS
-#    endif
+#ifdef USE_RMT_STEPS
+#undef USE_RMT_STEPS
+#endif
 #endif
 
 const int MAX_N_AXIS = 6;
@@ -80,57 +80,17 @@ const int MAX_N_AXIS = 6;
 // Number of axes defined (steppers, servos, etc) (valid range: 3 to 6)
 // Even if your machine only uses less than the minimum of 3, you should select 3
 #ifndef N_AXIS
-#    define N_AXIS 3
+#define N_AXIS 3
 #endif
 
 #ifndef LIMIT_MASK
-#    define LIMIT_MASK B0
+#define LIMIT_MASK B0
 #endif
 
 // Serial baud rate
 // OK to change, but the ESP32 boot text is 115200, so you will not see that is your
 // serial monitor, sender, etc uses a different value than 115200
 #define BAUD_RATE 115200
-
-
-#define ENABLE_HTTP                //enable HTTP and all related services
-#define ENABLE_OTA                 //enable OTA
-#define ENABLE_TELNET              //enable telnet
-#define ENABLE_TELNET_WELCOME_MSG  //display welcome string when connect to telnet
-#define ENABLE_MDNS                //enable mDNS discovery
-
-
-#define ENABLE_SERIAL2SOCKET_IN
-#define ENABLE_SERIAL2SOCKET_OUT
-
-// Captive portal is used when WiFi is in access point mode.  It lets the
-// WebUI come up automatically in the browser, instead of requiring the user
-// to browse manually to a default URL.  It works like airport and hotel
-// WiFi that takes you a special page as soon as you connect to that AP.
-#define ENABLE_CAPTIVE_PORTAL
-
-
-//Radio Mode
-const int ESP_RADIO_OFF = 0;
-const int ESP_WIFI_STA  = 1;
-const int ESP_WIFI_AP   = 2;
-const int ESP_BT        = 3;
-
-//Default mode
-#ifdef ENABLE_WIFI
-#    ifdef CONNECT_TO_SSID
-const int DEFAULT_RADIO_MODE = ESP_WIFI_STA;
-#    else
-const int DEFAULT_RADIO_MODE = ESP_WIFI_AP;
-#    endif  //CONNECT_TO_SSID
-#else
-#    undef ENABLE_NOTIFICATIONS
-#    ifdef ENABLE_BLUETOOTH
-const int DEFAULT_RADIO_MODE = ESP_BT;
-#    else
-const int DEFAULT_RADIO_MODE = ESP_RADIO_OFF;
-#    endif
-#endif
 
 // Define realtime command special characters. These characters are 'picked-off' directly from the
 // serial read data stream and are not passed to the grbl line execution parser. Select characters
@@ -144,54 +104,55 @@ const int DEFAULT_RADIO_MODE = ESP_RADIO_OFF;
 // such as status reports, feed hold, reset, and cycle start, are moved to the extended set
 // space, serial.c's RX ISR will need to be modified to accommodate the change.
 
-enum class Cmd : uint8_t {
-    Reset                 = 0x18,  // Ctrl-X
-    StatusReport          = '?',
-    CycleStart            = '~',
-    FeedHold              = '!',
-    SafetyDoor            = 0x84,
-    JogCancel             = 0x85,
-    DebugReport           = 0x86,  // Only when DEBUG enabled, sends debug report in '{}' braces.
-    FeedOvrReset          = 0x90,  // Restores feed override value to 100%.
-    FeedOvrCoarsePlus     = 0x91,
-    FeedOvrCoarseMinus    = 0x92,
-    FeedOvrFinePlus       = 0x93,
-    FeedOvrFineMinus      = 0x94,
-    RapidOvrReset         = 0x95,  // Restores rapid override value to 100%.
-    RapidOvrMedium        = 0x96,
-    RapidOvrLow           = 0x97,
-    RapidOvrExtraLow      = 0x98,  // *NOT SUPPORTED*
-    SpindleOvrReset       = 0x99,  // Restores spindle override value to 100%.
-    SpindleOvrCoarsePlus  = 0x9A,  // 154
+enum class Cmd : uint8_t
+{
+    Reset = 0x18, // Ctrl-X
+    StatusReport = '?',
+    CycleStart = '~',
+    FeedHold = '!',
+    SafetyDoor = 0x84,
+    JogCancel = 0x85,
+    DebugReport = 0x86,  // Only when DEBUG enabled, sends debug report in '{}' braces.
+    FeedOvrReset = 0x90, // Restores feed override value to 100%.
+    FeedOvrCoarsePlus = 0x91,
+    FeedOvrCoarseMinus = 0x92,
+    FeedOvrFinePlus = 0x93,
+    FeedOvrFineMinus = 0x94,
+    RapidOvrReset = 0x95, // Restores rapid override value to 100%.
+    RapidOvrMedium = 0x96,
+    RapidOvrLow = 0x97,
+    RapidOvrExtraLow = 0x98,     // *NOT SUPPORTED*
+    SpindleOvrReset = 0x99,      // Restores spindle override value to 100%.
+    SpindleOvrCoarsePlus = 0x9A, // 154
     SpindleOvrCoarseMinus = 0x9B,
-    SpindleOvrFinePlus    = 0x9C,
-    SpindleOvrFineMinus   = 0x9D,
-    SpindleOvrStop        = 0x9E,
+    SpindleOvrFinePlus = 0x9C,
+    SpindleOvrFineMinus = 0x9D,
+    SpindleOvrStop = 0x9E,
     CoolantFloodOvrToggle = 0xA0,
-    CoolantMistOvrToggle  = 0xA1,
+    CoolantMistOvrToggle = 0xA1,
 };
 
 // If homing is enabled, homing init lock sets Grbl into an alarm state upon power up. This forces
 // the user to perform the homing cycle (or override the locks) before doing anything else. This is
 // mainly a safety feature to remind the user to home, since position is unknown to Grbl.
-#define HOMING_INIT_LOCK  // Comment to disable
+#define HOMING_INIT_LOCK // Comment to disable
 
 // Number of homing cycles performed after when the machine initially jogs to limit switches.
 // This help in preventing overshoot and should improve repeatability. This value should be one or
 // greater.
-static const uint8_t NHomingLocateCycle = 1;  // Integer (1-128)
+static const uint8_t NHomingLocateCycle = 1; // Integer (1-128)
 
 // Enables single axis homing commands. $HX, $HY, and $HZ for X, Y, and Z-axis homing. The full homing
 // cycle is still invoked by the $H command. This is disabled by default. It's here only to address
 // users that need to switch between a two-axis and three-axis machine. This is actually very rare.
 // If you have a two-axis machine, DON'T USE THIS. Instead, just alter the homing cycle for two-axes.
-#define HOMING_SINGLE_AXIS_COMMANDS  // Default disabled. Uncomment to enable.
+#define HOMING_SINGLE_AXIS_COMMANDS // Default disabled. Uncomment to enable.
 
 // Number of blocks Grbl executes upon startup. These blocks are stored in non-volatile storage.
 // and addresses are defined in settings.h. With the current settings, up to 2 startup blocks may
 // be stored and executed in order. These startup blocks would typically be used to set the GCode
 // parser state depending on user preferences.
-#define N_STARTUP_LINE 2  // Integer (1-2)
+#define N_STARTUP_LINE 2 // Integer (1-2)
 
 // Number of floating decimal points printed by Grbl for certain value types. These settings are
 // determined by realistic and commonly observed values in CNC machines. For example, position
@@ -215,20 +176,20 @@ static const uint8_t NHomingLocateCycle = 1;  // Integer (1-128)
 // Upon a successful probe cycle, this option provides immediately feedback of the probe coordinates
 // through an automatically generated message. If disabled, users can still access the last probe
 // coordinates through Grbl '$#' print parameters.
-#define MESSAGE_PROBE_COORDINATES  // Enabled by default. Comment to disable.
+#define MESSAGE_PROBE_COORDINATES // Enabled by default. Comment to disable.
 
 // Enables a second coolant control pin via the mist coolant GCode command M7 on the Arduino Uno
 // analog pin 4. Only use this option if you require a second coolant control pin.
 // NOTE: The M8 flood coolant control pin on analog pin 3 will still be functional regardless.
 // ESP32 NOTE! This is here for reference only. You enable both M7 and M8 by assigning them a GPIO Pin
 // in the machine definition file.
-//#define ENABLE_M7 // Don't uncomment...see above!
+// #define ENABLE_M7 // Don't uncomment...see above!
 
 // This option causes the feed hold input to act as a safety door switch. A safety door, when triggered,
 // immediately forces a feed hold and then safely de-energizes the machine. Resuming is blocked until
 // the safety door is re-engaged. When it is, Grbl will re-energize the machine and then resume on the
 // previous tool path, as if nothing happened.
-#define ENABLE_SAFETY_DOOR_INPUT_PIN  // ESP32 Leave this enabled for now .. code for undefined not ready
+#define ENABLE_SAFETY_DOOR_INPUT_PIN // ESP32 Leave this enabled for now .. code for undefined not ready
 
 // Inverts select limit pin states based on the following mask. This effects all limit pin functions,
 // such as hard limits and homing. However, this is different from overall invert limits setting.
@@ -266,32 +227,35 @@ static const uint8_t NHomingLocateCycle = 1;  // Integer (1-128)
 // Configure rapid, feed, and spindle override settings. These values define the max and min
 // allowable override values and the coarse and fine increments per command received. Please
 // note the allowable values in the descriptions following each define.
-namespace FeedOverride {
-    const int Default         = 100;  // 100%. Don't change this value.
-    const int Max             = 200;  // Percent of programmed feed rate (100-255). Usually 120% or 200%
-    const int Min             = 10;   // Percent of programmed feed rate (1-100). Usually 50% or 1%
-    const int CoarseIncrement = 10;   // (1-99). Usually 10%.
-    const int FineIncrement   = 1;    // (1-99). Usually 1%.
+namespace FeedOverride
+{
+    const int Default = 100;        // 100%. Don't change this value.
+    const int Max = 200;            // Percent of programmed feed rate (100-255). Usually 120% or 200%
+    const int Min = 10;             // Percent of programmed feed rate (1-100). Usually 50% or 1%
+    const int CoarseIncrement = 10; // (1-99). Usually 10%.
+    const int FineIncrement = 1;    // (1-99). Usually 1%.
 };
-namespace RapidOverride {
-    const int Default  = 100;  // 100%. Don't change this value.
-    const int Medium   = 50;   // Percent of rapid (1-99). Usually 50%.
-    const int Low      = 25;   // Percent of rapid (1-99). Usually 25%.
-    const int ExtraLow = 5;    // Percent of rapid (1-99). Usually 5%.  Not Supported
+namespace RapidOverride
+{
+    const int Default = 100; // 100%. Don't change this value.
+    const int Medium = 50;   // Percent of rapid (1-99). Usually 50%.
+    const int Low = 25;      // Percent of rapid (1-99). Usually 25%.
+    const int ExtraLow = 5;  // Percent of rapid (1-99). Usually 5%.  Not Supported
 };
 
-namespace SpindleSpeedOverride {
-    const int Default         = 100;  // 100%. Don't change this value.
-    const int Max             = 200;  // Percent of programmed spindle speed (100-255). Usually 200%.
-    const int Min             = 10;   // Percent of programmed spindle speed (1-100). Usually 10%.
-    const int CoarseIncrement = 10;   // (1-99). Usually 10%.
-    const int FineIncrement   = 1;    // (1-99). Usually 1%.
+namespace SpindleSpeedOverride
+{
+    const int Default = 100;        // 100%. Don't change this value.
+    const int Max = 200;            // Percent of programmed spindle speed (100-255). Usually 200%.
+    const int Min = 10;             // Percent of programmed spindle speed (1-100). Usually 10%.
+    const int CoarseIncrement = 10; // (1-99). Usually 10%.
+    const int FineIncrement = 1;    // (1-99). Usually 1%.
 }
 
 // When a M2 or M30 program end command is executed, most GCode states are restored to their defaults.
 // This compile-time option includes the restoring of the feed, rapid, and spindle speed override values
 // to their default values at program end.
-#define RESTORE_OVERRIDES_AFTER_PROGRAM_END  // Default enabled. Comment to disable.
+#define RESTORE_OVERRIDES_AFTER_PROGRAM_END // Default enabled. Comment to disable.
 
 // The status report change for Grbl v1.1 and after also removed the ability to disable/enable most data
 // fields from the report. This caused issues for GUI developers, who've had to manage several scenarios
@@ -299,12 +263,12 @@ namespace SpindleSpeedOverride {
 // be sent without potential performance issues.
 // NOTE: The options below are here only provide a way to disable certain data fields if a unique
 // situation demands it, but be aware GUIs may depend on this data. If disabled, it may not be compatible.
-#define REPORT_FIELD_BUFFER_STATE        // Default enabled. Comment to disable.
-#define REPORT_FIELD_PIN_STATE           // Default enabled. Comment to disable.
-#define REPORT_FIELD_CURRENT_FEED_SPEED  // Default enabled. Comment to disable.
-#define REPORT_FIELD_WORK_COORD_OFFSET   // Default enabled. Comment to disable.
-#define REPORT_FIELD_OVERRIDES           // Default enabled. Comment to disable.
-#define REPORT_FIELD_LINE_NUMBERS        // Default enabled. Comment to disable.
+#define REPORT_FIELD_BUFFER_STATE       // Default enabled. Comment to disable.
+#define REPORT_FIELD_PIN_STATE          // Default enabled. Comment to disable.
+#define REPORT_FIELD_CURRENT_FEED_SPEED // Default enabled. Comment to disable.
+#define REPORT_FIELD_WORK_COORD_OFFSET  // Default enabled. Comment to disable.
+#define REPORT_FIELD_OVERRIDES          // Default enabled. Comment to disable.
+#define REPORT_FIELD_LINE_NUMBERS       // Default enabled. Comment to disable.
 
 // Some status report data isn't necessary for realtime, only intermittently, because the values don't
 // change often. The following macros configures how many times a status report needs to be called before
@@ -315,10 +279,10 @@ namespace SpindleSpeedOverride {
 // refreshes more often when its not doing anything important. With a good GUI, this data doesn't need
 // to be refreshed very often, on the order of a several seconds.
 // NOTE: WCO refresh must be 2 or greater. OVR refresh must be 1 or greater.
-const int REPORT_OVR_REFRESH_BUSY_COUNT = 20;  // (1-255)
-const int REPORT_OVR_REFRESH_IDLE_COUNT = 10;  // (1-255) Must be less than or equal to the busy count
-const int REPORT_WCO_REFRESH_BUSY_COUNT = 30;  // (2-255)
-const int REPORT_WCO_REFRESH_IDLE_COUNT = 10;  // (2-255) Must be less than or equal to the busy count
+const int REPORT_OVR_REFRESH_BUSY_COUNT = 20; // (1-255)
+const int REPORT_OVR_REFRESH_IDLE_COUNT = 10; // (1-255) Must be less than or equal to the busy count
+const int REPORT_WCO_REFRESH_BUSY_COUNT = 30; // (2-255)
+const int REPORT_WCO_REFRESH_IDLE_COUNT = 10; // (2-255) Must be less than or equal to the busy count
 
 // The temporal resolution of the acceleration management subsystem. A higher number gives smoother
 // acceleration, particularly noticeable on machines that run at very high feedrates, but may negatively
@@ -349,14 +313,14 @@ const int ACCELERATION_TICKS_PER_SECOND = 100;
 // normal-open switch and vice versa.
 // NOTE: All pins associated with the feature are disabled, i.e. XYZ limit pins, not individual axes.
 // WARNING: When the pull-ups are disabled, this requires additional wiring with pull-down resistors!
-//#define DISABLE_LIMIT_PIN_PULL_UP
-//#define DISABLE_PROBE_PIN_PULL_UP
-//#define DISABLE_CONTROL_PIN_PULL_UP
+// #define DISABLE_LIMIT_PIN_PULL_UP
+// #define DISABLE_PROBE_PIN_PULL_UP
+// #define DISABLE_CONTROL_PIN_PULL_UP
 
 // Sets which axis the tool length offset is applied. Assumes the spindle is always parallel with
 // the selected axis with the tool oriented toward the negative direction. In other words, a positive
 // tool length offset value is subtracted from the current location.
-const int TOOL_LENGTH_OFFSET_AXIS = Z_AXIS;  // Default z-axis. Valid values are X_AXIS, Y_AXIS, or Z_AXIS.
+const int TOOL_LENGTH_OFFSET_AXIS = Z_AXIS; // Default z-axis. Valid values are X_AXIS, Y_AXIS, or Z_AXIS.
 
 // With this enabled, Grbl sends back an echo of the line it has received, which has been pre-parsed (spaces
 // removed, capitalized letters, no comments) and is to be immediately executed by Grbl. Echoes will not be
@@ -366,12 +330,12 @@ const int TOOL_LENGTH_OFFSET_AXIS = Z_AXIS;  // Default z-axis. Valid values are
 // NOTE: Only use this for debugging purposes!! When echoing, this takes up valuable resources and can effect
 // performance. If absolutely needed for normal operation, the serial write buffer should be greatly increased
 // to help minimize transmission waiting within the serial write protocol.
-//#define REPORT_ECHO_LINE_RECEIVED // Default disabled. Uncomment to enable.
+// #define REPORT_ECHO_LINE_RECEIVED // Default disabled. Uncomment to enable.
 
 // This is similar to REPORT_ECHO_LINE_RECEIVED and subject to all its caveats,
 // but instead of echoing the pre-parsed line, it echos the raw line exactly as
 // received, including not only GCode lines, but also $ and [ESP commands.
-//#define REPORT_ECHO_RAW_LINE_RECEIVED // Default disabled. Uncomment to enable.
+// #define REPORT_ECHO_RAW_LINE_RECEIVED // Default disabled. Uncomment to enable.
 
 // Minimum planner junction speed. Sets the default minimum junction speed the planner plans to at
 // every buffer block junction, except for starting from rest and end of the buffer, which are always
@@ -379,19 +343,19 @@ const int TOOL_LENGTH_OFFSET_AXIS = Z_AXIS;  // Default z-axis. Valid values are
 // limits or angle between neighboring block line move directions. This is useful for machines that can't
 // tolerate the tool dwelling for a split second, i.e. 3d printers or laser cutters. If used, this value
 // should not be much greater than zero or to the minimum value necessary for the machine to work.
-const double MINIMUM_JUNCTION_SPEED = 0.0;  // (mm/min)
+const double MINIMUM_JUNCTION_SPEED = 0.0; // (mm/min)
 
 // Sets the minimum feed rate the planner will allow. Any value below it will be set to this minimum
 // value. This also ensures that a planned motion always completes and accounts for any floating-point
 // round-off errors. Although not recommended, a lower value than 1.0 mm/min will likely work in smaller
 // machines, perhaps to 0.1mm/min, but your success may vary based on multiple factors.
-const double MINIMUM_FEED_RATE = 1.0;  // (mm/min)
+const double MINIMUM_FEED_RATE = 1.0; // (mm/min)
 
 // Number of arc generation iterations by small angle approximation before exact arc trajectory
 // correction with expensive sin() and cos() calcualtions. This parameter maybe decreased if there
 // are issues with the accuracy of the arc generations, or increased if arc execution is getting
 // bogged down by too many trig calculations.
-const int N_ARC_CORRECTION = 12;  // Integer (1-255)
+const int N_ARC_CORRECTION = 12; // Integer (1-255)
 
 // The arc G2/3 GCode standard is problematic by definition. Radius-based arcs have horrible numerical
 // errors when arc at semi-circles(pi) or full-circles(2*pi). Offset-based arcs are much more accurate
@@ -401,14 +365,14 @@ const int N_ARC_CORRECTION = 12;  // Integer (1-255)
 // This define value sets the machine epsilon cutoff to determine if the arc is a full-circle or not.
 // NOTE: Be very careful when adjusting this value. It should always be greater than 1.2e-7 but not too
 // much greater than this. The default setting should capture most, if not all, full arc error situations.
-const double ARC_ANGULAR_TRAVEL_EPSILON = 5E-7;  // Float (radians)
+const double ARC_ANGULAR_TRAVEL_EPSILON = 5E-7; // Float (radians)
 
 // Time delay increments performed during a dwell. The default value is set at 50ms, which provides
 // a maximum time delay of roughly 55 minutes, more than enough for most any application. Increasing
 // this delay will increase the maximum dwell time linearly, but also reduces the responsiveness of
 // run-time command executions, like status reports, since these are performed between each dwell
 // time step. Also, keep in mind that the Arduino delay timer is not very accurate for long delays.
-const int DWELL_TIME_STEP = 50;  // Integer (1-255) (milliseconds)
+const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 
 // For test use only. This uses the ESP32's RMT peripheral to generate step pulses
 // It allows the use of the STEP_PULSE_DELAY (see below) and it automatically ends the
@@ -416,7 +380,7 @@ const int DWELL_TIME_STEP = 50;  // Integer (1-255) (milliseconds)
 // Dir Pin  ____|--------------------
 // Step Pin _______|--|____________
 // While this is experimental, it is intended to be the future default method after testing
-//#define USE_RMT_STEPS
+// #define USE_RMT_STEPS
 
 // STEP_PULSE_DELAY is now a setting...$Stepper/Direction/Delay
 
@@ -458,8 +422,8 @@ const int DWELL_TIME_STEP = 50;  // Integer (1-255) (milliseconds)
 // A simple software debouncing feature for hard limit switches. When enabled, the limit
 // switch interrupt unblock a waiting task which will recheck the limit switch pins after
 // a short delay. Default disabled
-//#define ENABLE_SOFTWARE_DEBOUNCE // Default disabled. Uncomment to enable.
-const int DEBOUNCE_PERIOD = 32;  // in milliseconds default 32 microseconds
+// #define ENABLE_SOFTWARE_DEBOUNCE // Default disabled. Uncomment to enable.
+const int DEBOUNCE_PERIOD = 32; // in milliseconds default 32 microseconds
 
 // Configures the position after a probing cycle during Grbl's check mode. Disabled sets
 // the position to the probe target, when enabled sets the position to the start position.
@@ -487,9 +451,9 @@ const int DEBOUNCE_PERIOD = 32;  // in milliseconds default 32 microseconds
 
 // Enable the '$RST=*', '$RST=$', and '$RST=#' eeprom restore commands. There are cases where
 // these commands may be undesirable. Simply comment the desired macro to disable it.
-#define ENABLE_RESTORE_WIPE_ALL          // '$RST=*' Default enabled. Comment to disable.
-#define ENABLE_RESTORE_DEFAULT_SETTINGS  // '$RST=$' Default enabled. Comment to disable.
-#define ENABLE_RESTORE_CLEAR_PARAMETERS  // '$RST=#' Default enabled. Comment to disable.
+#define ENABLE_RESTORE_WIPE_ALL         // '$RST=*' Default enabled. Comment to disable.
+#define ENABLE_RESTORE_DEFAULT_SETTINGS // '$RST=$' Default enabled. Comment to disable.
+#define ENABLE_RESTORE_CLEAR_PARAMETERS // '$RST=#' Default enabled. Comment to disable.
 
 // Additional settings have been added to the original set that you see with the $$ command
 // Some senders may not be able to parse anything different from the original set
@@ -507,7 +471,7 @@ const int DEBOUNCE_PERIOD = 32;  // in milliseconds default 32 microseconds
 // NOTE: Most setting changes - $ commands - are blocked when a job is running. Coordinate setting
 // GCode commands (G10,G28/30.1) are not blocked, since they are part of an active streaming job.
 // This option forces a planner buffer sync only with such GCode commands.
-#define FORCE_BUFFER_SYNC_DURING_NVS_WRITE  // Default enabled. Comment to disable.
+#define FORCE_BUFFER_SYNC_DURING_NVS_WRITE // Default enabled. Comment to disable.
 
 // In Grbl v0.9 and prior, there is an old outstanding bug where the `WPos:` work position reported
 // may not correlate to what is executing, because `WPos:` is based on the GCode parser state, which
@@ -515,7 +479,7 @@ const int DEBOUNCE_PERIOD = 32;  // in milliseconds default 32 microseconds
 // motion whenever there is a command that alters the work coordinate offsets `G10,G43.1,G92,G54-59`.
 // This is the simplest way to ensure `WPos:` is always correct. Fortunately, it's exceedingly rare
 // that any of these commands are used need continuous motions through them.
-#define FORCE_BUFFER_SYNC_DURING_WCO_CHANGE  // Default enabled. Comment to disable.
+#define FORCE_BUFFER_SYNC_DURING_WCO_CHANGE // Default enabled. Comment to disable.
 
 // By default, Grbl disables feed rate overrides for all G38.x probe cycle commands. Although this
 // may be different than some pro-class machine control, it's arguable that it should be this way.
@@ -534,14 +498,14 @@ const int DEBOUNCE_PERIOD = 32;  // in milliseconds default 32 microseconds
 // Restoring to the resume position follows these set motions in reverse: fast restore to
 // pull-out position, power-up with a time-out, and plunge back to the original position at the
 // slower pull-out rate.
-#define PARKING_ENABLE  // Default disabled. Uncomment to enable
+#define PARKING_ENABLE // Default disabled. Uncomment to enable
 
 // Configure options for the parking motion, if enabled.
-#define PARKING_AXIS Z_AXIS                      // Define which axis that performs the parking motion
-const double PARKING_TARGET            = -5.0;   // Parking axis target. In mm, as machine coordinate.
-const double PARKING_RATE              = 800.0;  // Parking fast rate after pull-out in mm/min.
-const double PARKING_PULLOUT_RATE      = 250.0;  // Pull-out/plunge slow feed rate in mm/min.
-const double PARKING_PULLOUT_INCREMENT = 5.0;    // Spindle pull-out and plunge distance in mm. Incremental distance.
+#define PARKING_AXIS Z_AXIS                   // Define which axis that performs the parking motion
+const double PARKING_TARGET = -5.0;           // Parking axis target. In mm, as machine coordinate.
+const double PARKING_RATE = 800.0;            // Parking fast rate after pull-out in mm/min.
+const double PARKING_PULLOUT_RATE = 250.0;    // Pull-out/plunge slow feed rate in mm/min.
+const double PARKING_PULLOUT_INCREMENT = 5.0; // Spindle pull-out and plunge distance in mm. Incremental distance.
 // Must be positive value or equal to zero.
 
 // Enables a special set of M-code commands that enables and disables the parking motion.
@@ -557,7 +521,7 @@ const double PARKING_PULLOUT_INCREMENT = 5.0;    // Spindle pull-out and plunge 
 // override immediately after coming to a stop. However, this also means that the laser still may
 // be reenabled by disabling the spindle stop override, if needed. This is purely a safety feature
 // to ensure the laser doesn't inadvertently remain powered while at a stop and cause a fire.
-#define DISABLE_LASER_DURING_HOLD  // Default enabled. Comment to disable.
+#define DISABLE_LASER_DURING_HOLD // Default enabled. Comment to disable.
 
 // Enables a piecewise linear model of the spindle PWM/speed output. Requires a solution by the
 // 'fit_nonlinear_spindle.py' script in the /doc/script folder of the repo. See file comments
@@ -576,5 +540,5 @@ const double PARKING_PULLOUT_INCREMENT = 5.0;    // Spindle pull-out and plunge 
 
 const int N_PIECES = 3;
 
-const double RPM_MAX = 2560;
+const double RPM_MAX = 150000;
 const double RPM_MIN = 0;
