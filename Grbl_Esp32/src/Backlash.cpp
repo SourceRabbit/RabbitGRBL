@@ -10,14 +10,14 @@
 #define DIR_NEGATIVE 1
 #define DIR_NEUTRAL 2
 
-// This array holds the amount of millimeters that has been added to each axes in mm
+// This array holds the amount of millimeters that has been added to each axes
 // in order to remove backlash.
 // The system_convert_axis_steps_to_mpos (located in System.cpp) uses this array to remove the backlash added
 // in order to keep the absolute machine position (position without any backlash distance added)
 float backlash_compensation_to_remove_from_mpos[MAX_N_AXIS];
 
 static float previous_targets[MAX_N_AXIS] = {0.000};
-static uint8_t target_directions[MAX_N_AXIS] = {DIR_NEGATIVE};
+static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEGATIVE};
 
 void backlash_ini()
 {
@@ -25,38 +25,38 @@ void backlash_ini()
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
         previous_targets[i] = 0.000;
-        target_directions[i] = DIR_NEUTRAL;
+        axis_directions[i] = DIR_NEUTRAL;
     }
 }
 
 float backlash_CompensateBacklashToTarget(int axis, float target)
 {
-    // This method will run only if the axis has backlash setting set  >  0.
+    // This method will run only if the axis has backlash setting set > 0.
     if (axis_settings[axis]->backlash->get() > 0)
     {
         if (target > previous_targets[axis])
         {
             // The Machine is moving "positive" compared to previous move
             // If the last axis direction was "negative or neutral" add backlash compensation to the target
-            if (target_directions[axis] != DIR_POSITIVE)
+            if (axis_directions[axis] != DIR_POSITIVE)
             {
-                target = target + axis_settings[axis]->backlash->get();
+                target += axis_settings[axis]->backlash->get();
                 backlash_compensation_to_remove_from_mpos[axis] += axis_settings[axis]->backlash->get();
             }
 
-            target_directions[axis] = DIR_POSITIVE;
+            axis_directions[axis] = DIR_POSITIVE;
         }
         else if (target < previous_targets[axis])
         {
             // The Machine is moving "negative" compared to previous move
             // If the last axis direction was "positive or neutral" remove backlash compensation from the target
-            if (target_directions[axis] != DIR_NEGATIVE)
+            if (axis_directions[axis] != DIR_NEGATIVE)
             {
-                target = target - axis_settings[axis]->backlash->get();
+                target -= axis_settings[axis]->backlash->get();
                 backlash_compensation_to_remove_from_mpos[axis] -= axis_settings[axis]->backlash->get();
             }
 
-            target_directions[axis] = DIR_NEGATIVE;
+            axis_directions[axis] = DIR_NEGATIVE;
         }
 
         // Update previous target to current target
@@ -64,14 +64,4 @@ float backlash_CompensateBacklashToTarget(int axis, float target)
     }
 
     return target;
-}
-
-void backlash_ResetBacklashCompensationAddedToAxis()
-{
-    // RESET BACKLASH
-    for (int i = 0; i < MAX_N_AXIS; i++)
-    {
-        // backlash_compensation_to_remove_from_mpos[i] = 0;
-        // target_directions[i] = DIR_NEGATIVE;
-    }
 }

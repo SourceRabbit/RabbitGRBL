@@ -1055,14 +1055,6 @@ void calc_mpos(float *print_position)
     int32_t current_position[MAX_N_AXIS]; // Copy current state of the system position variable
     memcpy(current_position, sys_position, sizeof(sys_position));
     system_convert_array_steps_to_mpos(print_position, current_position);
-
-    // Remove the backlash_compensation added to each axis
-    auto n_axis = number_axis->get();
-    for (int idx = 0; idx < n_axis; idx++)
-    {
-        print_position[idx] -= backlash_compensation_to_remove_from_mpos[idx];
-    }
-
     forward_kinematics(print_position); // a weak definition does nothing. Users can provide strong version
 }
 

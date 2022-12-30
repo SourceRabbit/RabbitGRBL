@@ -62,17 +62,65 @@ void mc_line(float *target, plan_line_data_t *pl_data)
             limits_soft_check(target);
         }
     }
+
     // If in check gcode mode, prevent motion by blocking planner. Soft limits still work.
     if (sys.state == State::CheckMode)
     {
         return;
     }
 
+    /*for (int i = 0; i < MAX_N_AXIS; i++)
+   {
+       target[i] = backlash_CompensateBacklashToTarget(i, target[i]);
+   }*/
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Compensate backlash for each axis and target
+    float backlash_compensation_targets[MAX_N_AXIS] = {0};
+    bool compensateBacklash = false;
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
-        target[i] = backlash_CompensateBacklashToTarget(i, target[i]);
+        backlash_compensation_targets[i] = backlash_CompensateBacklashToTarget(i, target[i]);
+        if (backlash_compensation_targets[i] != 0)
+        {
+            compensateBacklash = true;
+        }
     }
+
+    if (compensateBacklash)
+    {
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "[MSG:BACKLASH COMPENSATION]");
+
+        plan_line_data_t pl_backlash_data;
+        plan_line_data_t *backlash_data = &pl_backlash_data;
+        memset(backlash_data, 0, sizeof(plan_line_data_t));
+        backlash_data->feed_rate = pl_data->feed_rate;
+        backlash_data->coolant = pl_data->coolant;
+        backlash_data->motion.systemMotion = 1;
+        //backlash_data->motion.noFeedOverride = 1;
+
+        do
+        {
+            protocol_execute_realtime(); // Check for any run-time commands
+            if (sys.abort)
+            {
+                return; // Bail, if system abort.
+            }
+            if (plan_check_full_buffer())
+            {
+                protocol_auto_cycle_start(); // Auto-cycle start when buffer is full.
+            }
+            else
+            {
+                break;
+            }
+        } while (1);
+
+        // Plan and queue the backlash motion into planner buffer
+        plan_buffer_line(backlash_compensation_targets, backlash_data);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     do
     {
@@ -90,7 +138,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
             break;
         }
     } while (1);
-    
+
     // Plan and queue motion into planner buffer
     // uint8_t plan_status; // Not used in normal operation.
     plan_buffer_line(target, pl_data);
