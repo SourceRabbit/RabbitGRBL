@@ -12,7 +12,7 @@
 
 bool backlash_compensation_motion_created = false;
 static float previous_targets[MAX_N_AXIS] = {0.000};
-static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEGATIVE};
+static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEUTRAL};
 
 // This array holds the amount of millimeters that has been added to each axes
 // in order to remove backlash.
@@ -25,8 +25,8 @@ void backlash_ini()
     // The backlash_ini method is called from Grbl.cpp
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
-        previous_targets[i] = 0.000;
-        backlash_compensation_to_remove_from_mpos[i] = 0.000;
+        previous_targets[i] = 0.0;
+        backlash_compensation_to_remove_from_mpos[i] = 0.0;
         axis_directions[i] = DIR_NEUTRAL;
     }
 }

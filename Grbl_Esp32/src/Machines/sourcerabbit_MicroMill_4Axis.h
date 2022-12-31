@@ -55,7 +55,7 @@
 #define DEFAULT_A_ACCELERATION 				720.0
 
 
-// SourceRabbit CNC Motherboard v1.1 Pinout
+// SourceRabbit CNC Motherboard v1.2 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
 #define X_DIRECTION_PIN         GPIO_NUM_33
 #define Y_STEP_PIN              GPIO_NUM_25
@@ -77,3 +77,9 @@
 
 #define COOLANT_MIST_PIN        GPIO_NUM_22
 #define COOLANT_FLOOD_PIN       GPIO_NUM_23
+
+// Automatic Tool Change
+#define USER_DIGITAL_PIN_0   GPIO_NUM_19 	// Lock
+#define USER_DIGITAL_PIN_1   GPIO_NUM_18 	// Blow
+#define USER_DIGITAL_PIN_2   GPIO_NUM_5  	// Door
+
