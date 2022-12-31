@@ -94,6 +94,6 @@ void backlash_synch_position()
     system_convert_array_steps_to_mpos(previous_targets, sys_position);
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
-        previous_targets[i] = previous_targets[i] + backlash_compensation_to_remove_from_mpos[i];
+        previous_targets[i] = previous_targets[i] - backlash_compensation_to_remove_from_mpos[i];
     }
 }
