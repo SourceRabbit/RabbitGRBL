@@ -47,7 +47,7 @@ float backlash_CreateBacklashCompensationTarget(int axis, float target)
         {
             // The new axis target is "Positive" compared to the previous one.
             // If the last axis target was "negative or neutral" then add backlash compensation to the result.
-            if (axis_directions[axis] != DIR_POSITIVE)
+            if (axis_directions[axis] == DIR_NEGATIVE)
             {
                 result += axis_settings[axis]->backlash->get();
                 backlash_compensation_motion_created = true;
@@ -60,7 +60,7 @@ float backlash_CreateBacklashCompensationTarget(int axis, float target)
         {
             // The new axis target is "Negative" compared to the previous one.
             // If the last axis target was "positive or neutral" then remove backlash compensation from the result.
-            if (axis_directions[axis] != DIR_NEGATIVE)
+            if (axis_directions[axis] == DIR_POSITIVE)
             {
                 result -= axis_settings[axis]->backlash->get();
                 backlash_compensation_motion_created = true;

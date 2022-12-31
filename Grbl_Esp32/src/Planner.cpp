@@ -474,7 +474,6 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
             memcpy(pl.position, target_steps, sizeof(target_steps));  // pl.position[] = target_steps[]
         }
 
-       
         // New block is all set. Update buffer head and next buffer head indices.
         block_buffer_head = next_buffer_head;
         next_buffer_head = plan_next_block_index(block_buffer_head);
