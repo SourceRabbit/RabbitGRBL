@@ -40,7 +40,7 @@ float backlash_CreateBacklashCompensationTarget(int axis, float target)
 {
     float result = previous_targets[axis];
 
-    // This method will run only if the axis has backlash setting set > 0.
+    // This method will run only if the axis backlash setting is > 0.
     if (axis_settings[axis]->backlash->get() > 0)
     {
         if (target > result)
