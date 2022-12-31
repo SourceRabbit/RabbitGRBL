@@ -13,3 +13,6 @@ extern float backlash_compensation_to_remove_from_mpos[MAX_N_AXIS];
 
 void backlash_ini();
 float backlash_CreateBacklashCompensationTarget(int axis, float target);
+void backlash_reset_targets(float target[]);
+
+void backlash_synch_position(void);

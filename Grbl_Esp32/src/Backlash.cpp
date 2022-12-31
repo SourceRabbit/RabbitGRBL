@@ -76,3 +76,20 @@ float backlash_CreateBacklashCompensationTarget(int axis, float target)
 
     return result;
 }
+
+/**
+ * The backlash_reset_targets is been called from limits_go_home
+ * */
+void backlash_reset_targets(float target[])
+{
+    for (int i = 0; i < MAX_N_AXIS; i++)
+    {
+        previous_targets[i] = target[i];
+    }
+}
+
+void backlash_synch_position()
+{
+    // Update target_prev
+    system_convert_array_steps_to_mpos(previous_targets, sys_position);
+}

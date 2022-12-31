@@ -552,6 +552,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     st_reset();           // Reset step segment buffer.
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
+    backlash_synch_position();
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
     report_probe_parameters(CLIENT_ALL);

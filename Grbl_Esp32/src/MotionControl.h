@@ -77,3 +77,4 @@ enum class SquaringMode : uint8_t {
 };
 
 extern SquaringMode ganged_mode;
+

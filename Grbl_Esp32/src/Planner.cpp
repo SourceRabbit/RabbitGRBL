@@ -494,6 +494,8 @@ void plan_sync_position()
     {
         pl.position[idx] = sys_position[idx];
     }
+
+    backlash_synch_position();
 }
 
 // Returns the number of available blocks are in the planner buffer.
