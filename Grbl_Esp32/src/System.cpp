@@ -45,7 +45,7 @@ bool debouncing = false;       // debouncing in process
 
 void system_ini()
 { // Renamed from system_init() due to conflict with esp32 files
-    // setup control inputs
+  // setup control inputs
 
 #ifdef CONTROL_SAFETY_DOOR_PIN
     grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Door switch on pin %s", pinName(CONTROL_SAFETY_DOOR_PIN).c_str());
@@ -182,6 +182,7 @@ float system_convert_axis_steps_to_mpos(int32_t *steps, uint8_t idx)
     float pos;
     float steps_per_mm = axis_settings[idx]->steps_per_mm->get();
     pos = (steps[idx] / steps_per_mm);
+    pos -= backlash_compensation_to_remove_from_mpos[idx];
     return pos;
 }
 

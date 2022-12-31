@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "xtree": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp"
+    }
+}

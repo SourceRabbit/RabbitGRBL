@@ -69,35 +69,39 @@ void mc_line(float *target, plan_line_data_t *pl_data)
         return;
     }
 
-    /*for (int i = 0; i < MAX_N_AXIS; i++)
-   {
-       target[i] = backlash_CompensateBacklashToTarget(i, target[i]);
-   }*/
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Compensate backlash for each axis and target
-    float backlash_compensation_targets[MAX_N_AXIS] = {0};
-    bool compensateBacklash = false;
+    // Backlash Compensation
+
+    // Step 1 - Create the backlash compensation target
+    float backlash_compensation_target[MAX_N_AXIS] = {0};
+    backlash_compensation_motion_created = false;
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
-        backlash_compensation_targets[i] = backlash_CompensateBacklashToTarget(i, target[i]);
-        if (backlash_compensation_targets[i] != 0)
-        {
-            compensateBacklash = true;
-        }
+        backlash_compensation_target[i] = backlash_CreateBacklashCompensationTarget(i, target[i]);
     }
 
-    if (compensateBacklash)
+    if (backlash_compensation_motion_created)
     {
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "[MSG:BACKLASH COMPENSATION]");
+        /*char stringArray[10];
+        sprintf(stringArray, "%f", backlash_compensation_target[2]);
+        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, stringArray);*/
 
         plan_line_data_t pl_backlash_data;
         plan_line_data_t *backlash_data = &pl_backlash_data;
-        memset(backlash_data, 0, sizeof(plan_line_data_t));
+        memset(backlash_data, 0, sizeof(plan_line_data_t)); // Zero backlash_data struct
+
+        backlash_data->spindle = pl_data->spindle;
+        backlash_data->spindle_speed = pl_data->spindle_speed;
         backlash_data->feed_rate = pl_data->feed_rate;
         backlash_data->coolant = pl_data->coolant;
-        backlash_data->motion.systemMotion = 1;
-        //backlash_data->motion.noFeedOverride = 1;
+        backlash_data->motion = {};
+        /*backlash_data->motion.rapidMotion = 0;
+        backlash_data->motion.systemMotion = 0;
+        backlash_data->motion.noFeedOverride = 0;
+        backlash_data->motion.inverseTime = 0;*/
+        backlash_data->motion.antiBacklashMotion = 1;
+
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Anti backlash Motion");
 
         do
         {
@@ -106,6 +110,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
             {
                 return; // Bail, if system abort.
             }
+
             if (plan_check_full_buffer())
             {
                 protocol_auto_cycle_start(); // Auto-cycle start when buffer is full.
@@ -117,7 +122,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
         } while (1);
 
         // Plan and queue the backlash motion into planner buffer
-        plan_buffer_line(backlash_compensation_targets, backlash_data);
+        plan_buffer_line(backlash_compensation_target, backlash_data);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

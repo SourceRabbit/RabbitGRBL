@@ -7,8 +7,8 @@
   Copyright (c) 2011-2016 Sungeun K. Jeon for Gnea Research LLC
   Copyright (c) 2009-2011 Simen Svale Skogsrud
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+    2018 -	Bart Dring This file was modifed for use on the ESP32
+                    CPU. Do not use this with Grbl for atMega328P
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,91 +26,95 @@
 
 // The number of linear motions that can be in the plan at any give time
 #ifndef BLOCK_BUFFER_SIZE
-#    ifdef USE_LINE_NUMBERS
-#        define BLOCK_BUFFER_SIZE 15
-#    else
-#        define BLOCK_BUFFER_SIZE 16
-#    endif
+#ifdef USE_LINE_NUMBERS
+#define BLOCK_BUFFER_SIZE 15
+#else
+#define BLOCK_BUFFER_SIZE 16
+#endif
 #endif
 
 // Returned status message from planner.
-const int PLAN_OK          = true;
+const int PLAN_OK = true;
 const int PLAN_EMPTY_BLOCK = false;
 
 // Define planner data condition flags. Used to denote running conditions of a block.
-struct PlMotion {
+struct PlMotion
+{
     uint8_t rapidMotion : 1;
-    uint8_t systemMotion : 1;    // Single motion. Circumvents planner state. Used by home/park.
-    uint8_t noFeedOverride : 1;  // Motion does not honor feed override.
-    uint8_t inverseTime : 1;     // Interprets feed rate value as inverse time when set.
+    uint8_t systemMotion : 1;   // Single motion. Circumvents planner state. Used by home/park.
+    uint8_t noFeedOverride : 1; // Motion does not honor feed override.
+    uint8_t inverseTime : 1;    // Interprets feed rate value as inverse time when set.
+    uint8_t antiBacklashMotion : 1;
 };
 
 // This struct stores a linear movement of a g-code block motion with its critical "nominal" values
 // are as specified in the source g-code.
-typedef struct {
+typedef struct
+{
     // Fields used by the bresenham algorithm for tracing the line
     // NOTE: Used by stepper algorithm to execute the block correctly. Do not alter these values.
-    uint32_t steps[MAX_N_AXIS];     // Step count along each axis
+    uint32_t steps[MAX_N_AXIS]; // Step count along each axis
     uint32_t step_event_count;  // The maximum step axis count and number of steps required to complete this block.
-    uint8_t  direction_bits;    // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+    uint8_t direction_bits;     // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
     // Block condition data to ensure correct execution depending on states and overrides.
-    PlMotion     motion;   // Block bitflag motion conditions. Copied from pl_line_data.
-    SpindleState spindle;  // Spindle enable state
-    CoolantState coolant;  // Coolant state
+    PlMotion motion;      // Block bitflag motion conditions. Copied from pl_line_data.
+    SpindleState spindle; // Spindle enable state
+    CoolantState coolant; // Coolant state
 #ifdef USE_LINE_NUMBERS
-    int32_t line_number;  // Block line number for real-time reporting. Copied from pl_line_data.
+    int32_t line_number; // Block line number for real-time reporting. Copied from pl_line_data.
 #endif
 
     // Fields used by the motion planner to manage acceleration. Some of these values may be updated
     // by the stepper module during execution of special motion cases for replanning purposes.
-    float entry_speed_sqr;      // The current planned entry speed at block junction in (mm/min)^2
-    float max_entry_speed_sqr;  // Maximum allowable entry speed based on the minimum of junction limit and
+    float entry_speed_sqr;     // The current planned entry speed at block junction in (mm/min)^2
+    float max_entry_speed_sqr; // Maximum allowable entry speed based on the minimum of junction limit and
     //   neighboring nominal speeds with overrides in (mm/min)^2
-    float acceleration;  // Axis-limit adjusted line acceleration in (mm/min^2). Does not change.
-    float millimeters;   // The remaining distance for this block to be executed in (mm).
+    float acceleration; // Axis-limit adjusted line acceleration in (mm/min^2). Does not change.
+    float millimeters;  // The remaining distance for this block to be executed in (mm).
     // NOTE: This value may be altered by stepper algorithm during execution.
 
     // Stored rate limiting data used by planner when changes occur.
-    float max_junction_speed_sqr;  // Junction entry speed limit based on direction vectors in (mm/min)^2
-    float rapid_rate;              // Axis-limit adjusted maximum rate for this block direction in (mm/min)
-    float programmed_rate;         // Programmed rate of this block (mm/min).
+    float max_junction_speed_sqr; // Junction entry speed limit based on direction vectors in (mm/min)^2
+    float rapid_rate;             // Axis-limit adjusted maximum rate for this block direction in (mm/min)
+    float programmed_rate;        // Programmed rate of this block (mm/min).
 
     // Stored spindle speed data used by spindle overrides and resuming methods.
-    float spindle_speed;  // Block spindle speed. Copied from pl_line_data.
-    //#endif
+    float spindle_speed; // Block spindle speed. Copied from pl_line_data.
+    // #endif
 } plan_block_t;
 
 // Planner data prototype. Must be used when passing new motions to the planner.
-typedef struct {
-    float        feed_rate;      // Desired feed rate for line motion. Value is ignored, if rapid motion.
-    uint32_t     spindle_speed;  // Desired spindle speed through line motion.
-    PlMotion     motion;         // Bitflag variable to indicate motion conditions. See defines above.
-    SpindleState spindle;        // Spindle enable state
-    CoolantState coolant;        // Coolant state
+typedef struct
+{
+    float feed_rate;        // Desired feed rate for line motion. Value is ignored, if rapid motion.
+    uint32_t spindle_speed; // Desired spindle speed through line motion.
+    PlMotion motion;        // Bitflag variable to indicate motion conditions. See defines above.
+    SpindleState spindle;   // Spindle enable state
+    CoolantState coolant;   // Coolant state
 #ifdef USE_LINE_NUMBERS
-    int32_t line_number;  // Desired line number to report when executing.
+    int32_t line_number; // Desired line number to report when executing.
 #endif
 } plan_line_data_t;
 
 // Initialize and reset the motion plan subsystem
-void plan_reset();         // Reset all
-void plan_reset_buffer();  // Reset buffer only.
+void plan_reset();        // Reset all
+void plan_reset_buffer(); // Reset buffer only.
 
 // Add a new linear movement to the buffer. target[MAX_N_AXIS] is the signed, absolute target position
 // in millimeters. Feed rate specifies the speed of the motion. If feed rate is inverted, the feed
 // rate is taken to mean "frequency" and would complete the operation in 1/feed_rate minutes.
-uint8_t plan_buffer_line(float* target, plan_line_data_t* pl_data);
+uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data);
 
 // Called when the current block is no longer needed. Discards the block and makes the memory
 // availible for new blocks.
 void plan_discard_current_block();
 
 // Gets the planner block for the special system motion cases. (Parking/Homing)
-plan_block_t* plan_get_system_motion_block();
+plan_block_t *plan_get_system_motion_block();
 
 // Gets the current block. Returns NULL if buffer empty
-plan_block_t* plan_get_current_block();
+plan_block_t *plan_get_current_block();
 
 // Called periodically by step segment buffer. Mostly used internally by planner.
 uint8_t plan_next_block_index(uint8_t block_index);
@@ -119,7 +123,7 @@ uint8_t plan_next_block_index(uint8_t block_index);
 float plan_get_exec_block_exit_speed_sqr();
 
 // Called by main program during planner calculations and step segment buffer during initialization.
-float plan_compute_profile_nominal_speed(plan_block_t* block);
+float plan_compute_profile_nominal_speed(plan_block_t *block);
 
 // Re-calculates buffered motions profile parameters upon a motion-based override change.
 void plan_update_velocity_profile_parameters();
@@ -140,4 +144,4 @@ uint8_t plan_get_block_buffer_count();
 // Returns the status of the block ring buffer. True, if buffer is full.
 uint8_t plan_check_full_buffer();
 
-void plan_get_planner_mpos(float* target);
+void plan_get_planner_mpos(float *target);
