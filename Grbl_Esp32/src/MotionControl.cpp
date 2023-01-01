@@ -69,59 +69,10 @@ void mc_line(float *target, plan_line_data_t *pl_data)
         return;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
     // Backlash Compensation
-
-    // Step 1 - Create the backlash compensation target
-    float backlash_compensation_target[MAX_N_AXIS] = {0};
-    backlash_compensation_motion_created = false;
-    for (int i = 0; i < MAX_N_AXIS; i++)
-    {
-        backlash_compensation_target[i] = backlash_CreateBacklashCompensationTarget(i, target[i]);
-    }
-
-    if (backlash_compensation_motion_created)
-    {
-        /*char stringArray[10];
-        sprintf(stringArray, "%f", backlash_compensation_target[2]);
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, stringArray);*/
-
-        plan_line_data_t pl_backlash_data;
-        plan_line_data_t *backlash_data = &pl_backlash_data;
-        memset(backlash_data, 0, sizeof(plan_line_data_t)); // Zero backlash_data struct
-
-        backlash_data->spindle = pl_data->spindle;
-        backlash_data->spindle_speed = pl_data->spindle_speed;
-        backlash_data->feed_rate = pl_data->feed_rate;
-        backlash_data->coolant = pl_data->coolant;
-        backlash_data->motion = {};
-        backlash_data->motion.antiBacklashMotion = 1;
-
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Anti backlash Motion");
-
-        do
-        {
-            protocol_execute_realtime(); // Check for any run-time commands
-            if (sys.abort)
-            {
-                return; // Bail, if system abort.
-            }
-
-            if (plan_check_full_buffer())
-            {
-                protocol_auto_cycle_start(); // Auto-cycle start when buffer is full.
-            }
-            else
-            {
-                break;
-            }
-        } while (1);
-
-        // Plan and queue the backlash motion into planner buffer
-        plan_buffer_line(backlash_compensation_target, backlash_data);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    backlash_compensate_backlash(target, pl_data);
+    ////////////////////////////////////////////////////////////////////
 
     do
     {
@@ -549,7 +500,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
     backlash_synch_position();
-    
+
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
     report_probe_parameters(CLIENT_ALL);

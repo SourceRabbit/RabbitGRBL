@@ -172,6 +172,7 @@ void limits_go_home(uint8_t cycle_mask)
                 axislock |= step_pin[idx];
             }
         }
+        
         backlash_reset_targets(target);
 
         homing_rate *= sqrt(n_active_axis); // [sqrt(number of active axis)] Adjust so individual axes all move at homing rate.

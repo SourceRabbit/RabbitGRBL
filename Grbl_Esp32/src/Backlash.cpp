@@ -10,7 +10,6 @@
 #define DIR_NEGATIVE 1
 #define DIR_NEUTRAL 2
 
-bool backlash_compensation_motion_created = false;
 static float previous_targets[MAX_N_AXIS] = {0.000};
 static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEUTRAL};
 
@@ -32,49 +31,91 @@ void backlash_ini()
 }
 
 /**
- * Creates a backlash-compensation target for the given axis and
- * the given target.
- *
- * */
-float backlash_CreateBacklashCompensationTarget(int axis, float target)
+ * Plans and queues a backlash motion into planner buffer
+ */
+void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
 {
-    float result = previous_targets[axis];
+    /*char stringArray[10];
+      sprintf(stringArray, "%f", previous_targets[2]);
+      grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, stringArray);*/
 
-    // This method will run only if the axis backlash setting is > 0.
-    if (axis_settings[axis]->backlash->get() > 0)
+    float backlash_compensation_target[MAX_N_AXIS] = {0.0};
+    bool perform_backlash_compensation_motion = false;
+
+    for (int axis = 0; axis < MAX_N_AXIS; axis++)
     {
-        if (target > result)
+        backlash_compensation_target[axis] = previous_targets[axis];
+
+        if (axis_settings[axis]->backlash->get() > 0)
         {
-            // The new axis target is "Positive" compared to the previous one.
-            // If the last axis target was "negative or neutral" then add backlash compensation to the result.
-            if (axis_directions[axis] == DIR_NEGATIVE)
+            if (target[axis] > previous_targets[axis])
             {
-                result += axis_settings[axis]->backlash->get();
-                backlash_compensation_motion_created = true;
-                backlash_compensation_to_remove_from_mpos[axis] += axis_settings[axis]->backlash->get();
-            }
+                // The new axis target is "Positive" compared to the previous one.
+                // If the last axis target was "Negative" then alter the backlash_compensation_target for this axis.
+                if (axis_directions[axis] == DIR_NEGATIVE)
+                {
+                    backlash_compensation_target[axis] += axis_settings[axis]->backlash->get();
+                    perform_backlash_compensation_motion = true;
+                    backlash_compensation_to_remove_from_mpos[axis] += axis_settings[axis]->backlash->get();
+                }
 
-            axis_directions[axis] = DIR_POSITIVE;
-        }
-        else if (target < result)
-        {
-            // The new axis target is "Negative" compared to the previous one.
-            // If the last axis target was "positive or neutral" then remove backlash compensation from the result.
-            if (axis_directions[axis] == DIR_POSITIVE)
+                axis_directions[axis] = DIR_POSITIVE;
+            }
+            else if (target[axis] < previous_targets[axis])
             {
-                result -= axis_settings[axis]->backlash->get();
-                backlash_compensation_motion_created = true;
-                backlash_compensation_to_remove_from_mpos[axis] -= axis_settings[axis]->backlash->get();
-            }
+                // The new axis target is "Negative" compared to the previous one.
+                // If the last axis target was "Positive" then alter the backlash_compensation_target for this axis.
+                if (axis_directions[axis] == DIR_POSITIVE)
+                {
+                    backlash_compensation_target[axis] -= axis_settings[axis]->backlash->get();
+                    perform_backlash_compensation_motion = true;
+                    backlash_compensation_to_remove_from_mpos[axis] -= axis_settings[axis]->backlash->get();
+                }
 
-            axis_directions[axis] = DIR_NEGATIVE;
+                axis_directions[axis] = DIR_NEGATIVE;
+            }
         }
 
-        // Update previous target to current target
-        previous_targets[axis] = target;
+        previous_targets[axis] = target[axis];
     }
 
-    return result;
+    if (perform_backlash_compensation_motion)
+    {
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Anti backlash Motion");
+
+        // Queue the backlash motion into planner buffer
+        plan_line_data_t pl_backlash_data;
+        plan_line_data_t *backlash_data = &pl_backlash_data;
+        memset(backlash_data, 0, sizeof(plan_line_data_t)); // Zero backlash_data struct
+
+        backlash_data->spindle = pl_data->spindle;
+        backlash_data->spindle_speed = pl_data->spindle_speed;
+        backlash_data->feed_rate = pl_data->feed_rate;
+        backlash_data->coolant = pl_data->coolant;
+        backlash_data->motion = {};
+        backlash_data->motion.antiBacklashMotion = 1;
+
+        do
+        {
+            protocol_execute_realtime(); // Check for any run-time commands
+            if (sys.abort)
+            {
+                return; // Bail, if system abort.
+            }
+
+            if (plan_check_full_buffer())
+            {
+                protocol_auto_cycle_start(); // Auto-cycle start when buffer is full.
+            }
+            else
+            {
+                break;
+            }
+        } while (1);
+
+        // Plan and queue the backlash motion into planner buffer
+        plan_buffer_line(backlash_compensation_target, backlash_data);
+    }
 }
 
 /**
@@ -85,6 +126,7 @@ void backlash_reset_targets(float target[])
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
         previous_targets[i] = target[i];
+        axis_directions[i] = DIR_NEUTRAL;
     }
 }
 

@@ -2,6 +2,7 @@
     "files.associations": {
         "xtree": "cpp",
         "tuple": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "xlocale": "cpp"
     }
 }

@@ -8,11 +8,10 @@
 
 #include "Grbl.h"
 
-extern bool backlash_compensation_motion_created;
 extern float backlash_compensation_to_remove_from_mpos[MAX_N_AXIS];
 
 void backlash_ini();
-float backlash_CreateBacklashCompensationTarget(int axis, float target);
-void backlash_reset_targets(float target[]);
+void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data);
 
+void backlash_reset_targets(float target[]);
 void backlash_synch_position(void);
