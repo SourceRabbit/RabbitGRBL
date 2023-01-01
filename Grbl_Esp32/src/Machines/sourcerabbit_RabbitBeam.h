@@ -54,7 +54,7 @@
 #define DEFAULT_A_ACCELERATION 				60.0
 
 
-// SourceRabbit CNC Motherboard v1.1 Pinout
+// SourceRabbit CNC Motherboard v1.2 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
 #define X_DIRECTION_PIN         GPIO_NUM_33
 #define Y_STEP_PIN              GPIO_NUM_25
@@ -65,9 +65,9 @@
 #define A_DIRECTION_PIN         GPIO_NUM_13
 #define STEPPERS_DISABLE_PIN    GPIO_NUM_15
 
-#define SPINDLE_TYPE            SpindleType::LASER 
-#define LASER_OUTPUT_PIN    	GPIO_NUM_21
-#define LASER_ENABLE_PIN      	GPIO_NUM_2
+#define SPINDLE_TYPE            SpindleType::PWM 
+#define SPINDLE_OUTPUT_PIN      GPIO_NUM_21
+#define SPINDLE_DIR_PIN      	GPIO_NUM_2
 
 #define X_LIMIT_PIN             GPIO_NUM_36
 #define Y_LIMIT_PIN             GPIO_NUM_39
