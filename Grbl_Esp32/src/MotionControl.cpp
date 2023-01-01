@@ -71,7 +71,9 @@ void mc_line(float *target, plan_line_data_t *pl_data)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Backlash Compensation
-    float backlash_compensation_target[MAX_N_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    // Step 1 - Create the backlash compensation target
+    float backlash_compensation_target[MAX_N_AXIS] = {0};
     backlash_compensation_motion_created = false;
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
@@ -80,6 +82,10 @@ void mc_line(float *target, plan_line_data_t *pl_data)
 
     if (backlash_compensation_motion_created)
     {
+        /*char stringArray[10];
+        sprintf(stringArray, "%f", backlash_compensation_target[2]);
+        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, stringArray);*/
+
         plan_line_data_t pl_backlash_data;
         plan_line_data_t *backlash_data = &pl_backlash_data;
         memset(backlash_data, 0, sizeof(plan_line_data_t)); // Zero backlash_data struct
@@ -111,9 +117,10 @@ void mc_line(float *target, plan_line_data_t *pl_data)
             }
         } while (1);
 
-        // Plan and queue the anti-backlash motion into planner buffer
+        // Plan and queue the backlash motion into planner buffer
         plan_buffer_line(backlash_compensation_target, backlash_data);
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     do
@@ -123,7 +130,6 @@ void mc_line(float *target, plan_line_data_t *pl_data)
         {
             return; // Bail, if system abort.
         }
-
         if (plan_check_full_buffer())
         {
             protocol_auto_cycle_start(); // Auto-cycle start when buffer is full.
@@ -132,7 +138,6 @@ void mc_line(float *target, plan_line_data_t *pl_data)
         {
             break;
         }
-
     } while (1);
 
     // Plan and queue motion into planner buffer
@@ -544,6 +549,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
     backlash_synch_position();
+    
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
     report_probe_parameters(CLIENT_ALL);
@@ -623,7 +629,15 @@ void mc_reset()
         // turn off all User I/O immediately
         sys_digital_all_off();
         sys_analog_all_off();
-
+#ifdef ENABLE_SD_CARD
+        // do we need to stop a running SD job?
+        if (get_sd_state(false) == SDState::BusyPrinting)
+        {
+            // Report print stopped
+            report_feedback_message(Message::SdFileQuit);
+            closeFile();
+        }
+#endif
         // Kill steppers only if in any motion state, i.e. cycle, actively holding, or homing.
         // NOTE: If steppers are kept enabled via the step idle delay setting, this also keeps
         // the steppers enabled by avoiding the go_idle call altogether, unless the motion state is
