@@ -366,6 +366,7 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
         block->step_event_count = MAX(block->step_event_count, block->steps[idx]);
         delta_mm = (target_steps[idx] - position_steps[idx]) / axis_settings[idx]->steps_per_mm->get();
         unit_vec[idx] = delta_mm; // Store unit vector numerator
+
         // Set direction bits. Bit enabled always means direction is negative.
         if (delta_mm < 0.0)
         {
@@ -460,8 +461,9 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
             }
         }
     }
+
     // Block system motion from updating this data to ensure next g-code motion is computed correctly.
-    if (!(block->motion.systemMotion))
+    if (!block->motion.systemMotion)
     {
         float nominal_speed = plan_compute_profile_nominal_speed(block);
         plan_compute_profile_parameters(block, nominal_speed, pl.previous_nominal_speed);
@@ -477,9 +479,11 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
         // New block is all set. Update buffer head and next buffer head indices.
         block_buffer_head = next_buffer_head;
         next_buffer_head = plan_next_block_index(block_buffer_head);
+
         // Finish up by recalculating the plan with the new block.
         planner_recalculate();
     }
+
     return PLAN_OK;
 }
 
@@ -494,8 +498,6 @@ void plan_sync_position()
     {
         pl.position[idx] = sys_position[idx];
     }
-
-    backlash_synch_position();
 }
 
 // Returns the number of available blocks are in the planner buffer.

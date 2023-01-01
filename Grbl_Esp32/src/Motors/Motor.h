@@ -33,8 +33,10 @@
 
 #include <cstdint>
 
-namespace Motors {
-    class Motor {
+namespace Motors
+{
+    class Motor
+    {
     public:
         Motor(uint8_t axis_index);
 
@@ -111,7 +113,7 @@ namespace Motors {
         //   tables can be indexed by these variables.
         // TODO Architecture: It might be useful to cache a
         // reference to the axis settings entry.
-        uint8_t _axis_index;       // X_AXIS, etc
-        uint8_t _dual_axis_index;  // 0 = primary 1=ganged
+        uint8_t _axis_index;      // X_AXIS, etc
+        uint8_t _dual_axis_index; // 0 = primary 1=ganged
     };
 }

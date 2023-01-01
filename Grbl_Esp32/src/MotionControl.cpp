@@ -408,6 +408,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // Sync gcode parser and planner positions to homed position.
     gc_sync_position();
     plan_sync_position();
+    backlash_reset_targets();
 #ifdef USE_KINEMATICS
     // This give kinematics a chance to do something after normal homing
     kinematics_post_homing();
@@ -499,7 +500,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     st_reset();           // Reset step segment buffer.
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
-    backlash_synch_position();
+    backlash_synch_position_while_using_probe();
 
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.

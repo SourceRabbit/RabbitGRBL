@@ -10,7 +10,7 @@
 #define DIR_NEGATIVE 1
 #define DIR_NEUTRAL 2
 
-static float previous_targets[MAX_N_AXIS] = {0.000};
+static float previous_targets[MAX_N_AXIS] = {0.0};
 static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEUTRAL};
 
 // This array holds the amount of millimeters that has been added to each axes
@@ -28,6 +28,8 @@ void backlash_ini()
         backlash_compensation_to_remove_from_mpos[i] = 0.0;
         axis_directions[i] = DIR_NEUTRAL;
     }
+
+    backlash_reset_targets();
 }
 
 /**
@@ -52,7 +54,7 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
             {
                 // The new axis target is "Positive" compared to the previous one.
                 // If the last axis target was "Negative" then alter the backlash_compensation_target for this axis.
-                if (axis_directions[axis] == DIR_NEGATIVE)
+                if (axis_directions[axis] != DIR_POSITIVE)
                 {
                     backlash_compensation_target[axis] += axis_settings[axis]->backlash->get();
                     perform_backlash_compensation_motion = true;
@@ -65,7 +67,7 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
             {
                 // The new axis target is "Negative" compared to the previous one.
                 // If the last axis target was "Positive" then alter the backlash_compensation_target for this axis.
-                if (axis_directions[axis] == DIR_POSITIVE)
+                if (axis_directions[axis] != DIR_NEGATIVE)
                 {
                     backlash_compensation_target[axis] -= axis_settings[axis]->backlash->get();
                     perform_backlash_compensation_motion = true;
@@ -75,8 +77,6 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
                 axis_directions[axis] = DIR_NEGATIVE;
             }
         }
-
-        previous_targets[axis] = target[axis];
     }
 
     if (perform_backlash_compensation_motion)
@@ -114,28 +114,31 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
         } while (1);
 
         // Plan and queue the backlash motion into planner buffer
-        plan_buffer_line(backlash_compensation_target, backlash_data);
+        plan_buffer_line(backlash_compensation_target, &pl_backlash_data);
     }
+
+    // Update previous_targets[] values to target[] values
+    memcpy(previous_targets, target, sizeof(float) * N_AXIS); // target_prev[] = target[]
 }
 
 /**
- * The backlash_reset_targets is been called from limits_go_home
+ * The backlash_reset_targets is been called from mc_homing_cycle
  * */
-void backlash_reset_targets(float target[])
+void backlash_reset_targets()
 {
+    // Make axis directions Neutral
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
-        previous_targets[i] = target[i];
+        previous_targets[i] = 0.0;
+        backlash_compensation_to_remove_from_mpos[i] = 0.0;
         axis_directions[i] = DIR_NEUTRAL;
     }
+
+    system_convert_array_steps_to_mpos(previous_targets, sys_position);
 }
 
-void backlash_synch_position()
+void backlash_synch_position_while_using_probe()
 {
     // Update target_prev
     system_convert_array_steps_to_mpos(previous_targets, sys_position);
-    for (int i = 0; i < MAX_N_AXIS; i++)
-    {
-        previous_targets[i] = previous_targets[i] - backlash_compensation_to_remove_from_mpos[i];
-    }
 }
