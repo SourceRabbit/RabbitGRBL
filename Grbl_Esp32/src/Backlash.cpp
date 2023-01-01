@@ -1,22 +1,9 @@
 /*
-  Backlash.cpp
-
+  Backlash.cpp - Backlash Compensation Aglorithm
+  
   Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
   Website: https://www.sourcerabbit.com
-
-  Grbl is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Grbl is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Backlash.h"
@@ -28,19 +15,12 @@
 static float previous_targets[MAX_N_AXIS] = {0.0};
 static uint8_t axis_directions[MAX_N_AXIS] = {DIR_NEUTRAL};
 
-// This array holds the amount of millimeters that has been added to each axes
-// in order to remove backlash.
-// The system_convert_axis_steps_to_mpos (located in System.cpp) uses this array to remove the backlash added
-// in order to keep the absolute machine position (position without any backlash distance added)
-float backlash_compensation_to_remove_from_mpos[MAX_N_AXIS];
-
 void backlash_ini()
 {
     // The backlash_ini method is called from Grbl.cpp
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
         previous_targets[i] = 0.0;
-        backlash_compensation_to_remove_from_mpos[i] = 0.0;
         axis_directions[i] = DIR_NEUTRAL;
     }
 
@@ -69,7 +49,6 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
                 {
                     backlash_compensation_target[axis] += axis_settings[axis]->backlash->get();
                     perform_backlash_compensation_motion = true;
-                    backlash_compensation_to_remove_from_mpos[axis] += axis_settings[axis]->backlash->get();
                 }
 
                 axis_directions[axis] = DIR_POSITIVE;
@@ -82,7 +61,6 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
                 {
                     backlash_compensation_target[axis] -= axis_settings[axis]->backlash->get();
                     perform_backlash_compensation_motion = true;
-                    backlash_compensation_to_remove_from_mpos[axis] -= axis_settings[axis]->backlash->get();
                 }
 
                 axis_directions[axis] = DIR_NEGATIVE;
@@ -141,7 +119,6 @@ void backlash_reset_targets()
     for (int i = 0; i < MAX_N_AXIS; i++)
     {
         previous_targets[i] = 0.0;
-        backlash_compensation_to_remove_from_mpos[i] = 0.0;
         axis_directions[i] = DIR_NEUTRAL;
     }
 
