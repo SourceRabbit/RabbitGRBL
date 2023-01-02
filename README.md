@@ -13,7 +13,7 @@ The controller is highly optimized to achieve precise timing and asynchronous op
 
 | 4-Axis CNC Motherboard | Focus - PC Based CNC Control System |
 | ------------- | ------------- |
-| <a href="https://www.sourcerabbit.com/"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/SourceRabbit-4Axis-CNC-Motherboard.png" alt="SourceRabbit.com"></a> |<a href="https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/FocusGitHub.png" alt="SourceRabbit.com"></a>  |
+| <a href="https://www.sourcerabbit.com/Shop/pr-i-86-t-4-axis-cnc-motherboard.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/SourceRabbit-4Axis-CNC-Motherboard.png" alt="4-Axis CNC Motherboard"></a> |<a href="https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/FocusGitHub.png" alt="Focus - PC Based CNC Control System"></a>  |
 </p>
 
 
