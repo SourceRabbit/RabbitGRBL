@@ -21,4 +21,4 @@ The controller is highly optimized to achieve precise timing and asynchronous op
 ---
 
 ### How to build and use
-Find more information on the Wiki [https://github.com/SourceRabbit/Grbl_ESP32/wiki](https://github.com/SourceRabbit/Grbl_ESP32/wiki)
+Find more information on the Wiki [https://github.com/SourceRabbit/Rabbit_GRBL/wiki](https://github.com/SourceRabbit/Rabbit_GRBL/wiki)
