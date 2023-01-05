@@ -53,6 +53,7 @@
 #define DEFAULT_A_ACCELERATION              720.0   // mm/sec^2
 
 // Spindle and Coolant
+#define DEFAULT_SPINDLE_FREQ 				980
 #define DEFAULT_SPINDLE_RPM_MIN  			0 
 #define DEFAULT_SPINDLE_RPM_MAX  			2548 
 #define DEFAULT_SPINDLE_DELAY_SPINUP 		1.0
@@ -71,6 +72,7 @@
 #define STEPPERS_DISABLE_PIN    GPIO_NUM_15
 
 #define SPINDLE_TYPE            SpindleType::PWM 
+
 #define SPINDLE_OUTPUT_PIN      GPIO_NUM_21
 #define SPINDLE_DIR_PIN      	GPIO_NUM_2
 
@@ -86,3 +88,4 @@
 #define USER_DIGITAL_PIN_0   GPIO_NUM_19 	// Lock
 #define USER_DIGITAL_PIN_1   GPIO_NUM_18 	// Blow
 #define USER_DIGITAL_PIN_2   GPIO_NUM_5  	// Door
+
