@@ -46,7 +46,7 @@
 #define DEFAULT_Z_STEPS_PER_MM              400.0	// steps/mm
 #define DEFAULT_Z_MAX_RATE                  2000.0  // mm/min
 #define DEFAULT_Z_ACCELERATION              40.0    // mm/sec^2
-#define DEFAULT_Z_BACKLASH             		0.12    // mm
+#define DEFAULT_Z_BACKLASH             		0.11    // mm
 
 #define DEFAULT_A_STEPS_PER_MM              26.666 	// Steps / Degree
 #define DEFAULT_A_MAX_RATE                  72000.0 // degrees/min
@@ -56,8 +56,8 @@
 #define DEFAULT_SPINDLE_FREQ 				980
 #define DEFAULT_SPINDLE_RPM_MIN  			0 
 #define DEFAULT_SPINDLE_RPM_MAX  			2548 
-#define DEFAULT_SPINDLE_DELAY_SPINUP 		1.0
-#define DEFAULT_SPINDLE_DELAY_SPINDOWN 		1.0
+#define DEFAULT_SPINDLE_DELAY_SPINUP 		1.2
+#define DEFAULT_SPINDLE_DELAY_SPINDOWN 		1.2
 #define DEFAULT_COOLANT_DELAY_TURNON 		0
 
 // SourceRabbit CNC Motherboard v1.2 Pinout
@@ -72,7 +72,6 @@
 #define STEPPERS_DISABLE_PIN    GPIO_NUM_15
 
 #define SPINDLE_TYPE            SpindleType::PWM 
-
 #define SPINDLE_OUTPUT_PIN      GPIO_NUM_21
 #define SPINDLE_DIR_PIN      	GPIO_NUM_2
 
