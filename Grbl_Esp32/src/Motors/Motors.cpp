@@ -21,7 +21,6 @@
 
 #include "NullMotor.h"
 #include "StandardStepper.h"
-#include "RcServo.h"
 
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
 void init_motors()
@@ -30,12 +29,12 @@ void init_motors()
 
         auto n_axis = number_axis->get();
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // X AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 1)
         {
-
-#ifdef defined(X_SERVO_PIN)
-                myMotor[X_AXIS][0] = new Motors::RcServo(X_AXIS, X_SERVO_PIN);
-#elif defined(X_STEP_PIN)
+#if defined(X_STEP_PIN)
                 myMotor[X_AXIS][0] = new Motors::StandardStepper(X_AXIS, X_STEP_PIN, X_DIRECTION_PIN, X_DISABLE_PIN);
 #else
                 myMotor[X_AXIS][0] = new Motors::Nullmotor(X_AXIS);
@@ -53,13 +52,12 @@ void init_motors()
                 myMotor[X_AXIS][1] = new Motors::Nullmotor(X2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // Y AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 2)
         {
-                // this WILL be done better with settings
-
-#ifdef defined(Y_SERVO_PIN)
-                myMotor[Y_AXIS][0] = new Motors::RcServo(Y_AXIS, Y_SERVO_PIN);
-#elif defined(Y_STEP_PIN)
+#if defined(Y_STEP_PIN)
                 myMotor[Y_AXIS][0] = new Motors::StandardStepper(Y_AXIS, Y_STEP_PIN, Y_DIRECTION_PIN, Y_DISABLE_PIN);
 #else
                 myMotor[Y_AXIS][0] = new Motors::Nullmotor(Y_AXIS);
@@ -77,13 +75,12 @@ void init_motors()
                 myMotor[Y_AXIS][1] = new Motors::Nullmotor(Y2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // Z AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 3)
         {
-                // this WILL be done better with settings
-
-#ifdef defined(Z_SERVO_PIN)
-                myMotor[Z_AXIS][0] = new Motors::RcServo(Z_AXIS, Z_SERVO_PIN);
-#elif defined(Z_STEP_PIN)
+#if defined(Z_STEP_PIN)
                 myMotor[Z_AXIS][0] = new Motors::StandardStepper(Z_AXIS, Z_STEP_PIN, Z_DIRECTION_PIN, Z_DISABLE_PIN);
 #else
                 myMotor[Z_AXIS][0] = new Motors::Nullmotor(Z_AXIS);
@@ -101,13 +98,12 @@ void init_motors()
                 myMotor[Z_AXIS][1] = new Motors::Nullmotor(Z2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // A AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 4)
         {
-                // this WILL be done better with settings
-
-#ifdef defined(A_SERVO_PIN)
-                myMotor[A_AXIS][0] = new Motors::RcServo(A_AXIS, A_SERVO_PIN);
-#elif defined(A_STEP_PIN)
+#if defined(A_STEP_PIN)
                 myMotor[A_AXIS][0] = new Motors::StandardStepper(A_AXIS, A_STEP_PIN, A_DIRECTION_PIN, A_DISABLE_PIN);
 #else
                 myMotor[A_AXIS][0] = new Motors::Nullmotor(A_AXIS);
@@ -125,12 +121,12 @@ void init_motors()
                 myMotor[A_AXIS][1] = new Motors::Nullmotor(A2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // B AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 5)
         {
-                // this WILL be done better with settings
-#ifdef defined(B_SERVO_PIN)
-                myMotor[B_AXIS][0] = new Motors::RcServo(B_AXIS, B_SERVO_PIN);
-#elif defined(B_STEP_PIN)
+#if defined(B_STEP_PIN)
                 myMotor[B_AXIS][0] = new Motors::StandardStepper(B_AXIS, B_STEP_PIN, B_DIRECTION_PIN, B_DISABLE_PIN);
 #else
                 myMotor[B_AXIS][0] = new Motors::Nullmotor(B_AXIS);
@@ -148,12 +144,12 @@ void init_motors()
                 myMotor[B_AXIS][1] = new Motors::Nullmotor(B2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // C AXIS
+        /////////////////////////////////////////////////////////////////////////////////
         if (n_axis >= 6)
         {
-                // this WILL be done better with settings
-#if defined(C_SERVO_PIN)
-                myMotor[C_AXIS][0] = new Motors::RcServo(C_AXIS, C_SERVO_PIN);
-#elif defined(C_STEP_PIN)
+#if defined(C_STEP_PIN)
                 myMotor[C_AXIS][0] = new Motors::StandardStepper(C_AXIS, C_STEP_PIN, C_DIRECTION_PIN, C_DISABLE_PIN);
 #else
                 myMotor[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
@@ -171,13 +167,16 @@ void init_motors()
                 myMotor[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // STEPPERS DISABLE PIN
+        /////////////////////////////////////////////////////////////////////////////////
         if (STEPPERS_DISABLE_PIN != UNDEFINED_PIN)
         {
                 pinMode(STEPPERS_DISABLE_PIN, OUTPUT); // global motor enable pin
                 grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
         }
 
-        // certain motors need features to be turned on. Check them here
+        // Initialize motors
         for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
         {
                 for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
