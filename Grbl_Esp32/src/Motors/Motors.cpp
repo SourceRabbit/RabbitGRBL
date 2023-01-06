@@ -12,23 +12,6 @@
         GNU General Public License for more details.
         You should have received a copy of the GNU General Public License
         along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-        TODO
-                Make sure public/private/protected is cleaned up.
-                Only a few Unipolar axes have been setup in init()
-                Get rid of Z_SERVO, just reply on Z_SERVO_PIN
-                Deal with custom machine ... machine_trinamic_setup();
-                Class is ready to deal with non SPI pins, but they have not been needed yet.
-                        It would be nice in the config message though
-        Testing
-                Done (success)
-                        3 Axis (3 Standard Steppers)
-                        MPCNC (ganged with shared direction pin)
-                        TMC2130 Pen Laser (trinamics, stallguard tuning)
-                        Unipolar
-                TODO
-                        4 Axis SPI (Daisy Chain, Ganged with unique direction pins)
-        Reference
-                TMC2130 Datasheet https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC2130_datasheet.pdf
 */
 
 #include "Motors.h"
@@ -38,7 +21,6 @@
 
 #include "NullMotor.h"
 #include "StandardStepper.h"
-#include "UnipolarMotor.h"
 #include "RcServo.h"
 
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
@@ -53,17 +35,13 @@ void init_motors()
 
 #ifdef defined(X_SERVO_PIN)
                 myMotor[X_AXIS][0] = new Motors::RcServo(X_AXIS, X_SERVO_PIN);
-#elif defined(X_UNIPOLAR)
-                myMotor[X_AXIS][0] = new Motors::UnipolarMotor(X_AXIS, X_PIN_PHASE_0, X_PIN_PHASE_1, X_PIN_PHASE_2, X_PIN_PHASE_3);
 #elif defined(X_STEP_PIN)
                 myMotor[X_AXIS][0] = new Motors::StandardStepper(X_AXIS, X_STEP_PIN, X_DIRECTION_PIN, X_DISABLE_PIN);
 #else
                 myMotor[X_AXIS][0] = new Motors::Nullmotor(X_AXIS);
 #endif
 
-#ifdef defined(X2_UNIPOLAR)
-                myMotor[X_AXIS][1] = new Motors::UnipolarMotor(X2_AXIS, X2_PIN_PHASE_0, X2_PIN_PHASE_1, X2_PIN_PHASE_2, X2_PIN_PHASE_3);
-#elif defined(X2_STEP_PIN)
+#if defined(X2_STEP_PIN)
                 myMotor[X_AXIS][1] = new Motors::StandardStepper(X2_AXIS, X2_STEP_PIN, X2_DIRECTION_PIN, X2_DISABLE_PIN);
 #else
                 myMotor[X_AXIS][1] = new Motors::Nullmotor(X2_AXIS);
@@ -81,17 +59,13 @@ void init_motors()
 
 #ifdef defined(Y_SERVO_PIN)
                 myMotor[Y_AXIS][0] = new Motors::RcServo(Y_AXIS, Y_SERVO_PIN);
-#elif defined(Y_UNIPOLAR)
-                myMotor[Y_AXIS][0] = new Motors::UnipolarMotor(Y_AXIS, Y_PIN_PHASE_0, Y_PIN_PHASE_1, Y_PIN_PHASE_2, Y_PIN_PHASE_3);
 #elif defined(Y_STEP_PIN)
                 myMotor[Y_AXIS][0] = new Motors::StandardStepper(Y_AXIS, Y_STEP_PIN, Y_DIRECTION_PIN, Y_DISABLE_PIN);
 #else
                 myMotor[Y_AXIS][0] = new Motors::Nullmotor(Y_AXIS);
 #endif
 
-#ifdef defined(Y2_UNIPOLAR)
-                myMotor[Y_AXIS][1] = new Motors::UnipolarMotor(Y2_AXIS, Y2_PIN_PHASE_0, Y2_PIN_PHASE_1, Y2_PIN_PHASE_2, Y2_PIN_PHASE_3);
-#elif defined(Y2_STEP_PIN)
+#if defined(Y2_STEP_PIN)
                 myMotor[Y_AXIS][1] = new Motors::StandardStepper(Y2_AXIS, Y2_STEP_PIN, Y2_DIRECTION_PIN, Y2_DISABLE_PIN);
 #else
                 myMotor[Y_AXIS][1] = new Motors::Nullmotor(Y2_AXIS);
@@ -109,31 +83,13 @@ void init_motors()
 
 #ifdef defined(Z_SERVO_PIN)
                 myMotor[Z_AXIS][0] = new Motors::RcServo(Z_AXIS, Z_SERVO_PIN);
-#elif defined(Z_UNIPOLAR)
-                myMotor[Z_AXIS][0] = new Motors::UnipolarMotor(Z_AXIS, Z_PIN_PHASE_0, Z_PIN_PHASE_1, Z_PIN_PHASE_2, Z_PIN_PHASE_3);
 #elif defined(Z_STEP_PIN)
                 myMotor[Z_AXIS][0] = new Motors::StandardStepper(Z_AXIS, Z_STEP_PIN, Z_DIRECTION_PIN, Z_DISABLE_PIN);
 #else
                 myMotor[Z_AXIS][0] = new Motors::Nullmotor(Z_AXIS);
 #endif
 
-#ifdef Z2_TRINAMIC_DRIVER
-#if (Z2_TRINAMIC_DRIVER == 2130 || Z2_TRINAMIC_DRIVER == 5160)
-                {
-                        myMotor[Z_AXIS][1] =
-                            new Motors::TrinamicDriver(Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN, Z2_CS_PIN, Z2_TRINAMIC_DRIVER, Z2_RSENSE);
-                }
-#elif (Z2_TRINAMIC_DRIVER == 2208 || Z2_TRINAMIC_DRIVER == 2209)
-                {
-                        myMotor[Z_AXIS][1] = new Motors::TrinamicUartDriver(
-                            Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN, Z2_TRINAMIC_DRIVER, Z2_RSENSE, Z2_DRIVER_ADDRESS);
-                }
-#else
-#error Z2 Axis undefined motor p/n
-#endif
-#elif defined(Z2_UNIPOLAR)
-                myMotor[Z_AXIS][1] = new Motors::UnipolarMotor(Z2_AXIS, Z2_PIN_PHASE_0, Z2_PIN_PHASE_1, Z2_PIN_PHASE_2, Z2_PIN_PHASE_3);
-#elif defined(Z2_STEP_PIN)
+#if defined(Z2_STEP_PIN)
                 myMotor[Z_AXIS][1] = new Motors::StandardStepper(Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN);
 #else
                 myMotor[Z_AXIS][1] = new Motors::Nullmotor(Z2_AXIS);
@@ -151,17 +107,13 @@ void init_motors()
 
 #ifdef defined(A_SERVO_PIN)
                 myMotor[A_AXIS][0] = new Motors::RcServo(A_AXIS, A_SERVO_PIN);
-#elif defined(A_UNIPOLAR)
-                myMotor[A_AXIS][0] = new Motors::UnipolarMotor(A_AXIS, A_PIN_PHASE_0, A_PIN_PHASE_1, A_PIN_PHASE_2, A_PIN_PHASE_3);
 #elif defined(A_STEP_PIN)
                 myMotor[A_AXIS][0] = new Motors::StandardStepper(A_AXIS, A_STEP_PIN, A_DIRECTION_PIN, A_DISABLE_PIN);
 #else
                 myMotor[A_AXIS][0] = new Motors::Nullmotor(A_AXIS);
 #endif
 
-#ifdef defined(A2_UNIPOLAR)
-                myMotor[A_AXIS][1] = new Motors::UnipolarMotor(A2_AXIS, A2_PIN_PHASE_0, A2_PIN_PHASE_1, A2_PIN_PHASE_2, A2_PIN_PHASE_3);
-#elif defined(A2_STEP_PIN)
+#if defined(A2_STEP_PIN)
                 myMotor[A_AXIS][1] = new Motors::StandardStepper(A2_AXIS, A2_STEP_PIN, A2_DIRECTION_PIN, A2_DISABLE_PIN);
 #else
                 myMotor[A_AXIS][1] = new Motors::Nullmotor(A2_AXIS);
@@ -178,17 +130,13 @@ void init_motors()
                 // this WILL be done better with settings
 #ifdef defined(B_SERVO_PIN)
                 myMotor[B_AXIS][0] = new Motors::RcServo(B_AXIS, B_SERVO_PIN);
-#elif defined(B_UNIPOLAR)
-                myMotor[B_AXIS][0] = new Motors::UnipolarMotor(B_AXIS, B_PIN_PHASE_0, B_PIN_PHASE_1, B_PIN_PHASE_2, B_PIN_PHASE_3);
 #elif defined(B_STEP_PIN)
                 myMotor[B_AXIS][0] = new Motors::StandardStepper(B_AXIS, B_STEP_PIN, B_DIRECTION_PIN, B_DISABLE_PIN);
 #else
                 myMotor[B_AXIS][0] = new Motors::Nullmotor(B_AXIS);
 #endif
 
-#ifdef defined(B2_UNIPOLAR)
-                myMotor[B_AXIS][1] = new Motors::UnipolarMotor(B2_AXIS, B2_PIN_PHASE_0, B2_PIN_PHASE_1, B2_PIN_PHASE_2, B2_PIN_PHASE_3);
-#elif defined(B2_STEP_PIN)
+#if defined(B2_STEP_PIN)
                 myMotor[B_AXIS][1] = new Motors::StandardStepper(B2_AXIS, B2_STEP_PIN, B2_DIRECTION_PIN, B2_DISABLE_PIN);
 #else
                 myMotor[B_AXIS][1] = new Motors::Nullmotor(B2_AXIS);
@@ -205,17 +153,13 @@ void init_motors()
                 // this WILL be done better with settings
 #if defined(C_SERVO_PIN)
                 myMotor[C_AXIS][0] = new Motors::RcServo(C_AXIS, C_SERVO_PIN);
-#elif defined(C_UNIPOLAR)
-                myMotor[C_AXIS][0] = new Motors::UnipolarMotor(C_AXIS, C_PIN_PHASE_0, C_PIN_PHASE_1, C_PIN_PHASE_2, C_PIN_PHASE_3);
 #elif defined(C_STEP_PIN)
                 myMotor[C_AXIS][0] = new Motors::StandardStepper(C_AXIS, C_STEP_PIN, C_DIRECTION_PIN, C_DISABLE_PIN);
 #else
                 myMotor[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
 #endif
 
-#ifdef defined(C2_UNIPOLAR)
-                myMotor[C_AXIS][1] = new Motors::UnipolarMotor(C2_AXIS, C2_PIN_PHASE_0, C2_PIN_PHASE_1, C2_PIN_PHASE_2, C2_PIN_PHASE_3);
-#elif defined(C2_STEP_PIN)
+#if defined(C2_STEP_PIN)
                 myMotor[C_AXIS][1] = new Motors::StandardStepper(C2_AXIS, C2_STEP_PIN, C2_DIRECTION_PIN, C2_DISABLE_PIN);
 #else
                 myMotor[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
@@ -226,33 +170,6 @@ void init_motors()
                 myMotor[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
                 myMotor[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
         }
-
-#ifdef USE_STEPSTICK
-
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Using StepStick Mode");
-
-        uint8_t ms3_pins[MAX_N_AXIS][2] = {{X_STEPPER_MS3, X2_STEPPER_MS3}, {Y_STEPPER_MS3, Y2_STEPPER_MS3}, {Z_STEPPER_MS3, Z2_STEPPER_MS3}, {A_STEPPER_MS3, A2_STEPPER_MS3}, {B_STEPPER_MS3, B2_STEPPER_MS3}, {C_STEPPER_MS3, C2_STEPPER_MS3}};
-
-        for (int axis = 0; axis < n_axis; axis++)
-        {
-                for (int gang_index = 0; gang_index < 2; gang_index++)
-                {
-                        uint8_t pin = ms3_pins[axis][gang_index];
-                        if (pin != UNDEFINED_PIN)
-                        {
-                                digitalWrite(pin, HIGH);
-                                pinMode(pin, OUTPUT);
-                        }
-                }
-        }
-
-#ifdef STEPPER_RESET
-        // !RESET pin on steppers  (MISO On Schematic)
-        digitalWrite(STEPPER_RESET, HIGH);
-        pinMode(STEPPER_RESET, OUTPUT);
-#endif
-
-#endif
 
         if (STEPPERS_DISABLE_PIN != UNDEFINED_PIN)
         {
