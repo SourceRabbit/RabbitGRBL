@@ -5,8 +5,8 @@
   Part of Grbl
   Copyright (c) 2014-2016 Sungeun K. Jeon for Gnea Research LLC
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+  2018 -	Bart Dring This file was modifed for use on the ESP32
+          CPU. Do not use this with Grbl for atMega328P
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 */
 
 // Grbl versioning system
-const char* const GRBL_VERSION       = "1.3a";
-const char* const GRBL_VERSION_BUILD = "20221227";
+const char *const GRBL_VERSION = "1.3a (Rabbit Grbl for the ESP32)";
+const char *const GRBL_VERSION_BUILD = "20230106";
 
 #include <Arduino.h>
 #include <EEPROM.h>
@@ -66,21 +66,21 @@ const char* const GRBL_VERSION_BUILD = "20221227";
 void grbl_init();
 void run_once();
 
-void machine_init();  // weak definition in Grbl.cpp
-void display_init();  // weak definition in Grbl.cpp
+void machine_init(); // weak definition in Grbl.cpp
+void display_init(); // weak definition in Grbl.cpp
 
-bool user_defined_homing(uint8_t cycle_mask);  // weak definition in Limits.cpp
+bool user_defined_homing(uint8_t cycle_mask); // weak definition in Limits.cpp
 
 // Called if USE_KINEMATICS is defined
 
-void    inverse_kinematics(float* target, plan_line_data_t* pl_data, float* position);
-bool    kinematics_pre_homing(uint8_t cycle_mask);
-void    kinematics_post_homing();
-uint8_t kinematic_limits_check(float* target);
+void inverse_kinematics(float *target, plan_line_data_t *pl_data, float *position);
+bool kinematics_pre_homing(uint8_t cycle_mask);
+void kinematics_post_homing();
+uint8_t kinematic_limits_check(float *target);
 
 // Called if USE_FWD_KINEMATICS is defined
-void inverse_kinematics(float* position);  // used to return a converted value
-void forward_kinematics(float* position);  // weak definition in Report.cpp
+void inverse_kinematics(float *position); // used to return a converted value
+void forward_kinematics(float *position); // weak definition in Report.cpp
 
 // Called if MACRO_BUTTON_0_PIN or MACRO_BUTTON_1_PIN or MACRO_BUTTON_2_PIN is defined
 void user_defined_macro(uint8_t index);
