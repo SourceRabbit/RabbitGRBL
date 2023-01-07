@@ -56,9 +56,10 @@
 #define DEFAULT_SPINDLE_FREQ 				980
 #define DEFAULT_SPINDLE_RPM_MIN  			0 
 #define DEFAULT_SPINDLE_RPM_MAX  			2548 
-#define DEFAULT_SPINDLE_DELAY_SPINUP 		1.2
-#define DEFAULT_SPINDLE_DELAY_SPINDOWN 		1.2
-#define DEFAULT_COOLANT_DELAY_TURNON 		0
+#define DEFAULT_SPINDLE_DELAY_SPINUP 		1.2    // Seconds
+#define DEFAULT_SPINDLE_DELAY_SPINDOWN 		1.2    // Seconds
+#define DEFAULT_COOLANT_FLOOD_DELAY_TURNON 	1.0    // Seconds
+#define DEFAULT_COOLANT_MIST_DELAY_TURNON 	1.0    // Seconds
 
 // SourceRabbit CNC Motherboard v1.2 Pinout
 #define X_STEP_PIN              GPIO_NUM_0

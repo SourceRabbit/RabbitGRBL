@@ -4,8 +4,13 @@
 
   Copyright (c) 2012-2016 Sungeun K. Jeon for Gnea Research LLC
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+    2018 -	Bart Dring
+    This file was modifed for use on the ESP32 CPU. Do not use this with Grbl
+    for atMega328P
+
+    2023 - Nikos Siatras
+    This file was modified in order to work properly with Flood and Mist coolant
+    start delay
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,8 +28,9 @@
 
 #include "Grbl.h"
 
-void coolant_init() {
-    static bool init_message = true;  // used to show messages only once.
+void coolant_init()
+{
+    static bool init_message = true; // used to show messages only once.
 
 #ifdef COOLANT_FLOOD_PIN
     pinMode(COOLANT_FLOOD_PIN, OUTPUT);
@@ -33,7 +39,8 @@ void coolant_init() {
     pinMode(COOLANT_MIST_PIN, OUTPUT);
 #endif
 
-    if (init_message) {
+    if (init_message)
+    {
 #ifdef COOLANT_FLOOD_PIN
         grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
 #endif
@@ -47,26 +54,29 @@ void coolant_init() {
 }
 
 // Returns current coolant output state. Overrides may alter it from programmed state.
-CoolantState coolant_get_state() {
+CoolantState coolant_get_state()
+{
     CoolantState cl_state = {};
-    bool         pinState;
+    bool pinState;
 
 #ifdef COOLANT_FLOOD_PIN
     pinState = digitalRead(COOLANT_FLOOD_PIN);
-#    ifdef INVERT_COOLANT_FLOOD_PIN
+#ifdef INVERT_COOLANT_FLOOD_PIN
     pinState = !pinState;
-#    endif
-    if (pinState) {
+#endif
+    if (pinState)
+    {
         cl_state.Flood = 1;
     }
 #endif
 
 #ifdef COOLANT_MIST_PIN
     pinState = digitalRead(COOLANT_MIST_PIN);
-#    ifdef INVERT_COOLANT_MIST_PIN
+#ifdef INVERT_COOLANT_MIST_PIN
     pinState = !pinState;
-#    endif
-    if (pinState) {
+#endif
+    if (pinState)
+    {
         cl_state.Mist = 1;
     }
 #endif
@@ -74,29 +84,46 @@ CoolantState coolant_get_state() {
     return cl_state;
 }
 
-static inline void coolant_write(CoolantState state) {
+static inline void coolant_write(CoolantState state)
+{
     bool pinState;
+    bool shouldWait;
 
 #ifdef COOLANT_FLOOD_PIN
     pinState = state.Flood;
-#    ifdef INVERT_COOLANT_FLOOD_PIN
+    shouldWait = digitalRead(COOLANT_FLOOD_PIN) == false && pinState == true && coolant_flood_start_delay->get() > 0;
+#ifdef INVERT_COOLANT_FLOOD_PIN
     pinState = !pinState;
-#    endif
+#endif
     digitalWrite(COOLANT_FLOOD_PIN, pinState);
+    if (shouldWait)
+    {
+        // Delay for Flood Coolant
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood wait!");
+        delay(1000.0 * coolant_flood_start_delay->get());
+    }
 #endif
 
 #ifdef COOLANT_MIST_PIN
     pinState = state.Mist;
-#    ifdef INVERT_COOLANT_MIST_PIN
+    shouldWait = digitalRead(COOLANT_MIST_PIN) == false && pinState == true && coolant_mist_start_delay->get() > 0;
+#ifdef INVERT_COOLANT_MIST_PIN
     pinState = !pinState;
-#    endif
+#endif
     digitalWrite(COOLANT_MIST_PIN, pinState);
+    if (shouldWait)
+    {
+        // Delay for Mist Coolant
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist wait!");
+        delay(1000.0 * coolant_mist_start_delay->get());
+    }
 #endif
 }
 
 // Directly called by coolant_init(), coolant_set_state(), and mc_reset(), which can be at
 // an interrupt-level. No report flag set, but only called by routines that don't need it.
-void coolant_stop() {
+void coolant_stop()
+{
     CoolantState disable = {};
     coolant_write(disable);
 }
@@ -106,25 +133,30 @@ void coolant_stop() {
 // Called by coolant toggle override, parking restore, parking retract, sleep mode, g-code
 // parser program end, and g-code parser coolant_sync().
 
-void coolant_set_state(CoolantState state) {
-    if (sys.abort) {
-        return;  // Block during abort.
+void coolant_set_state(CoolantState state)
+{
+    if (sys.abort)
+    {
+        return; // Block during abort.
     }
     coolant_write(state);
-    sys.report_ovr_counter = 0;  // Set to report change immediately
+    sys.report_ovr_counter = 0; // Set to report change immediately
 }
 
-void coolant_off() {
+void coolant_off()
+{
     CoolantState disable = {};
     coolant_set_state(disable);
 }
 
 // G-code parser entry-point for setting coolant state. Forces a planner buffer sync and bails
 // if an abort or check-mode is active.
-void coolant_sync(CoolantState state) {
-    if (sys.state == State::CheckMode) {
+void coolant_sync(CoolantState state)
+{
+    if (sys.state == State::CheckMode)
+    {
         return;
     }
-    protocol_buffer_synchronize();  // Ensure coolant turns on when specified in program.
+    protocol_buffer_synchronize(); // Ensure coolant turns on when specified in program.
     coolant_set_state(state);
 }

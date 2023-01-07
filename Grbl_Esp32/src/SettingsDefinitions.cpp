@@ -48,7 +48,8 @@ FloatSetting *rpm_max;
 FloatSetting *rpm_min;
 FloatSetting *spindle_delay_spinup;
 FloatSetting *spindle_delay_spindown;
-FloatSetting *coolant_start_delay;
+FloatSetting *coolant_flood_start_delay;
+FloatSetting *coolant_mist_start_delay;
 FlagSetting *spindle_enbl_off_with_zero_speed;
 FlagSetting *spindle_enable_invert;
 FlagSetting *spindle_output_invert;
@@ -322,18 +323,21 @@ void make_settings()
         axis_settings[axis]->home_mpos = setting;
     }
 
+    // GRBL Non-numbered settings
+    startup_line_0 = new StringSetting(EXTENDED, WG, "N0", "GCode/Line0", "", checkStartupLine);
+    startup_line_1 = new StringSetting(EXTENDED, WG, "N1", "GCode/Line1", "", checkStartupLine);
+
+    // Coolant Settings
+    coolant_mist_start_delay = new FloatSetting(GRBL, WG, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
+    coolant_flood_start_delay = new FloatSetting(GRBL, WG, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
+
     // Spindle Settings
     spindle_type = new EnumSetting(NULL, EXTENDED, WG, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
 
     spindle_delay_spinup = new FloatSetting(EXTENDED, WG, NULL, "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
     spindle_delay_spindown = new FloatSetting(EXTENDED, WG, NULL, "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
-    coolant_start_delay = new FloatSetting(EXTENDED, WG, NULL, "Coolant/Delay/TurnOn", DEFAULT_COOLANT_DELAY_TURNON, 0, 30);
     spindle_enbl_off_with_zero_speed = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/OffWithSpeed", DEFAULT_SPINDLE_ENABLE_OFF_WITH_ZERO_SPEED, checkSpindleChange);
     spindle_enable_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
-
-    // GRBL Non-numbered settings
-    startup_line_0 = new StringSetting(EXTENDED, WG, "N0", "GCode/Line0", "", checkStartupLine);
-    startup_line_1 = new StringSetting(EXTENDED, WG, "N1", "GCode/Line1", "", checkStartupLine);
 
     // IntSetting spindle_pwm_bit_precision(EXTENDED, WG, "Spindle/PWM/Precision", DEFAULT_SPINDLE_BIT_PRECISION, 1, 16);
     spindle_output_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
