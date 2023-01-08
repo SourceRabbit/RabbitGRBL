@@ -388,26 +388,6 @@
 #define DEFAULT_HOMING_CYCLE_5 0
 #endif
 
-// ========== Motor current (SPI Drivers ) =============
-#ifndef DEFAULT_X_CURRENT
-#define DEFAULT_X_CURRENT 0.25 // $140 current in amps (extended set)
-#endif
-#ifndef DEFAULT_Y_CURRENT
-#define DEFAULT_Y_CURRENT 0.25 // $141 current in amps (extended set)
-#endif
-#ifndef DEFAULT_Z_CURRENT
-#define DEFAULT_Z_CURRENT 0.25 // $142 current in amps (extended set)
-#endif
-#ifndef DEFAULT_A_CURRENT
-#define DEFAULT_A_CURRENT 0.25 // $143 current in amps (extended set)
-#endif
-#ifndef DEFAULT_B_CURRENT
-#define DEFAULT_B_CURRENT 0.25 // $144 current in amps (extended set)
-#endif
-#ifndef DEFAULT_C_CURRENT
-#define DEFAULT_C_CURRENT 0.25 // $145 current in amps (extended set)
-#endif
-
 // ========== Backlash Settings =============
 #ifndef DEFAULT_X_BACKLASH
 #define DEFAULT_X_BACKLASH 0 // $180 backlash
@@ -428,78 +408,11 @@
 #define DEFAULT_C_BACKLASH 0 // $185 backlash
 #endif
 
-// ========== Motor hold current (SPI Drivers ) =============
-
-#ifndef DEFAULT_X_HOLD_CURRENT
-#define DEFAULT_X_HOLD_CURRENT 0.125 // $150 current in amps (extended set)
-#endif
-#ifndef DEFAULT_Y_HOLD_CURRENT
-#define DEFAULT_Y_HOLD_CURRENT 0.125 // $151 current in amps (extended set)
-#endif
-#ifndef DEFAULT_Z_HOLD_CURRENT
-#define DEFAULT_Z_HOLD_CURRENT 0.125 // $152 current in amps (extended set)
-#endif
-#ifndef DEFAULT_A_HOLD_CURRENT
-#define DEFAULT_A_HOLD_CURRENT 0.125 // $153 current in amps (extended set)
-#endif
-#ifndef DEFAULT_B_HOLD_CURRENT
-#define DEFAULT_B_HOLD_CURRENT 0.125 // $154 current in amps (extended set)
-#endif
-#ifndef DEFAULT_C_HOLD_CURRENT
-#define DEFAULT_C_HOLD_CURRENT 0.125 // $154 current in amps (extended set)
-#endif
-
-// ========== Microsteps (SPI Drivers ) ================
-
-#ifndef DEFAULT_X_MICROSTEPS
-#define DEFAULT_X_MICROSTEPS 16 // $160 micro steps (extended set)
-#endif
-#ifndef DEFAULT_Y_MICROSTEPS
-#define DEFAULT_Y_MICROSTEPS 16 // $161 micro steps (extended set)
-#endif
-#ifndef DEFAULT_Z_MICROSTEPS
-#define DEFAULT_Z_MICROSTEPS 16 // $162 micro steps (extended set)
-#endif
-#ifndef DEFAULT_A_MICROSTEPS
-#define DEFAULT_A_MICROSTEPS 16 // $163 micro steps (extended set)
-#endif
-#ifndef DEFAULT_B_MICROSTEPS
-#define DEFAULT_B_MICROSTEPS 16 // $164 micro steps (extended set)
-#endif
-#ifndef DEFAULT_C_MICROSTEPS
-#define DEFAULT_C_MICROSTEPS 16 // $165 micro steps (extended set)
-#endif
-
-// ========== Stallguard (SPI Drivers ) ================
-
-#ifndef DEFAULT_X_STALLGUARD
-#define DEFAULT_X_STALLGUARD 16 // $170 stallguard (extended set)
-#endif
-#ifndef DEFAULT_Y_STALLGUARD
-#define DEFAULT_Y_STALLGUARD 16 // $171 stallguard (extended set)
-#endif
-#ifndef DEFAULT_Z_STALLGUARD
-#define DEFAULT_Z_STALLGUARD 16 // $172 stallguard (extended set)
-#endif
-#ifndef DEFAULT_A_STALLGUARD
-#define DEFAULT_A_STALLGUARD 16 // $173 stallguard (extended set)
-#endif
-#ifndef DEFAULT_B_STALLGUARD
-#define DEFAULT_B_STALLGUARD 16 // $174 stallguard (extended set)
-#endif
-#ifndef DEFAULT_C_STALLGUARD
-#define DEFAULT_C_STALLGUARD 16 // $175 stallguard (extended set)
-#endif
-
 // ==================  pin defaults ========================
 
 // Here is a place to default pins to UNDEFINED_PIN.
 // This can eliminate checking to see if the pin is defined because
 // the overridden pinMode and digitalWrite functions will deal with it.
-
-#ifndef SDCARD_DET_PIN
-#define SDCARD_DET_PIN UNDEFINED_PIN
-#endif
 
 #ifndef STEPPERS_DISABLE_PIN
 #define STEPPERS_DISABLE_PIN UNDEFINED_PIN
@@ -617,22 +530,6 @@
 #endif
 #ifndef C2_STEPPER_MS3
 #define C2_STEPPER_MS3 UNDEFINED_PIN
-#endif
-
-#ifndef SERVO_TIMER_INTERVAL
-#define SERVO_TIMER_INTERVAL 75.0 // Hz This is the update inveral in milliseconds
-#endif
-
-#ifndef DYNAMIXEL_TXD
-#define DYNAMIXEL_TXD UNDEFINED_PIN
-#endif
-
-#ifndef DYNAMIXEL_RXD
-#define DYNAMIXEL_RXD UNDEFINED_PIN
-#endif
-
-#ifndef DYNAMIXEL_RTS
-#define DYNAMIXEL_RTS UNDEFINED_PIN
 #endif
 
 // ================ User Digital I/O ==============================

@@ -47,7 +47,6 @@ const char *const GRBL_VERSION_BUILD = "20230108";
 #include "Backlash.h"
 #include "MotionControl.h"
 #include "Protocol.h"
-#include "Uart.h"
 #include "Serial.h"
 #include "Report.h"
 #include "Pins.h"

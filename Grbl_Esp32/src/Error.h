@@ -65,10 +65,7 @@ enum class Error : uint8_t {
     GcodeMaxValueExceeded       = 38,
     PParamMaxExceeded           = 39,
     
-    FsFailedDelDir              = 68,
-    FsFailedDelFile             = 69,
-    BtFailBegin                 = 70,  // Bluetooth failed to start
-   
+     
     NumberRange                 = 80,  // Setting number range problem
     InvalidValue                = 81,  // Setting string problem
    

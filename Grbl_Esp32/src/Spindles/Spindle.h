@@ -28,58 +28,54 @@
 
 #include <cstdint>
 
-enum class SpindleType : int8_t {
+enum class SpindleType : int8_t
+{
     NONE = 0,
     PWM,
     RELAY,
     LASER,
-    DAC,
-    HUANYANG,
     BESC,
-    _10V,
-    H2A,
-    YL620,
 };
 
 #include "../Grbl.h"
-#include <driver/dac.h>
-#include <driver/uart.h>
 
 // ===============  No floats! ===========================
 // ================ NO FLOATS! ==========================
 
-namespace Spindles {
+namespace Spindles
+{
     // This is the base class. Do not use this as your spindle
-    class Spindle {
+    class Spindle
+    {
     public:
         Spindle() = default;
 
-        Spindle(const Spindle&) = delete;
-        Spindle(Spindle&&)      = delete;
-        Spindle& operator=(const Spindle&) = delete;
-        Spindle& operator=(Spindle&&) = delete;
+        Spindle(const Spindle &) = delete;
+        Spindle(Spindle &&) = delete;
+        Spindle &operator=(const Spindle &) = delete;
+        Spindle &operator=(Spindle &&) = delete;
 
-        virtual void         init()                = 0;  // not in constructor because this also gets called when $$ settings change
-        virtual uint32_t     set_rpm(uint32_t rpm) = 0;
-        virtual void         set_state(SpindleState state, uint32_t rpm) = 0;
-        virtual SpindleState get_state()                                 = 0;
-        virtual void         stop()                                      = 0;
-        virtual void         config_message()                            = 0;
-        virtual bool         inLaserMode();
-        virtual void         sync(SpindleState state, uint32_t rpm);
-        virtual void         deinit();
+        virtual void init() = 0; // not in constructor because this also gets called when $$ settings change
+        virtual uint32_t set_rpm(uint32_t rpm) = 0;
+        virtual void set_state(SpindleState state, uint32_t rpm) = 0;
+        virtual SpindleState get_state() = 0;
+        virtual void stop() = 0;
+        virtual void config_message() = 0;
+        virtual bool inLaserMode();
+        virtual void sync(SpindleState state, uint32_t rpm);
+        virtual void deinit();
 
         virtual ~Spindle() {}
 
-        bool                  is_reversable;
-        bool                  use_delays;  // will SpinUp and SpinDown delays be used.
+        bool is_reversable;
+        bool use_delays; // will SpinUp and SpinDown delays be used.
         volatile SpindleState _current_state = SpindleState::Disable;
-        uint32_t              _spinup_delay;
-        uint32_t              _spindown_delay;
+        uint32_t _spinup_delay;
+        uint32_t _spindown_delay;
 
         static void select();
     };
 
 }
 
-extern Spindles::Spindle* spindle;
+extern Spindles::Spindle *spindle;

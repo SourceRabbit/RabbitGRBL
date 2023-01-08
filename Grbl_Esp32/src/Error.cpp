@@ -61,10 +61,6 @@ std::map<Error, const char *> ErrorNames = {
     {Error::GcodeG43DynamicAxisError, "Gcode G43 dynamic axis error"},
     {Error::GcodeMaxValueExceeded, "Gcode max value exceeded"},
     {Error::PParamMaxExceeded, "P param max exceeded"},
-
-    {Error::FsFailedDelDir, "Failed to delete directory"},
-    {Error::FsFailedDelFile, "Failed to delete file"},
-    {Error::BtFailBegin, "Bluetooth failed to start"},
     {Error::NumberRange, "Number out of range for setting"},
     {Error::InvalidValue, "Invalid value for setting"},
     {Error::NvsSetFailed, "Failed to store setting"},

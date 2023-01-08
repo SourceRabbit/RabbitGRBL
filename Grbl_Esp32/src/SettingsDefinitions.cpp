@@ -69,11 +69,7 @@ enum_opt_t spindleTypes = {
     { "PWM", int8_t(SpindleType::PWM) },
     { "RELAY", int8_t(SpindleType::RELAY) },
     { "LASER", int8_t(SpindleType::LASER) },
-    { "DAC", int8_t(SpindleType::DAC) },
-    { "HUANYANG", int8_t(SpindleType::HUANYANG) },
     { "BESC", int8_t(SpindleType::BESC) },
-    { "10V", int8_t(SpindleType::_10V) },
-    { "H2A", int8_t(SpindleType::H2A) },
     // clang-format on
 };
 

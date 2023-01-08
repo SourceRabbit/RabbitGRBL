@@ -61,7 +61,7 @@
 // of the one in Uart.cpp, which uses the ESP-IDF UART driver.
 // This is for regression testing, and can be removed after
 // testing is complete.
-// #define REVERT_TO_ARDUINO_SERIAL
+#define REVERT_TO_ARDUINO_SERIAL
 
 portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
@@ -179,7 +179,7 @@ void clientCheckTask(void *pvParameters)
                 vTaskExitCritical(&myMutex);
             }
         } // if something available
-  
+
         vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
