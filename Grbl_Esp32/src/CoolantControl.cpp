@@ -87,36 +87,21 @@ CoolantState coolant_get_state()
 static inline void coolant_write(CoolantState state)
 {
     bool pinState;
-    bool shouldWait;
 
 #ifdef COOLANT_FLOOD_PIN
     pinState = state.Flood;
-    shouldWait = digitalRead(COOLANT_FLOOD_PIN) == false && pinState == true && coolant_flood_start_delay->get() > 0;
 #ifdef INVERT_COOLANT_FLOOD_PIN
     pinState = !pinState;
 #endif
     digitalWrite(COOLANT_FLOOD_PIN, pinState);
-    if (shouldWait)
-    {
-        // Delay for Flood Coolant
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood wait!");
-        delay(1000.0 * coolant_flood_start_delay->get());
-    }
 #endif
 
 #ifdef COOLANT_MIST_PIN
     pinState = state.Mist;
-    shouldWait = digitalRead(COOLANT_MIST_PIN) == false && pinState == true && coolant_mist_start_delay->get() > 0;
 #ifdef INVERT_COOLANT_MIST_PIN
     pinState = !pinState;
 #endif
     digitalWrite(COOLANT_MIST_PIN, pinState);
-    if (shouldWait)
-    {
-        // Delay for Mist Coolant
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist wait!");
-        delay(1000.0 * coolant_mist_start_delay->get());
-    }
 #endif
 }
 
@@ -132,7 +117,6 @@ void coolant_stop()
 // if enabled. Also sets a flag to report an update to a coolant state.
 // Called by coolant toggle override, parking restore, parking retract, sleep mode, g-code
 // parser program end, and g-code parser coolant_sync().
-
 void coolant_set_state(CoolantState state)
 {
     if (sys.abort)
