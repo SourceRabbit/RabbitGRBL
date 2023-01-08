@@ -239,10 +239,6 @@ static void stepper_pulse_func()
             // Stepper drivers need some time between changing direction and doing a pulse.
             switch (current_stepper)
             {
-            case ST_I2S_STREAM:
-                i2s_out_push_sample(wait_direction);
-                break;
-            case ST_I2S_STATIC:
             case ST_TIMED:
             {
                 // wait for step pulse time to complete...some time expired during code above
@@ -370,12 +366,6 @@ static void stepper_pulse_func()
 
     switch (current_stepper)
     {
-    case ST_I2S_STREAM:
-        // Generate the number of pulses needed to span pulse_microseconds
-        i2s_out_push_sample(pulse_microseconds->get());
-        motors_unstep();
-        break;
-    case ST_I2S_STATIC:
     case ST_TIMED:
         // wait for step pulse time to complete...some time expired during code above
         while (esp_timer_get_time() - step_pulse_start_time < pulse_microseconds->get())
@@ -412,18 +402,7 @@ void stepper_switch(stepper_id_t new_stepper)
         // do not need to change
         return;
     }
-#ifdef USE_I2S_STEPS
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        if (i2s_out_get_pulser_status() != PASSTHROUGH)
-        {
-            // Called during streaming. Stop streaming.
-            grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Debug, "Stop the I2S streaming and switch to the passthrough mode.");
-            i2s_out_set_passthrough();
-            i2s_out_delay(); // Wait for a change in mode.
-        }
-    }
-#endif
+
     current_stepper = new_stepper;
 }
 
@@ -459,12 +438,6 @@ void st_reset()
     // Serial.println("st_reset()");
 #endif
     // Initialize stepper driver idle state.
-#ifdef USE_I2S_STEPS
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        i2s_out_reset();
-    }
-#endif
     st_go_idle();
     // Initialize stepper algorithm variables.
     memset(&prep, 0, sizeof(st_prep_t));
@@ -1095,12 +1068,7 @@ void IRAM_ATTR Stepper_Timer_WritePeriod(uint16_t timerTicks)
 {
     if (current_stepper == ST_I2S_STREAM)
     {
-#ifdef USE_I2S_STEPS
-        // 1 tick = fTimers / fStepperTimer
-        // Pulse ISR is called for each tick of alarm_val.
-        // The argument to i2s_out_set_pulse_period is in units of microseconds
-        i2s_out_set_pulse_period(((uint32_t)timerTicks) / ticksPerMicrosecond);
-#endif
+        // Nothing.. Will be removed in the future
     }
     else
     {
@@ -1130,9 +1098,7 @@ void IRAM_ATTR Stepper_Timer_Start()
 #endif
     if (current_stepper == ST_I2S_STREAM)
     {
-#ifdef USE_I2S_STEPS
-        i2s_out_set_stepping();
-#endif
+        // Nothing - It will be removed in the future
     }
     else
     {
@@ -1149,9 +1115,7 @@ void IRAM_ATTR Stepper_Timer_Stop()
 #endif
     if (current_stepper == ST_I2S_STREAM)
     {
-#ifdef USE_I2S_STEPS
-        i2s_out_set_passthrough();
-#endif
+        // Nothing - It will be removed in the future
     }
     else
     {

@@ -1588,6 +1588,7 @@ Error gc_execute_line(char *line, uint8_t client)
         gc_state.modal.spindle = gc_block.modal.spindle;
     }
     pl_data->spindle = gc_state.modal.spindle;
+
     // [8. Coolant control ]:
     // At most one of M7, M8, M9 can appear in a GCode block, but the overall coolant
     // state can have both mist (M7) and flood (M8) on at once, by issuing M7 and M8
@@ -1598,14 +1599,45 @@ Error gc_execute_line(char *line, uint8_t client)
     {
     case GCodeCoolant::None:
         break;
+
     case GCodeCoolant::M7:
         gc_state.modal.coolant.Mist = 1;
+#ifdef COOLANT_MIST_PIN
+        // Check if we should wait for Mist Coolant to start !
+        if (digitalRead(COOLANT_MIST_PIN) == false && coolant_mist_start_delay->get() > 0)
+        {
+            // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist wait!");
+            coolant_sync(gc_state.modal.coolant);
+            delay(1000.0 * coolant_mist_start_delay->get());
+        }
+        else
+        {
+            coolant_sync(gc_state.modal.coolant);
+        }
+#else
         coolant_sync(gc_state.modal.coolant);
+#endif
         break;
+
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
+#ifdef COOLANT_FLOOD_PIN
+        // Check if we should wait for Flood Coolant to start !
+        if (digitalRead(COOLANT_FLOOD_PIN) == false && coolant_flood_start_delay->get() > 0)
+        {
+            // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood wait!");
+            coolant_sync(gc_state.modal.coolant);
+            delay(1000.0 * coolant_flood_start_delay->get());
+        }
+        else
+        {
+            coolant_sync(gc_state.modal.coolant);
+        }
+#else
         coolant_sync(gc_state.modal.coolant);
+#endif
         break;
+
     case GCodeCoolant::M9:
         gc_state.modal.coolant = {};
         coolant_sync(gc_state.modal.coolant);

@@ -22,13 +22,11 @@
 
 // Grbl versioning system
 const char *const GRBL_VERSION = "1.3a (Rabbit Grbl for the ESP32)";
-const char *const GRBL_VERSION_BUILD = "20230106";
+const char *const GRBL_VERSION_BUILD = "20230108";
 
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <driver/rmt.h>
-#include <esp_task_wdt.h>
-#include <freertos/task.h>
 #include <Preferences.h>
 #include <driver/timer.h>
 
@@ -37,8 +35,7 @@ const char *const GRBL_VERSION_BUILD = "20230106";
 #include "NutsBolts.h"
 #include "Defaults.h"
 #include "Error.h"
-#include "WebUI/Authentication.h"
-#include "WebUI/Commands.h"
+#include "WebUI/ESPResponse.h"
 #include "Probe.h"
 #include "System.h"
 #include "GCode.h"
@@ -48,7 +45,6 @@ const char *const GRBL_VERSION_BUILD = "20230106";
 #include "Backlash.h"
 #include "MotionControl.h"
 #include "Protocol.h"
-#include "Uart.h"
 #include "Serial.h"
 #include "Report.h"
 #include "Pins.h"
@@ -61,7 +57,6 @@ const char *const GRBL_VERSION_BUILD = "20230106";
 #include "SettingsDefinitions.h"
 #include "UserOutput.h"
 #include <Wire.h>
-#include "I2SOut.h"
 
 void grbl_init();
 void run_once();

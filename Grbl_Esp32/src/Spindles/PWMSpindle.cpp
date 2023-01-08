@@ -28,27 +28,25 @@
     If the spindle is running it will stop and need to be restarted with M3Snnnn
 */
 
-//#include "grbl.h"
+// #include "grbl.h"
 
-namespace Spindles {
-    void PWM::init() {
+namespace Spindles
+{
+    void PWM::init()
+    {
         get_pins_and_settings();
 
-        if (_output_pin == UNDEFINED_PIN) {
-            return;  // We cannot continue without the output pin
+        if (_output_pin == UNDEFINED_PIN)
+        {
+            return; // We cannot continue without the output pin
         }
 
-        if (_output_pin >= I2S_OUT_PIN_BASE) {
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Spindle output pin %s cannot do PWM", pinName(_output_pin).c_str());
-            return;
-        }
-
-        _current_state    = SpindleState::Disable;
+        _current_state = SpindleState::Disable;
         _current_pwm_duty = 0;
-        use_delays        = true;
+        use_delays = true;
 
-        ledcSetup(_pwm_chan_num, (double)_pwm_freq, _pwm_precision);  // setup the channel
-        ledcAttachPin(_output_pin, _pwm_chan_num);                    // attach the PWM to the pin
+        ledcSetup(_pwm_chan_num, (double)_pwm_freq, _pwm_precision); // setup the channel
+        ledcAttachPin(_output_pin, _pwm_chan_num);                   // attach the PWM to the pin
         pinMode(_enable_pin, OUTPUT);
         pinMode(_direction_pin, OUTPUT);
 
@@ -56,13 +54,14 @@ namespace Spindles {
     }
 
     // Get the GPIO from the machine definition
-    void PWM::get_pins_and_settings() {
+    void PWM::get_pins_and_settings()
+    {
         // setup all the pins
 
 #ifdef SPINDLE_OUTPUT_PIN
         _output_pin = SPINDLE_OUTPUT_PIN;
 #else
-        _output_pin       = UNDEFINED_PIN;
+        _output_pin = UNDEFINED_PIN;
 #endif
 
         _invert_pwm = spindle_output_invert->get();
@@ -70,7 +69,7 @@ namespace Spindles {
 #ifdef SPINDLE_ENABLE_PIN
         _enable_pin = SPINDLE_ENABLE_PIN;
 #else
-        _enable_pin       = UNDEFINED_PIN;
+        _enable_pin = UNDEFINED_PIN;
 #endif
 
         _off_with_zero_speed = spindle_enbl_off_with_zero_speed->get();
@@ -78,21 +77,23 @@ namespace Spindles {
 #ifdef SPINDLE_DIR_PIN
         _direction_pin = SPINDLE_DIR_PIN;
 #else
-        _direction_pin    = UNDEFINED_PIN;
+        _direction_pin = UNDEFINED_PIN;
 #endif
 
-        if (_output_pin == UNDEFINED_PIN) {
+        if (_output_pin == UNDEFINED_PIN)
+        {
             grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
-            return;  // We cannot continue without the output pin
+            return; // We cannot continue without the output pin
         }
 
         is_reversable = (_direction_pin != UNDEFINED_PIN);
 
-        _pwm_freq      = spindle_pwm_freq->get();
-        _pwm_precision = calc_pwm_precision(_pwm_freq);  // detewrmine the best precision
-        _pwm_period    = (1 << _pwm_precision);
+        _pwm_freq = spindle_pwm_freq->get();
+        _pwm_precision = calc_pwm_precision(_pwm_freq); // detewrmine the best precision
+        _pwm_period = (1 << _pwm_precision);
 
-        if (spindle_pwm_min_value->get() > spindle_pwm_min_value->get()) {
+        if (spindle_pwm_min_value->get() > spindle_pwm_min_value->get())
+        {
             grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Spindle min pwm is greater than max. Check $35 and $36");
         }
 
@@ -102,51 +103,61 @@ namespace Spindles {
         _pwm_max_value = (_pwm_period * spindle_pwm_max_value->get() / 100.0);
 
 #ifdef ENABLE_PIECEWISE_LINEAR_SPINDLE
-        _min_rpm          = RPM_MIN;
-        _max_rpm          = RPM_MAX;
+        _min_rpm = RPM_MIN;
+        _max_rpm = RPM_MAX;
         _piecewide_linear = true;
 #else
-        _min_rpm          = rpm_min->get();
-        _max_rpm          = rpm_max->get();
+        _min_rpm = rpm_min->get();
+        _max_rpm = rpm_max->get();
         _piecewide_linear = false;
 #endif
         // The pwm_gradient is the pwm duty cycle units per rpm
         // _pwm_gradient = (_pwm_max_value - _pwm_min_value) / (_max_rpm - _min_rpm);
 
-        _pwm_chan_num = 0;  // Channel 0 is reserved for spindle use
+        _pwm_chan_num = 0; // Channel 0 is reserved for spindle use
 
-        _spinup_delay   = spindle_delay_spinup->get() * 1000.0;
+        _spinup_delay = spindle_delay_spinup->get() * 1000.0;
         _spindown_delay = spindle_delay_spindown->get() * 1000.0;
     }
 
-    uint32_t PWM::set_rpm(uint32_t rpm) {
+    uint32_t PWM::set_rpm(uint32_t rpm)
+    {
         uint32_t pwm_value;
 
-        if (_output_pin == UNDEFINED_PIN) {
+        if (_output_pin == UNDEFINED_PIN)
+        {
             return rpm;
         }
 
         // apply override
-        rpm = rpm * sys.spindle_speed_ovr / 100;  // Scale by spindle speed override value (uint8_t percent)
+        rpm = rpm * sys.spindle_speed_ovr / 100; // Scale by spindle speed override value (uint8_t percent)
 
         // apply limits
-        if ((_min_rpm >= _max_rpm) || (rpm >= _max_rpm)) {
+        if ((_min_rpm >= _max_rpm) || (rpm >= _max_rpm))
+        {
             rpm = _max_rpm;
-        } else if (rpm != 0 && rpm <= _min_rpm) {
+        }
+        else if (rpm != 0 && rpm <= _min_rpm)
+        {
             rpm = _min_rpm;
         }
 
         sys.spindle_speed = rpm;
 
-        if (_piecewide_linear) {
-            //pwm_value = piecewise_linear_fit(rpm); TODO
+        if (_piecewide_linear)
+        {
+            // pwm_value = piecewise_linear_fit(rpm); TODO
             pwm_value = 0;
             grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Linear fit not implemented yet.");
-
-        } else {
-            if (rpm == 0) {
+        }
+        else
+        {
+            if (rpm == 0)
+            {
                 pwm_value = _pwm_off_value;
-            } else {
+            }
+            else
+            {
                 pwm_value = map_uint32_t(rpm, _min_rpm, _max_rpm, _pwm_min_value, _pwm_max_value);
             }
         }
@@ -157,49 +168,64 @@ namespace Spindles {
         return 0;
     }
 
-    void PWM::set_state(SpindleState state, uint32_t rpm) {
-        if (sys.abort) {
-            return;  // Block during abort.
+    void PWM::set_state(SpindleState state, uint32_t rpm)
+    {
+        if (sys.abort)
+        {
+            return; // Block during abort.
         }
 
-        if (state == SpindleState::Disable) {  // Halt or set spindle direction and rpm.
+        if (state == SpindleState::Disable)
+        {
+            // Halt or set spindle direction and rpm.
             sys.spindle_speed = 0;
             stop();
-            if (use_delays && (_current_state != state)) {
-                delay(_spinup_delay);
+            if (use_delays && (_current_state != state))
+            {
+                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin down delay");
+                delay(_spindown_delay);
             }
-        } else {
+        }
+        else
+        {
             set_dir_pin(state == SpindleState::Cw);
             set_rpm(rpm);
-            set_enable_pin(state != SpindleState::Disable);  // must be done after setting rpm for enable features to work
-            if (use_delays && (_current_state != state)) {
-                delay(_spindown_delay);
+            set_enable_pin(state != SpindleState::Disable); // must be done after setting rpm for enable features to work
+            if (use_delays && (_current_state != state))
+            {
+                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin up delay");
+                delay(_spinup_delay);
             }
         }
 
         _current_state = state;
 
-        sys.report_ovr_counter = 0;  // Set to report change immediately
+        sys.report_ovr_counter = 0; // Set to report change immediately
     }
 
-    SpindleState PWM::get_state() {
-        if (_current_pwm_duty == 0 || _output_pin == UNDEFINED_PIN) {
+    SpindleState PWM::get_state()
+    {
+        if (_current_pwm_duty == 0 || _output_pin == UNDEFINED_PIN)
+        {
             return SpindleState::Disable;
         }
-        if (_direction_pin != UNDEFINED_PIN) {
+        if (_direction_pin != UNDEFINED_PIN)
+        {
             return digitalRead(_direction_pin) ? SpindleState::Cw : SpindleState::Ccw;
         }
         return SpindleState::Cw;
     }
 
-    void PWM::stop() {
+    void PWM::stop()
+    {
         // inverts are delt with in methods
         set_enable_pin(false);
         set_output(_pwm_off_value);
     }
 
     // prints the startup message of the spindle config
-    void PWM::config_message() {
+    void PWM::config_message()
+    {
         grbl_msg_sendf(CLIENT_ALL,
                        MsgLevel::Info,
                        "PWM spindle Output:%s, Enbl:%s, Dir:%s, Freq:%dHz, Res:%dbits",
@@ -210,34 +236,39 @@ namespace Spindles {
                        _pwm_precision);
     }
 
-    void PWM::set_output(uint32_t duty) {
-        if (_output_pin == UNDEFINED_PIN) {
+    void PWM::set_output(uint32_t duty)
+    {
+        if (_output_pin == UNDEFINED_PIN)
+        {
             return;
         }
 
         // to prevent excessive calls to ledcWrite, make sure duty hass changed
-        if (duty == _current_pwm_duty) {
+        if (duty == _current_pwm_duty)
+        {
             return;
         }
 
         _current_pwm_duty = duty;
 
-        if (_invert_pwm) {
+        if (_invert_pwm)
+        {
             duty = (1 << _pwm_precision) - duty;
         }
 
-        //ledcWrite(_pwm_chan_num, duty);
+        // ledcWrite(_pwm_chan_num, duty);
 
         // This was ledcWrite, but this is called from an ISR
         // and ledcWrite uses RTOS features not compatible with ISRs
-        LEDC.channel_group[0].channel[0].duty.duty        = duty << 4;
-        bool on                                           = !!duty;
+        LEDC.channel_group[0].channel[0].duty.duty = duty << 4;
+        bool on = !!duty;
         LEDC.channel_group[0].channel[0].conf0.sig_out_en = on;
         LEDC.channel_group[0].channel[0].conf1.duty_start = on;
-        LEDC.channel_group[0].channel[0].conf0.clk_en     = on;
+        LEDC.channel_group[0].channel[0].conf0.clk_en = on;
     }
 
-    void PWM::set_enable_pin(bool enable) {
+    void PWM::set_enable_pin(bool enable)
+    {
         // static bool prev_enable = false;
 
         // if (prev_enable == enable) {
@@ -246,15 +277,18 @@ namespace Spindles {
 
         // prev_enable = enable;
 
-        if (_enable_pin == UNDEFINED_PIN) {
+        if (_enable_pin == UNDEFINED_PIN)
+        {
             return;
         }
 
-        if (_off_with_zero_speed && sys.spindle_speed == 0) {
+        if (_off_with_zero_speed && sys.spindle_speed == 0)
+        {
             enable = false;
         }
 
-        if (spindle_enable_invert->get()) {
+        if (spindle_enable_invert->get())
+        {
             enable = !enable;
         }
 
@@ -264,23 +298,26 @@ namespace Spindles {
     void PWM::set_dir_pin(bool Clockwise) { digitalWrite(_direction_pin, Clockwise); }
 
     /*
-		Calculate the highest precision of a PWM based on the frequency in bits
+        Calculate the highest precision of a PWM based on the frequency in bits
 
-		80,000,000 / freq = period
-		determine the highest precision where (1 << precision) < period
-	*/
-    uint8_t PWM::calc_pwm_precision(uint32_t freq) {
+        80,000,000 / freq = period
+        determine the highest precision where (1 << precision) < period
+    */
+    uint8_t PWM::calc_pwm_precision(uint32_t freq)
+    {
         uint8_t precision = 0;
 
         // increase the precision (bits) until it exceeds allow by frequency the max or is 16
-        while ((1 << precision) < (uint32_t)(80000000 / freq) && precision <= 16) {
+        while ((1 << precision) < (uint32_t)(80000000 / freq) && precision <= 16)
+        {
             precision++;
         }
 
         return precision - 1;
     }
 
-    void PWM::deinit() {
+    void PWM::deinit()
+    {
         stop();
 #ifdef SPINDLE_OUTPUT_PIN
         gpio_reset_pin(SPINDLE_OUTPUT_PIN);
