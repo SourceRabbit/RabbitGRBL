@@ -59,7 +59,7 @@ const char *const GRBL_VERSION_BUILD = "20230108";
 #include "SettingsDefinitions.h"
 #include "UserOutput.h"
 #include <Wire.h>
-#include "I2SOut.h"
+// #include "I2SOut.h"
 
 void grbl_init();
 void run_once();

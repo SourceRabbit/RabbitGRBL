@@ -284,28 +284,8 @@ static bool axis_is_squared(uint8_t axis_mask)
     return false;
 }
 
-#ifdef USE_I2S_STEPS
-#define BACKUP_STEPPER(save_stepper)                                                                          \
-    do                                                                                                        \
-    {                                                                                                         \
-        if (save_stepper == ST_I2S_STREAM)                                                                    \
-        {                                                                                                     \
-            stepper_switch(ST_I2S_STATIC); /* Change the stepper to reduce the delay for accurate probing. */ \
-        }                                                                                                     \
-    } while (0)
-
-#define RESTORE_STEPPER(save_stepper)                                          \
-    do                                                                         \
-    {                                                                          \
-        if (save_stepper == ST_I2S_STREAM && current_stepper != ST_I2S_STREAM) \
-        {                                                                      \
-            stepper_switch(ST_I2S_STREAM); /* Put the stepper back on. */      \
-        }                                                                      \
-    } while (0)
-#else
 #define BACKUP_STEPPER(save_stepper)
 #define RESTORE_STEPPER(save_stepper)
-#endif
 
 // Perform homing cycle to locate and set machine zero. Only '$H' executes this command.
 // NOTE: There should be no motions in the buffer and Grbl must be in an idle state before
@@ -612,11 +592,5 @@ void mc_reset()
         }
         ganged_mode = SquaringMode::Dual; // in case an error occurred during squaring
 
-#ifdef USE_I2S_STEPS
-        if (current_stepper == ST_I2S_STREAM)
-        {
-            i2s_out_reset();
-        }
-#endif
     }
 }
