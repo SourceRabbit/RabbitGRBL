@@ -20,23 +20,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-namespace WebUI {
-    class ESPResponseStream {
+namespace WebUI
+{
+    class ESPResponseStream
+    {
     public:
-
         ESPResponseStream(uint8_t client, bool byid = true);
         ESPResponseStream();
 
-        void          print(const char* data);
-        void          println(const char* data);
-        void          flush();
-        bool          anyOutput() { return _header_sent; }
+        void print(const char *data);
+        void println(const char *data);
+        void flush();
+        bool anyOutput() { return _header_sent; }
         static String formatBytes(uint64_t bytes);
-        uint8_t       client() { return _client; }
+        uint8_t client() { return _client; }
 
     private:
         uint8_t _client;
-        bool    _header_sent;
-
+        bool _header_sent;
     };
 }

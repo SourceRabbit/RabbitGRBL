@@ -83,7 +83,7 @@ Error add_char_to_line(char c, uint8_t client)
     return Error::Ok;
 }
 
-Error execute_line(char *line, uint8_t client, WebUI::AuthenticationLevel auth_level)
+Error execute_line(char *line, uint8_t client)
 {
     Error result = Error::Ok;
     // Empty or comment line. For syncing purposes.
@@ -94,7 +94,7 @@ Error execute_line(char *line, uint8_t client, WebUI::AuthenticationLevel auth_l
     // Grbl '$' or WebUI '[ESPxxx]' system command
     if (line[0] == '$' || line[0] == '[')
     {
-        return system_execute_line(line, client, auth_level);
+        return system_execute_line(line, client);
     }
     // Everything else is gcode. Block if in alarm or jog mode.
     if (sys.state == State::Alarm || sys.state == State::Jog)
@@ -202,7 +202,7 @@ void protocol_main_loop()
                     report_echo_line_received(line, client);
 #endif
                     // auth_level can be upgraded by supplying a password on the command line
-                    report_status_message(execute_line(line, client, WebUI::AuthenticationLevel::LEVEL_GUEST), client);
+                    report_status_message(execute_line(line, client), client);
                     empty_line(client);
                     break;
                 case Error::Overflow:
