@@ -41,12 +41,6 @@ namespace Spindles
             return; // We cannot continue without the output pin
         }
 
-        if (_output_pin >= I2S_OUT_PIN_BASE)
-        {
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Spindle output pin %s cannot do PWM", pinName(_output_pin).c_str());
-            return;
-        }
-
         _current_state = SpindleState::Disable;
         _current_pwm_duty = 0;
         use_delays = true;
@@ -188,7 +182,7 @@ namespace Spindles
             stop();
             if (use_delays && (_current_state != state))
             {
-                //grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin down delay");
+                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin down delay");
                 delay(_spindown_delay);
             }
         }
@@ -199,7 +193,7 @@ namespace Spindles
             set_enable_pin(state != SpindleState::Disable); // must be done after setting rpm for enable features to work
             if (use_delays && (_current_state != state))
             {
-                //grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin up delay");
+                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin up delay");
                 delay(_spinup_delay);
             }
         }

@@ -417,9 +417,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
         return GCUpdatePos::None; // Return if system reset has been issued.
     }
 
-#ifdef USE_I2S_STEPS
-    stepper_id_t save_stepper = current_stepper; /* remember the stepper */
-#endif
+
     // Switch stepper mode to the I2S static (realtime mode)
     BACKUP_STEPPER(save_stepper);
 

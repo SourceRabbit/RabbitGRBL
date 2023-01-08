@@ -1,5 +1,4 @@
 #include "Grbl.h"
-//#include "I2SOut.h"
 
 String pinName(uint8_t pin)
 {
@@ -7,14 +6,8 @@ String pinName(uint8_t pin)
     {
         return "None";
     }
-    if (pin < I2S_OUT_PIN_BASE)
-    {
-        return String("GPIO(") + pin + ")";
-    }
-    else
-    {
-        return String("I2SO(") + (pin - I2S_OUT_PIN_BASE) + ")";
-    }
+
+    return String("GPIO(") + pin + ")";
 }
 
 // Even if USE_I2S_OUT is not defined, it is necessary to
@@ -28,11 +21,8 @@ void IRAM_ATTR digitalWrite(uint8_t pin, uint8_t val)
     {
         return;
     }
-    if (pin < I2S_OUT_PIN_BASE)
-    {
-        __digitalWrite(pin, val);
-        return;
-    }
+
+    __digitalWrite(pin, val);
 }
 
 void IRAM_ATTR pinMode(uint8_t pin, uint8_t mode)
@@ -41,10 +31,9 @@ void IRAM_ATTR pinMode(uint8_t pin, uint8_t mode)
     {
         return;
     }
-    if (pin < I2S_OUT_PIN_BASE)
-    {
-        __pinMode(pin, mode);
-    }
+
+    __pinMode(pin, mode);
+
     // I2S out pins cannot be configured, hence there
     // is nothing to do here for them.
 }
@@ -55,10 +44,6 @@ int IRAM_ATTR digitalRead(uint8_t pin)
     {
         return 0;
     }
-    if (pin < I2S_OUT_PIN_BASE)
-    {
-        return __digitalRead(pin);
-    }
 
-    return 0;
+    return __digitalRead(pin);
 }

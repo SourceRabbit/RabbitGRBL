@@ -438,12 +438,6 @@ void st_reset()
     // Serial.println("st_reset()");
 #endif
     // Initialize stepper driver idle state.
-#ifdef USE_I2S_STEPS
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        i2s_out_reset();
-    }
-#endif
     st_go_idle();
     // Initialize stepper algorithm variables.
     memset(&prep, 0, sizeof(st_prep_t));
@@ -1104,9 +1098,7 @@ void IRAM_ATTR Stepper_Timer_Start()
 #endif
     if (current_stepper == ST_I2S_STREAM)
     {
-#ifdef USE_I2S_STEPS
-        i2s_out_set_stepping();
-#endif
+        // Nothing - It will be removed in the future
     }
     else
     {

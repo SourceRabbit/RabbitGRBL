@@ -27,8 +27,6 @@ const char *const GRBL_VERSION_BUILD = "20230108";
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <driver/rmt.h>
-#include <esp_task_wdt.h>
-#include <freertos/task.h>
 #include <Preferences.h>
 #include <driver/timer.h>
 
@@ -59,7 +57,6 @@ const char *const GRBL_VERSION_BUILD = "20230108";
 #include "SettingsDefinitions.h"
 #include "UserOutput.h"
 #include <Wire.h>
-// #include "I2SOut.h"
 
 void grbl_init();
 void run_once();
