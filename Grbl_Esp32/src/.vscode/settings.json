@@ -3,6 +3,10 @@
         "xtree": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "atomic": "cpp",
+        "exception": "cpp",
+        "type_traits": "cpp",
+        "xtr1common": "cpp"
     }
 }

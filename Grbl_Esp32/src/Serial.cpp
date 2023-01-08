@@ -179,8 +179,7 @@ void clientCheckTask(void *pvParameters)
                 vTaskExitCritical(&myMutex);
             }
         } // if something available
-        WebUI::COMMANDS::handle();
-
+  
         vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
