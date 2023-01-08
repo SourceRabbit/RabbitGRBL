@@ -20,49 +20,33 @@
 #include "../Grbl.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-esp_err_t esp_task_wdt_reset();
+    esp_err_t esp_task_wdt_reset();
 #ifdef __cplusplus
 }
 #endif
 
-namespace WebUI {
+namespace WebUI
+{
     bool COMMANDS::restart_ESP_module = false;
 
     /*
      * delay is to avoid with asyncwebserver and may need to wait sometimes
      */
-    void COMMANDS::wait(uint32_t milliseconds) {
+    void COMMANDS::wait(uint32_t milliseconds)
+    {
         uint32_t timeout = millis();
-        esp_task_wdt_reset();  //for a wait 0;
-        //wait feeding WDT
-        while ((millis() - timeout) < milliseconds) {
+        esp_task_wdt_reset(); // for a wait 0;
+        // wait feeding WDT
+        while ((millis() - timeout) < milliseconds)
+        {
             esp_task_wdt_reset();
         }
     }
 
-    bool COMMANDS::isLocalPasswordValid(char* password) {
-        if (!password) {
-            return true;
-        }
-        char c;
-        //limited size
-        if ((strlen(password) > MAX_LOCAL_PASSWORD_LENGTH) || (strlen(password) < MIN_LOCAL_PASSWORD_LENGTH)) {
-            return false;
-        }
-
-        //no space allowed
-        for (int i = 0; i < strlen(password); i++) {
-            c = password[i];
-            if (c == ' ') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
+       /**
      * Restart ESP
      */
     void COMMANDS::restart_ESP() { restart_ESP_module = true; }
@@ -70,12 +54,16 @@ namespace WebUI {
     /**
      * Handle not critical actions that must be done in sync environement
      */
-    void COMMANDS::handle() {
+    void COMMANDS::handle()
+    {
         COMMANDS::wait(0);
-        //in case of restart requested
-        if (restart_ESP_module) {
+        // in case of restart requested
+        if (restart_ESP_module)
+        {
             ESP.restart();
-            while (1) {}
+            while (1)
+            {
+            }
         }
     }
 }
