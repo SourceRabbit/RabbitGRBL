@@ -87,6 +87,7 @@ static void reset_variables()
     gc_init(); // Set g-code parser to default state
     spindle->stop();
     coolant_init();
+    CoolantManager::Initialize();
     limits_init();
     probe_init();
     plan_reset(); // Clear block buffer and planner variables
