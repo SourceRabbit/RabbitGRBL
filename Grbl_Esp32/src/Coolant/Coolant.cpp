@@ -19,6 +19,9 @@ void Coolant::Initialize(uint8_t pin, bool invertPinOutput)
     this->TurnOff();
 }
 
+/**
+ * Turn the coolant On.
+ */
 void Coolant::TurnOn()
 {
     if (fPinNumber > 0)
@@ -28,6 +31,9 @@ void Coolant::TurnOn()
     }
 }
 
+/**
+ * Turn the coolant On and wait.
+ */
 void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
 {
     if (fPinNumber > 0)
@@ -37,6 +43,9 @@ void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
     }
 }
 
+/**
+ * Turn the coolant Off.
+ */
 void Coolant::TurnOff()
 {
     if (fPinNumber > 0)
