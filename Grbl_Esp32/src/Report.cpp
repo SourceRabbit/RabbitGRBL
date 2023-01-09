@@ -812,7 +812,7 @@ void report_realtime_status(uint8_t client)
         strcat(status, temp);
         SpindleState sp_state = spindle->get_state();
 
-        if (sp_state != SpindleState::Disable || CoolantManager::Flood_Coolant.getState() || CoolantManager::Mist_Coolant.getState())
+        if (sp_state != SpindleState::Disable || CoolantManager::Flood_Coolant.isOn() || CoolantManager::Mist_Coolant.isOn())
         {
             strcat(status, "|A:");
             switch (sp_state)
@@ -827,12 +827,12 @@ void report_realtime_status(uint8_t client)
                 break;
             }
 
-            if (CoolantManager::Flood_Coolant.getState())
+            if (CoolantManager::Flood_Coolant.isOn())
             {
                 strcat(status, "F");
             }
 
-            if (CoolantManager::Mist_Coolant.getState())
+            if (CoolantManager::Mist_Coolant.isOn())
             {
                 strcat(status, "M");
             }

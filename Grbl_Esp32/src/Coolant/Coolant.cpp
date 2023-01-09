@@ -1,3 +1,9 @@
+/*
+  Copyright (c) 2023 Nikolaos Siatras
+  Twitter: nsiatras
+  Website: https://www.sourcerabbit.com
+*/
+
 #include "../Grbl.h"
 #include "Coolant.h"
 
@@ -39,7 +45,10 @@ void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
     if (fPinNumber > 0)
     {
         this->TurnOn();
-        delay(delayMilliseconds);
+
+        // delay_msec(int32_t(1000.0 * coolant_flood_start_delay->get()), DwellMode::SysSuspend);
+        delay_msec(delayMilliseconds, DwellMode::SysSuspend);
+        // delay(delayMilliseconds);
     }
 }
 
@@ -61,7 +70,7 @@ void Coolant::TurnOff()
  */
 void Coolant::Toggle()
 {
-    if (this->getState())
+    if (this->isOn())
     {
         this->TurnOff();
     }
@@ -74,9 +83,26 @@ void Coolant::Toggle()
 }
 
 /**
+ * This method will turn the coolant on or off according to the
+ * given state. If state = true then this method will call the
+ * TurnOn method otherwise it will call the TurnOff
+ */
+void Coolant::setState(bool state)
+{
+    if (state)
+    {
+        this->TurnOn();
+    }
+    else
+    {
+        this->TurnOn();
+    }
+}
+
+/**
  * Returns true if the Coolant is on
  */
-bool Coolant::getState()
+bool Coolant::isOn()
 {
     return fIsOn;
 }

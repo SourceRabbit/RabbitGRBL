@@ -569,7 +569,6 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
     {
         if (strcasecmp(s->getName(), key) == 0)
         {
-
             if (value)
             {
                 return s->setStringValue(value);

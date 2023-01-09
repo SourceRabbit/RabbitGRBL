@@ -159,24 +159,6 @@ void protocol_main_loop()
     int c;
     for (;;)
     {
-#ifdef ENABLE_SD_CARD
-        if (SD_ready_next)
-        {
-            char fileLine[255];
-            if (readFileLine(fileLine, 255))
-            {
-                SD_ready_next = false;
-                report_status_message(execute_line(fileLine, SD_client, SD_auth_level), SD_client);
-            }
-            else
-            {
-                char temp[50];
-                sd_get_current_filename(temp);
-                grbl_notifyf("SD print done", "%s print is successful", temp);
-                closeFile(); // close file and clear SD ready/running flags
-            }
-        }
-#endif
         // Receive one line of incoming serial data, as the data becomes available.
         // Filtering, if necessary, is done later in gc_execute_line(), so the
         // filtering is the same with serial and file input.
@@ -810,9 +792,7 @@ static void protocol_exec_rt_suspend()
                             // Block if safety door re-opened during prior restore actions.
                             if (!sys.suspend.bit.restartRetract)
                             {
-                                // NOTE: Laser mode will honor this delay. An exhaust system is often controlled by this pin.
                                 CoolantManager::setCoolantState(restore_coolant);
-                                // delay_msec(int32_t(1000.0 * coolant_flood_start_delay->get()), DwellMode::SysSuspend);
                             }
                         }
 #ifdef PARKING_ENABLE

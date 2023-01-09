@@ -1,3 +1,9 @@
+/*
+  Copyright (c) 2023 Nikolaos Siatras
+  Twitter: nsiatras
+  Website: https://www.sourcerabbit.com
+*/
+
 #pragma once
 
 #include "../Grbl.h"
@@ -8,13 +14,13 @@ class CoolantManager
 {
 public:
 
-    static void Initialize();
-    static void TurnAllCoolantsOff();
+  static Coolant Mist_Coolant;
+  static Coolant Flood_Coolant;
 
-    static Coolant Mist_Coolant;
-    static Coolant Flood_Coolant;
-    static void setCoolantState(CoolantState state);
+  static void Initialize();
+  static void TurnAllCoolantsOff();
+  static void setCoolantState(CoolantState state);
 
 private:
-    static Coolant fCoolants[];
+  static bool fInitialized;
 };
