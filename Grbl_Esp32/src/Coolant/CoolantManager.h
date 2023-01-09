@@ -13,7 +13,6 @@
 class CoolantManager
 {
 public:
-
   static Coolant Mist_Coolant;
   static Coolant Flood_Coolant;
 
@@ -21,6 +20,9 @@ public:
   static void TurnAllCoolantsOff();
   static void setCoolantState(CoolantState state);
 
+  static bool AreAllCoolantsOff();
+
 private:
   static bool fInitialized;
+  static Coolant *fCoolants[];
 };

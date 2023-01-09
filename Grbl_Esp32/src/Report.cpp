@@ -485,19 +485,20 @@ void report_gcode_modes(uint8_t client)
     strcat(modes_rpt, mode);
 
     // report_util_gcode_modes_M();  // optional M7 and M8 should have been dealt with by here
-    auto coolant = gc_state.modal.coolant;
-    if (!coolant.Mist && !coolant.Flood)
+    if (CoolantManager::AreAllCoolantsOff())
     {
+        // All coolants are off. Report with M9
         strcat(modes_rpt, " M9");
     }
     else
     {
         // Note: Multiple coolant states may be active at the same time.
-        if (coolant.Mist)
+        if (CoolantManager::Mist_Coolant.isOn())
         {
             strcat(modes_rpt, " M7");
         }
-        if (coolant.Flood)
+
+        if (CoolantManager::Flood_Coolant.isOn())
         {
             strcat(modes_rpt, " M8");
         }
