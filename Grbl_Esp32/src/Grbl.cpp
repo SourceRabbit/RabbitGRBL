@@ -86,7 +86,6 @@ static void reset_variables()
     client_reset_read_buffer(CLIENT_ALL);
     gc_init(); // Set g-code parser to default state
     spindle->stop();
-    coolant_init();
     CoolantManager::Initialize();
     limits_init();
     probe_init();

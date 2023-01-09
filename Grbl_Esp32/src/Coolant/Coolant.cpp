@@ -1,26 +1,67 @@
+#include "../Grbl.h"
 #include "Coolant.h"
 
-Coolant::Coolant(uint8_t pin, bool invertPinOutput)
+Coolant::Coolant()
+{
+}
+
+void Coolant::Initialize(uint8_t pin, bool invertPinOutput)
 {
     fPinNumber = pin;
-    fInvertPinOutput = pin;
-    pinMode(fPinNumber, OUTPUT);
+    fInvertPinOutput = invertPinOutput;
+
+    if (fPinNumber > 0)
+    {
+        pinMode(fPinNumber, OUTPUT);
+    }
+
+    // Turn off after initialization
+    this->TurnOff();
 }
 
 void Coolant::TurnOn()
 {
-    digitalWrite(fPinNumber, (fInvertPinOutput) ? false : true);
+    if (fPinNumber > 0)
+    {
+        digitalWrite(fPinNumber, (fInvertPinOutput) ? 0 : 1);
+        fIsOn = true;
+    }
 }
 
 void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
 {
-    this->TurnOn();
-    delay(delayMilliseconds);
+    if (fPinNumber > 0)
+    {
+        this->TurnOn();
+        delay(delayMilliseconds);
+    }
 }
 
 void Coolant::TurnOff()
 {
-    digitalWrite(fPinNumber, (fInvertPinOutput) ? true : false);
+    if (fPinNumber > 0)
+    {
+        digitalWrite(fPinNumber, (fInvertPinOutput) ? 1 : 0);
+    }
+    fIsOn = false;
+}
+
+/**
+ * Toggle will change the coolant's status. If the coolant is On then
+ * it will turn Off, otherwise it will turn On.
+ */
+void Coolant::Toggle()
+{
+    if (this->getState())
+    {
+        this->TurnOff();
+    }
+    else
+    {
+        this->TurnOn();
+    }
+
+    sys.report_ovr_counter = 0; // Set to report change immediately
 }
 
 /**
@@ -28,10 +69,5 @@ void Coolant::TurnOff()
  */
 bool Coolant::getState()
 {
-    bool isCoolantOn = digitalRead(fPinNumber);
-    if (fInvertPinOutput)
-    {
-        isCoolantOn = !isCoolantOn;
-    }
-    return isCoolantOn;
+    return fIsOn;
 }

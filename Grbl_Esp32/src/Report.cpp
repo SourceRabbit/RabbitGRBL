@@ -811,8 +811,8 @@ void report_realtime_status(uint8_t client)
         sprintf(temp, "|Ov:%d,%d,%d", sys.f_override, sys.r_override, sys.spindle_speed_ovr);
         strcat(status, temp);
         SpindleState sp_state = spindle->get_state();
-        CoolantState coolant_state = coolant_get_state();
-        if (sp_state != SpindleState::Disable || coolant_state.Mist || coolant_state.Flood)
+
+        if (sp_state != SpindleState::Disable || CoolantManager::Flood_Coolant.getState() || CoolantManager::Mist_Coolant.getState())
         {
             strcat(status, "|A:");
             switch (sp_state)
@@ -827,17 +827,15 @@ void report_realtime_status(uint8_t client)
                 break;
             }
 
-            auto coolant = coolant_state;
-            if (coolant.Flood)
+            if (CoolantManager::Flood_Coolant.getState())
             {
                 strcat(status, "F");
             }
-#ifdef COOLANT_MIST_PIN // TODO Deal with M8 - Flood
-            if (coolant.Mist)
+
+            if (CoolantManager::Mist_Coolant.getState())
             {
                 strcat(status, "M");
             }
-#endif
         }
     }
 #endif

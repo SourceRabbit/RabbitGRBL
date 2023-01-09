@@ -1602,45 +1602,21 @@ Error gc_execute_line(char *line, uint8_t client)
 
     case GCodeCoolant::M7:
         gc_state.modal.coolant.Mist = 1;
-#ifdef COOLANT_MIST_PIN
+        protocol_buffer_synchronize();
         // Check if we should wait for Mist Coolant to start !
-        if (digitalRead(COOLANT_MIST_PIN) == false && coolant_mist_start_delay->get() > 0)
-        {
-            // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist wait!");
-            coolant_sync(gc_state.modal.coolant);
-            delay(1000.0 * coolant_mist_start_delay->get());
-        }
-        else
-        {
-            coolant_sync(gc_state.modal.coolant);
-        }
-#else
-        coolant_sync(gc_state.modal.coolant);
-#endif
+        CoolantManager::Mist_Coolant.TurnOnWithDelay(1000.0 * coolant_mist_start_delay->get());
         break;
 
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
-#ifdef COOLANT_FLOOD_PIN
-        // Check if we should wait for Flood Coolant to start !
-        if (digitalRead(COOLANT_FLOOD_PIN) == false && coolant_flood_start_delay->get() > 0)
-        {
-            // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood wait!");
-            coolant_sync(gc_state.modal.coolant);
-            delay(1000.0 * coolant_flood_start_delay->get());
-        }
-        else
-        {
-            coolant_sync(gc_state.modal.coolant);
-        }
-#else
-        coolant_sync(gc_state.modal.coolant);
-#endif
+        protocol_buffer_synchronize();
+        // Check if we should wait for Mist Coolant to start !
+        CoolantManager::Flood_Coolant.TurnOnWithDelay(1000.0 * coolant_flood_start_delay->get());
         break;
 
     case GCodeCoolant::M9:
         gc_state.modal.coolant = {};
-        coolant_sync(gc_state.modal.coolant);
+        CoolantManager::TurnAllCoolantsOff();
         break;
     }
     pl_data->coolant = gc_state.modal.coolant; // Set state for planner use.
@@ -1884,7 +1860,7 @@ Error gc_execute_line(char *line, uint8_t client)
             coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
             spindle->set_state(SpindleState::Disable, 0);
-            coolant_off();
+            CoolantManager::TurnAllCoolantsOff();
         }
         report_feedback_message(Message::ProgramEnd);
 #ifdef USE_M30

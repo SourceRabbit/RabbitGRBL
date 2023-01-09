@@ -417,7 +417,6 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
         return GCUpdatePos::None; // Return if system reset has been issued.
     }
 
-
     // Switch stepper mode to the I2S static (realtime mode)
     BACKUP_STEPPER(save_stepper);
 
@@ -554,20 +553,12 @@ void mc_reset()
         sys_rt_exec_state.bit.reset = true;
         // Kill spindle and coolant.
         spindle->stop();
-        coolant_stop();
+        CoolantManager::TurnAllCoolantsOff();
 
         // turn off all User I/O immediately
         sys_digital_all_off();
         sys_analog_all_off();
-#ifdef ENABLE_SD_CARD
-        // do we need to stop a running SD job?
-        if (get_sd_state(false) == SDState::BusyPrinting)
-        {
-            // Report print stopped
-            report_feedback_message(Message::SdFileQuit);
-            closeFile();
-        }
-#endif
+
         // Kill steppers only if in any motion state, i.e. cycle, actively holding, or homing.
         // NOTE: If steppers are kept enabled via the step idle delay setting, this also keeps
         // the steppers enabled by avoiding the go_idle call altogether, unless the motion state is
@@ -589,6 +580,5 @@ void mc_reset()
             st_go_idle(); // Force kill steppers. Position has likely been lost.
         }
         ganged_mode = SquaringMode::Dual; // in case an error occurred during squaring
-
     }
 }

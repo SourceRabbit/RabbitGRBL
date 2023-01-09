@@ -41,7 +41,6 @@ const char *const GRBL_VERSION_BUILD = "20230108";
 #include "GCode.h"
 #include "Planner.h"
 #include "Coolant/CoolantManager.h"
-#include "CoolantControl.h"
 #include "Limits.h"
 #include "Backlash.h"
 #include "MotionControl.h"
