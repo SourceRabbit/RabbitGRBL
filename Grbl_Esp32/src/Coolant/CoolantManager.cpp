@@ -33,37 +33,45 @@ bool CoolantManager::fInitialized = false;
  */
 void CoolantManager::Initialize()
 {
-        if (!CoolantManager::fInitialized)
+        if (CoolantManager::fInitialized)
         {
-                // Initialize Mist !
-#ifdef COOLANT_MIST_PIN
-#ifdef INVERT_COOLANT_MIST_PIN
-                CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, true);
-#else
-                CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, false);
-#endif
-                grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
-#endif
-                CoolantManager::fCoolants[0] = &CoolantManager::Mist_Coolant;
-
-// Initialize Flood !
-#ifdef COOLANT_FLOOD_PIN
-#ifdef INVERT_COOLANT_FLOOD_PIN
-                CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, true);
-#else
-                CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, false);
-#endif
-                grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
-#endif
-                CoolantManager::fCoolants[1] = &CoolantManager::Flood_Coolant;
-        }
-        else
-        {
-                // If the CoolantManager has already be initialized then just turn all coolants off.
+                // If the CoolantManager has already been initialized then just turn all coolants off.
                 // This case might happened after the user send a reset command to the controller.
                 TurnAllCoolantsOff();
+                return;
         }
 
+        bool invertPin = false;
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Initialize Mist (M7)
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef INVERT_COOLANT_MIST_PIN
+        // Check if Mist pin is inverted
+        invertPin = true;
+#endif
+#ifdef COOLANT_MIST_PIN
+        CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, invertPin);
+        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
+#else
+        CoolantManager::Mist_Coolant.Initialize(0, true);
+#endif
+        CoolantManager::fCoolants[0] = &CoolantManager::Mist_Coolant;
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Initialize Flood (M8)
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef INVERT_COOLANT_FLOOD_PIN
+        // Check if Flood Pin is inverted
+        invertPin = true;
+#endif
+#ifdef COOLANT_FLOOD_PIN
+        CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, invertPin);
+        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
+#endif
+        CoolantManager::fCoolants[1] = &CoolantManager::Flood_Coolant;
+
+        // Finally mark the  CoolantManager as Initialized !
         CoolantManager::fInitialized = true;
 }
 

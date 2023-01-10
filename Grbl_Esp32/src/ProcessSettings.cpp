@@ -320,7 +320,7 @@ std::map<const char *, uint8_t, cmp_str> restoreCommands = {
 #ifdef ENABLE_RESTORE_WIPE_ALL
     {"*", SettingsRestore::All},
     {"all", SettingsRestore::All},
-#endifF
+#endif
     {"@", SettingsRestore::Wifi},
     {"wifi", SettingsRestore::Wifi},
 };

@@ -683,6 +683,7 @@ static void protocol_exec_rt_suspend()
                         retract_waypoint += restore_target[PARKING_AXIS];
                         retract_waypoint = MIN(retract_waypoint, PARKING_TARGET);
                     }
+
                     // Execute slow pull-out parking retract motion. Parking requires homing enabled, the
                     // current location not exceeding the parking target location, and laser mode disabled.
                     // NOTE: State is will remain DOOR, until the de-energizing and retract is complete.
@@ -699,6 +700,7 @@ static void protocol_exec_rt_suspend()
                             pl_data->spindle_speed = restore_spindle_speed;
                             mc_parking_motion(parking_target, pl_data);
                         }
+
                         // NOTE: Clear accessory state after retract and after an aborted restore motion.
                         pl_data->spindle = SpindleState::Disable;
                         pl_data->coolant = {};
@@ -707,8 +709,9 @@ static void protocol_exec_rt_suspend()
                         pl_data->motion.noFeedOverride = 1;
                         pl_data->spindle_speed = 0.0;
                         spindle->set_state(pl_data->spindle, 0); // De-energize
-                        CoolantManager::setCoolantState(pl_data->coolant);
-                        // Execute fast parking retract motion to parking target location.
+                        CoolantManager::TurnAllCoolantsOff();
+
+                        //  Execute fast parking retract motion to parking target location.
                         if (parking_target[PARKING_AXIS] < PARKING_TARGET)
                         {
                             parking_target[PARKING_AXIS] = PARKING_TARGET;

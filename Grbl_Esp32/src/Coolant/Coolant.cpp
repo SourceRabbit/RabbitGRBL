@@ -26,6 +26,9 @@ Coolant::Coolant()
 {
 }
 
+/**
+ * Initialize Coolant
+ */
 void Coolant::Initialize(uint8_t pin, bool invertPinOutput)
 {
     fPinNumber = pin;
