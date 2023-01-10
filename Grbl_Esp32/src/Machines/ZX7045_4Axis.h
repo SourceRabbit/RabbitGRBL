@@ -74,7 +74,7 @@
 
 #define SPINDLE_TYPE            SpindleType::PWM 
 #define SPINDLE_OUTPUT_PIN      GPIO_NUM_21
-#define SPINDLE_DIR_PIN      	GPIO_NUM_2
+#define SPINDLE_ENABLE_PIN      GPIO_NUM_2     // The ZX7045 Mill features Spindle Enable and NOT Spindle Dir
 
 #define X_LIMIT_PIN             GPIO_NUM_36
 #define Y_LIMIT_PIN             GPIO_NUM_39

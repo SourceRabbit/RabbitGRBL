@@ -63,7 +63,6 @@ void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
     if (fPinNumber > 0)
     {
         this->TurnOn();
-        // delay_msec(int32_t(1000.0 * coolant_flood_start_delay->get()), DwellMode::SysSuspend);
         delay_msec(delayMilliseconds, DwellMode::SysSuspend);
         // delay(delayMilliseconds);
     }
