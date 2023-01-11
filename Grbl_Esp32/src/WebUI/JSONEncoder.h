@@ -2,22 +2,24 @@
 
 // Class for creating JSON-encoded strings.
 
-namespace WebUI {
-    class JSONencoder {
+namespace WebUI
+{
+    class JSONencoder
+    {
     private:
         static const int MAX_JSON_LEVEL = 16;
 
-        bool   pretty;
-        int    level;
+        bool pretty;
+        int level;
         String str;
-        int    count[MAX_JSON_LEVEL];
-        void   add(char c) { str += c; }
-        void   comma_line();
-        void   comma();
-        void   quoted(const char* s);
-        void   inc_level();
-        void   dec_level();
-        void   line();
+        int count[MAX_JSON_LEVEL];
+        void add(char c) { str += c; }
+        void comma_line();
+        void comma();
+        void quoted(const char *s);
+        void inc_level();
+        void dec_level();
+        void line();
 
     public:
         // If you don't set _pretty it defaults to false
@@ -33,12 +35,12 @@ namespace WebUI {
         String end();
 
         // member() creates a "tag":"value" element
-        void member(const char* tag, const char* value);
-        void member(const char* tag, String value);
-        void member(const char* tag, int value);
+        void member(const char *tag, const char *value);
+        void member(const char *tag, String value);
+        void member(const char *tag, int value);
 
         // begin_array() starts a "tag":[  array element
-        void begin_array(const char* tag);
+        void begin_array(const char *tag);
 
         // end_array() closes the array with ]
         void end_array();
@@ -52,7 +54,7 @@ namespace WebUI {
         // begin_member() starts the creation of a member.
         // The only case where you need to use it directly
         // is when you want a member whose value is an object.
-        void begin_member(const char* tag);
+        void begin_member(const char *tag);
 
         // The begin_webui() methods are specific to Esp3D_WebUI
         // WebUI sends JSON objects to the UI to generate configuration
@@ -75,8 +77,8 @@ namespace WebUI {
         //  S => 0 .. 255
         //  A => 7 .. 15  (0.0.0.0 .. 255.255.255.255)
         //  I => 0 .. 2^31-1
-        void begin_webui(const char* p, const char* help, const char* type, const char* val);
-        void begin_webui(const char* p, const char* help, const char* type, const int val);
-        void begin_webui(const char* p, const char* help, const char* type, const char* val, int min, int max);
+        void begin_webui(const char *p, const char *help, const char *type, const char *val);
+        void begin_webui(const char *p, const char *help, const char *type, const int val);
+        void begin_webui(const char *p, const char *help, const char *type, const char *val, int min, int max);
     };
 }

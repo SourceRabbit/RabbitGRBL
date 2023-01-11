@@ -22,7 +22,7 @@
 
 // Grbl versioning system
 const char *const GRBL_VERSION = "1.3a (Rabbit Grbl for the ESP32)";
-const char *const GRBL_VERSION_BUILD = "20230110";
+const char *const GRBL_VERSION_BUILD = "20230111";
 
 #include <Arduino.h>
 #include <EEPROM.h>

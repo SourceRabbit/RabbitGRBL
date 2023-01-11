@@ -153,12 +153,14 @@ bool delay_msec(int32_t milliseconds, DwellMode mode)
         {
             return false;
         }
+
         if (mode == DwellMode::Dwell)
         {
             protocol_execute_realtime();
         }
         else
-        { // DwellMode::SysSuspend
+        {
+            // DwellMode::SysSuspend
             // Execute rt_system() only to avoid nesting suspend loops.
             protocol_exec_rt_system();
             if (sys.suspend.bit.restartRetract)
@@ -168,6 +170,7 @@ bool delay_msec(int32_t milliseconds, DwellMode mode)
         }
         delay(DWELL_TIME_STEP); // Delay DWELL_TIME_STEP increment
     }
+
     delay(remainder);
     return true;
 }

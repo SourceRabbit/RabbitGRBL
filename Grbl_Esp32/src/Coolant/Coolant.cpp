@@ -52,7 +52,7 @@ void Coolant::TurnOn()
 
 void Coolant::TurnOnWithDelay()
 {
-    if (this->fPinNumber > 0)
+    if (this->fPinNumber > 0 && this->fStartDelaySetting->get() > 0)
     {
         this->TurnOn();
         delay_msec((1000.0 * this->fStartDelaySetting->get()), DwellMode::SysSuspend);
