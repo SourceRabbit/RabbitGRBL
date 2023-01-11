@@ -24,8 +24,8 @@ void grbl_init()
 {
     client_init(); // Setup serial baud rate and interrupts
     display_init();
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Rabbit Grbl Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD); // print grbl_esp32 verion info
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());              // print the SDK version
+    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Rabbit Grbl Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD); // print grbl_esp32 verion info
+    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());              // print the SDK version
 // show the map name at startup
 #ifdef MACHINE_NAME
     report_machine_type(CLIENT_SERIAL);
@@ -57,8 +57,8 @@ void grbl_init()
         sys.state = State::Alarm;
     }
 #endif
-    Spindles::Spindle::select();
 
+    Spindles::Spindle::select();
     WebUI::inputBuffer.begin();
 }
 
@@ -78,6 +78,8 @@ static void reset_variables()
     sys_rt_exec_accessory_override.value = 0;
     sys_rt_exec_alarm = ExecAlarm::None;
     cycle_stop = false;
+
+    // Reset overrides
     sys_rt_f_override = FeedOverride::Default;
     sys_rt_r_override = RapidOverride::Default;
     sys_rt_s_override = SpindleSpeedOverride::Default;

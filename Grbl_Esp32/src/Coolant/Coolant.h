@@ -30,18 +30,39 @@ class Coolant
 public:
   Coolant();
 
-  virtual void Initialize(uint8_t pin, bool invertPinOutput);
+  /// @brief Initialize coolant
+  /// @param pin is the coolant's pin output
+  /// @param invertPinOutput  set to true to invert the coolant's output pin from low-disabled/high-enabled to low-enabled/high-disabled.
+  /// @param start_delay_setting a FloatSetting defining the coolant's turn on delay in seconds.
+  virtual void Initialize(uint8_t pin, bool invertPinOutput, FloatSetting *start_delay_setting);
 
+  /// @brief Turns the coolant immidiately On.
   virtual void TurnOn();
-  virtual void TurnOnWithDelay(uint16_t delayMilliseconds);
+
+  /// @brief Turn the coolant immidiately On  and waits as many seconds as
+  /// the start_delay_setting variable defines.
+  virtual void TurnOnWithDelay();
+
+  /// @brief Turns the coolant immidiately off.
   virtual void TurnOff();
+
+  /// @brief  Toggle will change the coolant's status. If the coolant is
+  // On then it will turn Off, otherwise it will turn On.
   void Toggle();
+
+  /// @brief This method will turn the coolant on or off according to the
+  // given state. If state = true then this method will call the
+  // TurnOn method otherwise it will call the TurnOff
+  /// @param state true (on) or false (off)
   void setState(bool state);
 
+  /// @brief Returns true if the coolant is on
+  /// @return
   bool isOn();
 
 protected:
   bool fIsOn = false;
   uint8_t fPinNumber = 0;
   bool fInvertPinOutput = false;
+  FloatSetting *fStartDelaySetting;
 };

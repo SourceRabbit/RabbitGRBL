@@ -226,14 +226,14 @@ namespace Spindles
     // prints the startup message of the spindle config
     void PWM::config_message()
     {
-        grbl_msg_sendf(CLIENT_ALL,
+        /*grbl_msg_sendf(CLIENT_ALL,
                        MsgLevel::Info,
                        "PWM spindle Output:%s, Enbl:%s, Dir:%s, Freq:%dHz, Res:%dbits",
                        pinName(_output_pin).c_str(),
                        pinName(_enable_pin).c_str(),
                        pinName(_direction_pin).c_str(),
                        _pwm_freq,
-                       _pwm_precision);
+                       _pwm_precision);*/
     }
 
     void PWM::set_output(uint32_t duty)

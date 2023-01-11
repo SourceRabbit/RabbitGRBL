@@ -32,16 +32,16 @@
 #include "../Grbl.h"
 
 // These are used for setup and to talk to the motors as a group.
-void    init_motors();
+void init_motors();
 uint8_t get_next_trinamic_driver_index();
-void    readSgTask(void* pvParameters);
-void    motors_read_settings();
+void readSgTask(void *pvParameters);
+void motors_read_settings();
 
 // The return value is a bitmask of axes that can home
 uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming);
-void    motors_set_disable(bool disable, uint8_t mask = B11111111);  // default is all axes
-bool    motors_direction(uint8_t dir_mask);
-void    motors_step(uint8_t step_mask);
-void    motors_unstep();
+void motors_set_disable(bool disable, uint8_t mask = B11111111); // default is all axes
+bool motors_direction(uint8_t dir_mask);
+void motors_step(uint8_t step_mask);
+void motors_unstep();
 
-void servoUpdateTask(void* pvParameters);
+void servoUpdateTask(void *pvParameters);

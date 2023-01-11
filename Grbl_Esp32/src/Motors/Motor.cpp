@@ -33,12 +33,12 @@
 
 #include "Motor.h"
 
-namespace Motors {
-    Motor::Motor(uint8_t axis_index) :
-        _axis_index(axis_index % MAX_AXES), _dual_axis_index(axis_index / MAX_AXES) {}
+namespace Motors
+{
+    Motor::Motor(uint8_t axis_index) : _axis_index(axis_index % MAX_AXES), _dual_axis_index(axis_index / MAX_AXES) {}
 
     void Motor::debug_message() {}
 
-    bool Motor::test() { return true; };  // true = OK
+    bool Motor::test() { return true; }; // true = OK
 
 }

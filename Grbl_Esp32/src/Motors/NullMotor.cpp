@@ -21,8 +21,9 @@
 
 #include "NullMotor.h"
 
-namespace Motors {
-   Nullmotor::Nullmotor(uint8_t axis_index) :
-       Motor(axis_index)
-   {}
+namespace Motors
+{
+    Nullmotor::Nullmotor(uint8_t axis_index) : Motor(axis_index)
+    {
+    }
 }

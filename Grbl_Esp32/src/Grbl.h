@@ -40,7 +40,6 @@ const char *const GRBL_VERSION_BUILD = "20230110";
 #include "System.h"
 #include "GCode.h"
 #include "Planner.h"
-#include "Coolant/CoolantManager.h"
 #include "Limits.h"
 #include "Backlash.h"
 #include "MotionControl.h"
@@ -55,6 +54,7 @@ const char *const GRBL_VERSION_BUILD = "20230110";
 #include "WebUI/InputBuffer.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
+#include "Coolant/CoolantManager.h"
 #include "UserOutput.h"
 #include <Wire.h>
 
@@ -65,17 +65,6 @@ void machine_init(); // weak definition in Grbl.cpp
 void display_init(); // weak definition in Grbl.cpp
 
 bool user_defined_homing(uint8_t cycle_mask); // weak definition in Limits.cpp
-
-// Called if USE_KINEMATICS is defined
-
-void inverse_kinematics(float *target, plan_line_data_t *pl_data, float *position);
-bool kinematics_pre_homing(uint8_t cycle_mask);
-void kinematics_post_homing();
-uint8_t kinematic_limits_check(float *target);
-
-// Called if USE_FWD_KINEMATICS is defined
-void inverse_kinematics(float *position); // used to return a converted value
-void forward_kinematics(float *position); // weak definition in Report.cpp
 
 // Called if MACRO_BUTTON_0_PIN or MACRO_BUTTON_1_PIN or MACRO_BUTTON_2_PIN is defined
 void user_defined_macro(uint8_t index);

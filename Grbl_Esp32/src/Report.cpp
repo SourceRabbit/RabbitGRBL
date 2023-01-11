@@ -290,7 +290,7 @@ void report_feedback_message(Message message)
 // Welcome message
 void report_init_message(uint8_t client)
 {
-    grbl_sendf(client, "\r\nGrbl %s ['$' for help]\r\n", GRBL_VERSION);
+    grbl_sendf(client, "\r\nGrbl %s %s ['$' for help]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
@@ -613,8 +613,6 @@ void report_calc_status_position(float *print_position, float *wco, bool wpos)
             }
         }
     }
-
-    forward_kinematics(print_position); // a weak definition does nothing. Users can provide strong version
 }
 
 // Prints real-time data. This function grabs a real-time snapshot of the stepper subprogram
@@ -1030,7 +1028,6 @@ void calc_mpos(float *print_position)
     int32_t current_position[MAX_N_AXIS]; // Copy current state of the system position variable
     memcpy(current_position, sys_position, sizeof(sys_position));
     system_convert_array_steps_to_mpos(print_position, current_position);
-    forward_kinematics(print_position); // a weak definition does nothing. Users can provide strong version
 }
 
 void calc_wpos(float *print_position)
@@ -1046,7 +1043,6 @@ void calc_wpos(float *print_position)
         print_position[idx] -= wco[idx];
     }
 
-    forward_kinematics(print_position); // a weak definition does nothing. Users can provide strong version
 }
 
 float *get_wco()
@@ -1065,4 +1061,3 @@ float *get_wco()
     return wco;
 }
 
-void __attribute__((weak)) forward_kinematics(float *position) {} // This version does nothing. Make your own to do something with it

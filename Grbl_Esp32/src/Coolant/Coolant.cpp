@@ -26,64 +26,48 @@ Coolant::Coolant()
 {
 }
 
-/**
- * Initialize Coolant
- */
-void Coolant::Initialize(uint8_t pin, bool invertPinOutput)
+void Coolant::Initialize(uint8_t pin, bool invertPinOutput, FloatSetting *start_delay_setting)
 {
-    fPinNumber = pin;
-    fInvertPinOutput = invertPinOutput;
+    this->fPinNumber = pin;
+    this->fInvertPinOutput = invertPinOutput;
+    this->fStartDelaySetting = start_delay_setting;
 
-    if (fPinNumber > 0)
+    if (this->fPinNumber > 0)
     {
-        pinMode(fPinNumber, OUTPUT);
+        pinMode(this->fPinNumber, OUTPUT);
     }
 
     // Turn off after initialization
     this->TurnOff();
 }
 
-/**
- * Turn the coolant On.
- */
 void Coolant::TurnOn()
 {
-    if (fPinNumber > 0)
+    if (this->fPinNumber > 0)
     {
-        digitalWrite(fPinNumber, (fInvertPinOutput) ? 0 : 1);
-        fIsOn = true;
+        digitalWrite(this->fPinNumber, (this->fInvertPinOutput) ? 0 : 1);
+        this->fIsOn = true;
     }
 }
 
-/**
- * Turn the coolant On and wait.
- */
-void Coolant::TurnOnWithDelay(uint16_t delayMilliseconds)
+void Coolant::TurnOnWithDelay()
 {
-    if (fPinNumber > 0)
+    if (this->fPinNumber > 0)
     {
         this->TurnOn();
-        delay_msec(delayMilliseconds, DwellMode::SysSuspend);
-        // delay(delayMilliseconds);
+        delay_msec((1000.0 * this->fStartDelaySetting->get()), DwellMode::SysSuspend);
     }
 }
 
-/**
- * Turn the coolant Off.
- */
 void Coolant::TurnOff()
 {
-    if (fPinNumber > 0)
+    if (this->fPinNumber > 0)
     {
-        digitalWrite(fPinNumber, (fInvertPinOutput) ? 1 : 0);
+        digitalWrite(this->fPinNumber, (this->fInvertPinOutput) ? 1 : 0);
     }
-    fIsOn = false;
+    this->fIsOn = false;
 }
 
-/**
- * Toggle will change the coolant's status. If the coolant is On then
- * it will turn Off, otherwise it will turn On.
- */
 void Coolant::Toggle()
 {
     if (this->isOn())
@@ -120,5 +104,5 @@ void Coolant::setState(bool state)
  */
 bool Coolant::isOn()
 {
-    return fIsOn;
+    return this->fIsOn;
 }

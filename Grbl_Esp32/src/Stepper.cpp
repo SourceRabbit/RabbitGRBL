@@ -131,13 +131,6 @@ typedef struct
 } st_prep_t;
 static st_prep_t prep;
 
-const char *stepper_names[] = {
-    "Timed Steps",
-    "RMT Steps",
-    "I2S Steps, Stream",
-    "I2S Steps, Static",
-};
-
 stepper_id_t current_stepper = DEFAULT_STEPPER;
 
 /* "The Stepper Driver Interrupt" - This timer interrupt is the workhorse of Grbl. Grbl employs
@@ -384,7 +377,6 @@ void stepper_init()
     busy.store(false);
 
     grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Axis count %d", number_axis->get());
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s", stepper_names[current_stepper]);
 
 #ifdef USE_I2S_STEPS
     // I2S stepper stream mode use callback but timer interrupt
@@ -396,7 +388,6 @@ void stepper_init()
 
 void stepper_switch(stepper_id_t new_stepper)
 {
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Debug, "Switch stepper: %s -> %s", stepper_names[current_stepper], stepper_names[new_stepper]);
     if (current_stepper == new_stepper)
     {
         // do not need to change
@@ -1066,14 +1057,7 @@ float st_get_realtime_rate()
 // The argument is in units of ticks of the timer that generates ISRs
 void IRAM_ATTR Stepper_Timer_WritePeriod(uint16_t timerTicks)
 {
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        // Nothing.. Will be removed in the future
-    }
-    else
-    {
-        timer_set_alarm_value(STEP_TIMER_GROUP, STEP_TIMER_INDEX, (uint64_t)timerTicks);
-    }
+    timer_set_alarm_value(STEP_TIMER_GROUP, STEP_TIMER_INDEX, (uint64_t)timerTicks);
 }
 
 void IRAM_ATTR Stepper_Timer_Init()
@@ -1096,16 +1080,10 @@ void IRAM_ATTR Stepper_Timer_Start()
 #ifdef ESP_DEBUG
     // Serial.println("ST Start");
 #endif
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        // Nothing - It will be removed in the future
-    }
-    else
-    {
-        timer_set_counter_value(STEP_TIMER_GROUP, STEP_TIMER_INDEX, 0x00000000ULL);
-        timer_start(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
-        TIMERG0.hw_timer[STEP_TIMER_INDEX].config.alarm_en = TIMER_ALARM_EN;
-    }
+
+    timer_set_counter_value(STEP_TIMER_GROUP, STEP_TIMER_INDEX, 0x00000000ULL);
+    timer_start(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
+    TIMERG0.hw_timer[STEP_TIMER_INDEX].config.alarm_en = TIMER_ALARM_EN;
 }
 
 void IRAM_ATTR Stepper_Timer_Stop()
@@ -1113,14 +1091,7 @@ void IRAM_ATTR Stepper_Timer_Stop()
 #ifdef ESP_DEBUG
     // Serial.println("ST Stop");
 #endif
-    if (current_stepper == ST_I2S_STREAM)
-    {
-        // Nothing - It will be removed in the future
-    }
-    else
-    {
-        timer_pause(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
-    }
+    timer_pause(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
 }
 
 bool get_stepper_disable()

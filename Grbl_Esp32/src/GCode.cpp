@@ -1603,15 +1603,15 @@ Error gc_execute_line(char *line, uint8_t client)
     case GCodeCoolant::M7:
         gc_state.modal.coolant.Mist = 1;
         protocol_buffer_synchronize();
-        // Check if we should wait for Mist Coolant to start !
-        CoolantManager::Mist_Coolant.TurnOnWithDelay(1000.0 * coolant_mist_start_delay->get());
+        // Ask Mist Coolant to start and wait...
+        CoolantManager::Mist_Coolant.TurnOnWithDelay();
         break;
 
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
         protocol_buffer_synchronize();
-        // Check if we should wait for Mist Coolant to start !
-        CoolantManager::Flood_Coolant.TurnOnWithDelay(1000.0 * coolant_flood_start_delay->get());
+        // Ask Flood Coolant to start and wait...
+        CoolantManager::Flood_Coolant.TurnOnWithDelay();
         break;
 
     case GCodeCoolant::M9:
@@ -1729,9 +1729,9 @@ Error gc_execute_line(char *line, uint8_t client)
         pl_data->motion.rapidMotion = 1; // Set rapid motion flag.
         if (axis_command != AxisCommand::None)
         {
-            mc_line_kins(gc_block.values.xyz, pl_data, gc_state.position);
+            mc_line(gc_block.values.xyz, pl_data);
         }
-        mc_line_kins(coord_data, pl_data, gc_state.position);
+        mc_line(coord_data, pl_data);
         memcpy(gc_state.position, coord_data, sizeof(gc_state.position));
         break;
     case NonModal::SetHome0:
@@ -1762,14 +1762,12 @@ Error gc_execute_line(char *line, uint8_t client)
             GCUpdatePos gc_update_pos = GCUpdatePos::Target;
             if (gc_state.modal.motion == Motion::Linear)
             {
-                // mc_line(gc_block.values.xyz, pl_data);
-                mc_line_kins(gc_block.values.xyz, pl_data, gc_state.position);
+                mc_line(gc_block.values.xyz, pl_data);
             }
             else if (gc_state.modal.motion == Motion::Seek)
             {
                 pl_data->motion.rapidMotion = 1; // Set rapid motion flag.
-                // mc_line(gc_block.values.xyz, pl_data);
-                mc_line_kins(gc_block.values.xyz, pl_data, gc_state.position);
+                mc_line(gc_block.values.xyz, pl_data);
             }
             else if ((gc_state.modal.motion == Motion::CwArc) || (gc_state.modal.motion == Motion::CcwArc))
             {
@@ -1879,7 +1877,6 @@ Error gc_execute_line(char *line, uint8_t client)
 
   - Canned cycles
   - Tool radius compensation
-  - A,B,C-axes
   - Evaluation of expressions
   - Variables
   - Override control (TBD)

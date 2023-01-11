@@ -25,7 +25,7 @@
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
 void init_motors()
 {
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Init Motors");
+        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Init Motors");
 
         auto n_axis = number_axis->get();
 
@@ -173,7 +173,7 @@ void init_motors()
         if (STEPPERS_DISABLE_PIN != UNDEFINED_PIN)
         {
                 pinMode(STEPPERS_DISABLE_PIN, OUTPUT); // global motor enable pin
-                grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
+                // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
         }
 
         // Initialize motors

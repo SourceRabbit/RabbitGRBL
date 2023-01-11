@@ -33,16 +33,6 @@
 
 SquaringMode ganged_mode = SquaringMode::Dual;
 
-// this allows kinematics to be used.
-void mc_line_kins(float *target, plan_line_data_t *pl_data, float *position)
-{
-#ifndef USE_KINEMATICS
-    mc_line(target, pl_data);
-#else // else use kinematics
-    inverse_kinematics(target, pl_data, position);
-#endif
-}
-
 // Execute linear motion in absolute millimeter coordinates. Feed rate given in millimeters/second
 // unless invert_feed_rate is true. Then the feed_rate means that the motion should be completed in
 // (1 minute)/feed_rate time.
@@ -121,15 +111,7 @@ void mc_arc(float *target,
     float rt_axis1 = target[axis_1] - center_axis1;
 
     float previous_position[MAX_N_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-#ifdef USE_KINEMATICS
 
-    uint16_t n;
-    auto n_axis = number_axis->get();
-    for (n = 0; n < n_axis; n++)
-    {
-        previous_position[n] = position[n];
-    }
-#endif
     // CCW angle between position and target from circle center. Only one atan2() trig computation required.
     float angular_travel = atan2(r_axis0 * rt_axis1 - r_axis1 * rt_axis0, r_axis0 * rt_axis0 + r_axis1 * rt_axis1);
     if (is_clockwise_arc)
@@ -222,15 +204,9 @@ void mc_arc(float *target,
             position[axis_0] = center_axis0 + r_axis0;
             position[axis_1] = center_axis1 + r_axis1;
             position[axis_linear] += linear_per_segment;
-#ifdef USE_KINEMATICS
-            pl_data->feed_rate = original_feedrate; // This restores the feedrate kinematics may have altered
-            mc_line_kins(position, pl_data, previous_position);
-            previous_position[axis_0] = position[axis_0];
-            previous_position[axis_1] = position[axis_1];
-            previous_position[axis_linear] = position[axis_linear];
-#else
+
             mc_line(position, pl_data);
-#endif
+
             // Bail mid-circle on system abort. Runtime command check already performed by mc_line.
             if (sys.abort)
             {
@@ -238,8 +214,9 @@ void mc_arc(float *target,
             }
         }
     }
+    
     // Ensure last segment arrives at target location.
-    mc_line_kins(target, pl_data, previous_position);
+    mc_line(target, pl_data);
 }
 
 // Execute dwell in seconds.
@@ -299,14 +276,6 @@ void mc_homing_cycle(uint8_t cycle_mask)
         return;
     }
 
-    // This give kinematics a chance to do something before normal homing
-    // if it returns true, the homing is canceled.
-#ifdef USE_KINEMATICS
-    if (kinematics_pre_homing(cycle_mask))
-    {
-        return;
-    }
-#endif
     // Check and abort homing cycle, if hard limits are already enabled. Helps prevent problems
     // with machines with limits wired on both ends of travel to one limit pin.
     // TODO: Move the pin-specific LIMIT_PIN call to Limits.cpp as a function.
@@ -389,10 +358,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     gc_sync_position();
     plan_sync_position();
     backlash_reset_targets();
-#ifdef USE_KINEMATICS
-    // This give kinematics a chance to do something after normal homing
-    kinematics_post_homing();
-#endif
+
     // If hard limits feature enabled, re-enable hard limits pin change register after homing cycle.
     limits_init();
 }
@@ -436,7 +402,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     }
     // Setup and queue probing motion. Auto cycle-start should not start the cycle.
     grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Found");
-    mc_line_kins(target, pl_data, gc_state.position);
+    mc_line(target, pl_data);
     // Activate the probing state monitor in the stepper module.
     sys_probe_state = Probe::Active;
     // Perform probing cycle. Wait here until probe is triggered or motion completes.

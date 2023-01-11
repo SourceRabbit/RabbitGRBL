@@ -7,8 +7,8 @@
   Copyright (c) 2011-2016 Sungeun K. Jeon for Gnea Research LLC
   Copyright (c) 2009-2011 Simen Svale Skogsrud
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+  2018 -	Bart Dring This file was modifed for use on the ESP32
+          CPU. Do not use this with Grbl for atMega328P
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,25 +25,26 @@
 */
 
 #ifndef SEGMENT_BUFFER_SIZE
-#    define SEGMENT_BUFFER_SIZE 6
+#define SEGMENT_BUFFER_SIZE 6
 #endif
 
 #include "Grbl.h"
 #include "Config.h"
 
 // Some useful constants.
-const double DT_SEGMENT              = (1.0 / (ACCELERATION_TICKS_PER_SECOND * 60.0));  // min/segment
+const double DT_SEGMENT = (1.0 / (ACCELERATION_TICKS_PER_SECOND * 60.0)); // min/segment
 const double REQ_MM_INCREMENT_SCALAR = 1.25;
-const int    RAMP_ACCEL              = 0;
-const int    RAMP_CRUISE             = 1;
-const int    RAMP_DECEL              = 2;
-const int    RAMP_DECEL_OVERRIDE     = 3;
+const int RAMP_ACCEL = 0;
+const int RAMP_CRUISE = 1;
+const int RAMP_DECEL = 2;
+const int RAMP_DECEL_OVERRIDE = 3;
 
-struct PrepFlag {
-    uint8_t recalculate : 1;
-    uint8_t holdPartialBlock : 1;
-    uint8_t parking : 1;
-    uint8_t decelOverride : 1;
+struct PrepFlag
+{
+  uint8_t recalculate : 1;
+  uint8_t holdPartialBlock : 1;
+  uint8_t parking : 1;
+  uint8_t decelOverride : 1;
 };
 
 // fStepperTimer should be an integer divisor of the bus speed, i.e. of fTimers
@@ -62,33 +63,31 @@ const int ticksPerMicrosecond = fStepperTimer / 1000000;
 // and timer accuracy.  Do not alter these settings unless you know what you are doing.
 
 const uint32_t amassThreshold = fStepperTimer / 8000;
-const int maxAmassLevel = 3;  // Each level increase doubles the threshold
+const int maxAmassLevel = 3; // Each level increase doubles the threshold
 
 const timer_group_t STEP_TIMER_GROUP = TIMER_GROUP_0;
-const timer_idx_t   STEP_TIMER_INDEX = TIMER_0;
+const timer_idx_t STEP_TIMER_INDEX = TIMER_0;
 
 // esp32 work around for diable in main loop
 extern uint64_t stepper_idle_counter;
-extern bool     stepper_idle;
+extern bool stepper_idle;
 
-//extern uint8_t ganged_mode;
+// extern uint8_t ganged_mode;
 
-enum stepper_id_t {
-    ST_TIMED = 0,
-    ST_RMT,
-    ST_I2S_STREAM,
-    ST_I2S_STATIC,
+enum stepper_id_t
+{
+  ST_TIMED = 0,
+  ST_RMT,
 };
 
 #ifndef DEFAULT_STEPPER
-#    if defined(USE_RMT_STEPS)
-#        define DEFAULT_STEPPER ST_RMT
-#    else
-#        define DEFAULT_STEPPER ST_TIMED
-#    endif
+#if defined(USE_RMT_STEPS)
+#define DEFAULT_STEPPER ST_RMT
+#else
+#define DEFAULT_STEPPER ST_TIMED
+#endif
 #endif
 
-extern const char*  stepper_names[];
 extern stepper_id_t current_stepper;
 
 // -- Task handles for use in the notifications
@@ -123,7 +122,7 @@ void st_update_plan_block_parameters();
 float st_get_realtime_rate();
 
 // disable (or enable) steppers via STEPPERS_DISABLE_PIN
-bool get_stepper_disable();  // returns the state of the pin
+bool get_stepper_disable(); // returns the state of the pin
 
 void set_stepper_pins_on(uint8_t onMask);
 void set_direction_pins_on(uint8_t onMask);
