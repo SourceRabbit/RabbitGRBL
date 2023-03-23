@@ -123,6 +123,15 @@ void limits_go_home(uint8_t cycle_mask)
         {
             // Set target based on max_travel setting. Ensure homing switches engaged with search scalar.
             max_travel = MAX(max_travel, (HOMING_AXIS_SEARCH_SCALAR)*axis_settings[idx]->max_travel->get());
+
+            // Αν το max_travel του άξονα είναι 0 αλλά του έχει ζητηθεί να γίνει homing
+            // τότε άλλαξε το max_travel σε 360.00.
+            // Ο λόγος που το κάνουμε αυτό είναι πως σε μερικούς άξονες για να αποφύγουμε τον
+            // περιορισμό των soft limits, τους κάνουμε set το max_travel = 0.
+            // Σε αυτούς τους άξονες όμως μπορεί να υπάρχει τερματικός διακόπτης. Για παράδειγμα
+            // μπορεί να υπάρχει περιστροφικός τέταρτος άξονας ο οποίος να έχει unlimited steps
+            // αλλά να χρειάζεται να έχει τερματικό διακόπτη.
+            max_travel == 0 ? max_travel = 360.00 : max_travel;
         }
     }
     // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.

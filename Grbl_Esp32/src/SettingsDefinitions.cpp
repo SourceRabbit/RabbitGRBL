@@ -384,12 +384,12 @@ void make_settings()
 
     stallguard_debug_mask = new AxisMaskSetting(EXTENDED, WG, NULL, "Report/StallGuard", 0, postMotorSetting);
 
-    homing_cycle[5] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
-    homing_cycle[4] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
-    homing_cycle[3] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
-    homing_cycle[2] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
-    homing_cycle[1] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
-    homing_cycle[0] = new AxisMaskSetting(EXTENDED, WG, NULL, "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
+    homing_cycle[5] = new AxisMaskSetting(GRBL, WG, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
+    homing_cycle[4] = new AxisMaskSetting(GRBL, WG, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
+    homing_cycle[3] = new AxisMaskSetting(GRBL, WG, "53", "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
+    homing_cycle[2] = new AxisMaskSetting(GRBL, WG, "52", "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
+    homing_cycle[1] = new AxisMaskSetting(GRBL, WG, "51", "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
+    homing_cycle[0] = new AxisMaskSetting(GRBL, WG, "50", "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
 
     user_macro3 = new StringSetting(EXTENDED, WG, NULL, "User/Macro3", DEFAULT_USER_MACRO3);
     user_macro2 = new StringSetting(EXTENDED, WG, NULL, "User/Macro2", DEFAULT_USER_MACRO2);
