@@ -1,0 +1,1 @@
+Copy the contents of the esp32 directory inside C:\Users\Username\AppData\Local\Arduino15\packages\esp32
