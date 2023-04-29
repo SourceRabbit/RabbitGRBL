@@ -51,7 +51,7 @@
 #define DEFAULT_A_ACCELERATION 				60.0
 
 
-// SourceRabbit CNC Motherboard v1.2 Pinout
+// SourceRabbit CNC Motherboard v1.3 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
 #define X_DIRECTION_PIN         GPIO_NUM_33
 #define Y_STEP_PIN              GPIO_NUM_25
