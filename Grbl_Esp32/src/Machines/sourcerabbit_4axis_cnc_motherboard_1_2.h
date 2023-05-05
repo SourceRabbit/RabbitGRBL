@@ -10,8 +10,8 @@
 #define DEFAULT_STEP_PULSE_MICROSECONDS 	10  	// $0
 #define DEFAULT_STEPPER_IDLE_LOCK_TIME 		255	// $1 KEEP MOTORS ALWAYS ON
 
-#define DEFAULT_JUNCTION_DEVIATION 		0.025  	// $11 mm
-#define DEFAULT_ARC_TOLERANCE 			0.005  	// $12 mm
+#define DEFAULT_JUNCTION_DEVIATION 			0.025  	// $11 mm
+#define DEFAULT_ARC_TOLERANCE 				0.005  	// $12 mm
 
 #define DEFAULT_DIRECTION_INVERT_MASK                   4
 #define DEFAULT_INVERT_LIMIT_PINS 			0
@@ -24,7 +24,6 @@
 #define DEFAULT_HOMING_FEED_RATE 			500.0  	// $24 mm/min
 #define DEFAULT_HOMING_SEEK_RATE 			1500.0  // $25 mm/min
 #define DEFAULT_HOMING_PULLOFF 				2.0  	// $27 
-
 
 // TRAVEL
 #define DEFAULT_X_MAX_TRAVEL 				302.0  	// $130 mm 
