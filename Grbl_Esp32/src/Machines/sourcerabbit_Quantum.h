@@ -55,30 +55,30 @@
 
 
 // SourceRabbit CNC Motherboard v1.3 Pinout
-#define X_STEP_PIN              GPIO_NUM_0
-#define X_DIRECTION_PIN         GPIO_NUM_33
-#define Y_STEP_PIN              GPIO_NUM_25
-#define Y_DIRECTION_PIN         GPIO_NUM_26
-#define Z_STEP_PIN              GPIO_NUM_27
-#define Z_DIRECTION_PIN         GPIO_NUM_14
-#define A_STEP_PIN              GPIO_NUM_12
-#define A_DIRECTION_PIN         GPIO_NUM_13
-#define STEPPERS_DISABLE_PIN    GPIO_NUM_15
+#define X_STEP_PIN              			GPIO_NUM_0
+#define X_DIRECTION_PIN         			GPIO_NUM_33
+#define Y_STEP_PIN              			GPIO_NUM_25
+#define Y_DIRECTION_PIN         			GPIO_NUM_26
+#define Z_STEP_PIN              			GPIO_NUM_27
+#define Z_DIRECTION_PIN         			GPIO_NUM_14
+#define A_STEP_PIN              			GPIO_NUM_12
+#define A_DIRECTION_PIN         			GPIO_NUM_13
+#define STEPPERS_DISABLE_PIN    			GPIO_NUM_15
 
-#define SPINDLE_TYPE            SpindleType::RELAY
-#define SPINDLE_OUTPUT_PIN      GPIO_NUM_21
-#define SPINDLE_DIR_PIN      	GPIO_NUM_2
+#define SPINDLE_TYPE            			SpindleType::RELAY
+#define SPINDLE_OUTPUT_PIN      			GPIO_NUM_21
+#define SPINDLE_DIR_PIN      				GPIO_NUM_2
 
-#define X_LIMIT_PIN             GPIO_NUM_36
-#define Y_LIMIT_PIN             GPIO_NUM_39
-#define Z_LIMIT_PIN             GPIO_NUM_34
-#define A_LIMIT_PIN             GPIO_NUM_35
-#define PROBE_PIN               GPIO_NUM_32
+#define X_LIMIT_PIN             			GPIO_NUM_36
+#define Y_LIMIT_PIN             			GPIO_NUM_39
+#define Z_LIMIT_PIN             			GPIO_NUM_34
+#define A_LIMIT_PIN             			GPIO_NUM_35
+#define PROBE_PIN               			GPIO_NUM_32
 
-#define COOLANT_MIST_PIN        GPIO_NUM_22
-#define COOLANT_FLOOD_PIN       GPIO_NUM_23
+#define COOLANT_MIST_PIN        			GPIO_NUM_22
+#define COOLANT_FLOOD_PIN       			GPIO_NUM_23
 
 // Automatic Tool Change
-#define USER_DIGITAL_PIN_0   	GPIO_NUM_19 	// Lock
-#define USER_DIGITAL_PIN_1   	GPIO_NUM_18 	// Blow
-#define USER_DIGITAL_PIN_2   	GPIO_NUM_5  	// Door
+#define USER_DIGITAL_PIN_0   				GPIO_NUM_19 	// Lock
+#define USER_DIGITAL_PIN_1   				GPIO_NUM_18 	// Blow
+#define USER_DIGITAL_PIN_2   				GPIO_NUM_5  	// Door
