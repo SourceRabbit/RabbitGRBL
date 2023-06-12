@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Machines/sourcerabbit_4axis_cnc_motherboard_1_2.h"
+#include "Machines/SourceRabbit_4Axis_CNC_Motherboard_1_3.h"
 
-#include "Machines/sourcerabbit_MicroMill.h"
-//#include "Machines/sourcerabbit_Quantum.h"
+#include "Machines/SourceRabbit_Quantum.h"
+//#include "Machines/SourceRabbit_MicroMill.h"
