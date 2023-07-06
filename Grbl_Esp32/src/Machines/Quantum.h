@@ -1,6 +1,6 @@
 #pragma once
 
-#define MACHINE_NAME "Quantum"
+#define MACHINE_NAME	"Quantum 4-Axis"
 
 #ifdef N_AXIS
 	#undef N_AXIS

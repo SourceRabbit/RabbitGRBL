@@ -13,7 +13,7 @@
 #define DEFAULT_JUNCTION_DEVIATION 			0.025  	// $11 mm
 #define DEFAULT_ARC_TOLERANCE 				0.005  	// $12 mm
 
-#define DEFAULT_DIRECTION_INVERT_MASK       4		// $3 Invert X and Invert Y
+#define DEFAULT_DIRECTION_INVERT_MASK       4		// $3 Invert X and Y
 #define DEFAULT_INVERT_LIMIT_PINS 			0		// $5 No
 #define DEFAULT_INVERT_PROBE_PIN 			0		// $6 No
 
@@ -29,7 +29,7 @@
 #define DEFAULT_X_MAX_TRAVEL 				250.0  	// $130 X axis Max Travel (mm) 
 #define DEFAULT_Y_MAX_TRAVEL 				250.0  	// $131 Y axis Max Travel (mm)
 #define DEFAULT_Z_MAX_TRAVEL 				60.0  	// $132 Z axis Max Travel (mm)
-#define DEFAULT_A_MAX_TRAVEL 				0  		// $133 A axis Max Travel (mm) (NOTE: We set this to zero in order to avoid Soft Limits for this Axis)
+#define DEFAULT_A_MAX_TRAVEL 				0  		// $133 A axis Max Travel (mm or degrees) (NOTE: We set this to zero in order to avoid Soft Limits for this Axis)
 
 // SPEEDS AND ACCELLERATIONS
 #define DEFAULT_X_STEPS_PER_MM 				400.0	// $100 steps/mm

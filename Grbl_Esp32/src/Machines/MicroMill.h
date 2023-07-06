@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define MACHINE_NAME            "Micro Mill 4Axis"
+#define MACHINE_NAME	"Micro Mill 4-Axis"
 
 #ifdef N_AXIS
 	#undef N_AXIS
@@ -15,8 +15,6 @@
 #define DEFAULT_JUNCTION_DEVIATION 			0.025  	// $11 mm
 #define DEFAULT_ARC_TOLERANCE 				0.005  	// $12 mm
 
-
-
 #define DEFAULT_DIRECTION_INVERT_MASK 		4
 #define DEFAULT_INVERT_LIMIT_PINS 			0
 #define DEFAULT_INVERT_PROBE_PIN 			0
@@ -28,7 +26,6 @@
 #define DEFAULT_HOMING_FEED_RATE 			500.0  	// $24 mm/min
 #define DEFAULT_HOMING_SEEK_RATE 			1500.0  // $25 mm/min
 #define DEFAULT_HOMING_PULLOFF 				2.0  	// $27 
-
 
 // TRAVEL
 #define DEFAULT_X_MAX_TRAVEL 				302.0  	// $130 mm 
@@ -55,7 +52,7 @@
 #define DEFAULT_A_ACCELERATION 				720.0
 
 
-// SourceRabbit CNC Motherboard v1.2 Pinout
+// SourceRabbit CNC Motherboard v1.3 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
 #define X_DIRECTION_PIN         GPIO_NUM_33
 #define Y_STEP_PIN              GPIO_NUM_25

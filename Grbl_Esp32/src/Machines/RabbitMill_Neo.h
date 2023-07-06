@@ -1,6 +1,6 @@
 #pragma once
 
-#define MACHINE_NAME    "Rabbit Mill Neo"
+#define MACHINE_NAME	"Rabbit Mill Neo"
 
 #ifdef N_AXIS
 	#undef N_AXIS

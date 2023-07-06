@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define MACHINE_NAME            "Rabbit Mill Mega 300x600x100"
+#define MACHINE_NAME "Rabbit Mill Mega 300x600x100 4-Axis"
 
 #ifdef N_AXIS
 	#undef N_AXIS
@@ -15,8 +15,6 @@
 #define DEFAULT_JUNCTION_DEVIATION 			0.025  	// $11 mm
 #define DEFAULT_ARC_TOLERANCE 				0.005  	// $12 mm
 
-
-
 #define DEFAULT_DIRECTION_INVERT_MASK 		6
 #define DEFAULT_INVERT_LIMIT_PINS 			0
 #define DEFAULT_INVERT_PROBE_PIN 			0
@@ -28,7 +26,6 @@
 #define DEFAULT_HOMING_FEED_RATE 			500.0  	// $24 mm/min
 #define DEFAULT_HOMING_SEEK_RATE 			1500.0  // $25 mm/min
 #define DEFAULT_HOMING_PULLOFF 				2.0  	// $27 
-
 
 // TRAVEL
 #define DEFAULT_X_MAX_TRAVEL 				300.0  	// $130 mm 
@@ -53,7 +50,6 @@
 #define DEFAULT_A_STEPS_PER_MM 				26.666	// Steps / Degree
 #define DEFAULT_A_MAX_RATE 					72000.0  // degrees/min
 #define DEFAULT_A_ACCELERATION 				720.0
-
 
 // SourceRabbit CNC Motherboard v1.2 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
