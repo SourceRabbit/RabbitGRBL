@@ -48,7 +48,6 @@
 #define DEFAULT_A_MAX_RATE 					7200.0  // $113 mm/min or degrees/min
 #define DEFAULT_A_ACCELERATION 				60.0	// $123 steps/sec^2 mm/sec^2
 
-
 // SourceRabbit CNC Motherboard Compact v1.1 Pinout
 #define X_STEP_PIN              			GPIO_NUM_0
 #define X_DIRECTION_PIN         			GPIO_NUM_33
