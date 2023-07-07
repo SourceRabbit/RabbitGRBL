@@ -17,7 +17,7 @@
 #define DEFAULT_INVERT_LIMIT_PINS 			0		// $5 No
 #define DEFAULT_INVERT_PROBE_PIN 			0		// $6 No
 
-#define DEFAULT_SOFT_LIMIT_ENABLE 			1		// Soft Limits Disabled
+#define DEFAULT_SOFT_LIMIT_ENABLE 			0		// Soft Limits Disabled
 #define DEFAULT_HARD_LIMIT_ENABLE 			0		// Hard Limits Disabled
 #define DEFAULT_HOMING_ENABLE 				0		// Homing Disabled
 #define DEFAULT_HOMING_DIR_MASK 			3  		// $23 move positive dir Z, negative X,Y
