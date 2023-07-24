@@ -20,7 +20,7 @@
 #define DEFAULT_SOFT_LIMIT_ENABLE 			1
 #define DEFAULT_HARD_LIMIT_ENABLE 			0
 #define DEFAULT_HOMING_ENABLE 				1
-#define DEFAULT_HOMING_DIR_MASK 			3  		// $23 move positive dir Z, negative X,Y
+#define DEFAULT_HOMING_DIR_MASK 			1  		// $23 move positive dir Z, negative X,Y
 #define DEFAULT_HOMING_FEED_RATE 			500.0  	// $24 mm/min
 #define DEFAULT_HOMING_SEEK_RATE 			1500.0  // $25 mm/min
 #define DEFAULT_HOMING_PULLOFF 				1.0  	// $27 
@@ -41,7 +41,7 @@
 #define DEFAULT_Y_MAX_RATE 					7000.0  // $111 mm/min
 #define DEFAULT_Y_ACCELERATION 				160.0   // $121
 
-#define DEFAULT_Z_STEPS_PER_MM 				16000.0	// $102
+#define DEFAULT_Z_STEPS_PER_MM 				1600.0	// $102
 #define DEFAULT_Z_MAX_RATE 					3000.0  // $112 mm/min
 #define DEFAULT_Z_ACCELERATION 				80.0	// $122
 
