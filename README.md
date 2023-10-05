@@ -7,7 +7,7 @@ Rabbit GRBL (GRBL for the ESP32)
 [![](https://dcbadge.vercel.app/api/server/nRKETyjJ7E)](https://discord.gg/nRKETyjJ7E)
 
 ### Introduction 
-Grbl is a no-compromise, high performance, motion control for CNC milling. This version of Grbl is a fork of the [Grbl_Esp32](https://github.com/bdring/Grbl_Esp32) project, runs on ESP32 processors and it is designed to work properly with  SourceRabbit products like [Focus - PC Based CNC Control System](https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm) and the [4-Axis CNC motherboard](https://www.sourcerabbit.com/Shop/pr-i-86-t-4-axis-cnc-motherboard.htm).
+Grbl is a no-compromise, high performance, motion control for CNC milling. Rabbit GRBL is a fork of the [Grbl_Esp32](https://github.com/bdring/Grbl_Esp32) project, runs on ESP32 processors and it is designed to work properly with SourceRabbit products like [Focus - PC Based CNC Control System](https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm) and the [4-Axis CNC motherboard](https://www.sourcerabbit.com/Shop/pr-i-86-t-4-axis-cnc-motherboard.htm).
 
 The controller is highly optimized to achieve precise timing and asynchronous operation. It is able to maintain up to <b>120khZ of stable, jitter free control pulses</b>.
 
