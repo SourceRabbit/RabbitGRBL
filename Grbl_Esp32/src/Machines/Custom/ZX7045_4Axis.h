@@ -36,7 +36,7 @@
 #define DEFAULT_X_STEPS_PER_MM              400.0   // steps/mm
 #define DEFAULT_X_MAX_RATE                  5000.0  // mm/min
 #define DEFAULT_X_ACCELERATION              100.0   // mm/sec^2
-#define DEFAULT_X_BACKLASH             		0.072   // mm
+#define DEFAULT_X_BACKLASH             		0.075   // mm
 
 #define DEFAULT_Y_STEPS_PER_MM              400.0   // steps/mm
 #define DEFAULT_Y_MAX_RATE                  5000.0  // mm/min
@@ -46,7 +46,7 @@
 #define DEFAULT_Z_STEPS_PER_MM              400.0	// steps/mm
 #define DEFAULT_Z_MAX_RATE                  2000.0  // mm/min
 #define DEFAULT_Z_ACCELERATION              40.0    // mm/sec^2
-#define DEFAULT_Z_BACKLASH             		0.11    // mm
+#define DEFAULT_Z_BACKLASH             		0.09    // mm
 
 #define DEFAULT_A_STEPS_PER_MM              26.666 	// Steps / Degree
 #define DEFAULT_A_MAX_RATE                  72000.0 // degrees/min
@@ -55,11 +55,11 @@
 // Spindle and Coolant
 #define DEFAULT_SPINDLE_FREQ 				980
 #define DEFAULT_SPINDLE_RPM_MIN  			0 
-#define DEFAULT_SPINDLE_RPM_MAX  			2548 
+#define DEFAULT_SPINDLE_RPM_MAX  			3700 
 #define DEFAULT_SPINDLE_DELAY_SPINUP 		1.4    // Seconds
 #define DEFAULT_SPINDLE_DELAY_SPINDOWN 		1.4    // Seconds
-#define DEFAULT_COOLANT_FLOOD_DELAY_TURNON 	2.5    // Seconds
-#define DEFAULT_COOLANT_MIST_DELAY_TURNON 	1.0    // Seconds
+#define DEFAULT_COOLANT_FLOOD_DELAY_TURNON 	0.0    // Seconds
+#define DEFAULT_COOLANT_MIST_DELAY_TURNON 	0.0    // Seconds
 
 // SourceRabbit CNC Motherboard v1.2 Pinout
 #define X_STEP_PIN              GPIO_NUM_0
