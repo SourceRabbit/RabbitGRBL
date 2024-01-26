@@ -124,6 +124,9 @@ namespace Spindles
     {
         uint32_t pwm_value;
 
+        // Max RPM security check
+        rpm = (rpm > _max_rpm) ? _max_rpm : rpm;
+
         if (_output_pin == UNDEFINED_PIN)
         {
             return rpm;
@@ -132,7 +135,7 @@ namespace Spindles
         // apply override
         rpm = rpm * sys.spindle_speed_ovr / 100; // Scale by spindle speed override value (uint8_t percent)
 
-        // apply limits
+        // Apply RPM limits
         if ((_min_rpm >= _max_rpm) || (rpm >= _max_rpm))
         {
             rpm = _max_rpm;
