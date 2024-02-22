@@ -5,6 +5,9 @@
 //#include "Machines/4Axis_CNC_Motherboard_Compact_1_1.h"
 //#include "Machines/RabbitMill_Neo_Nikos.h"
 
+// Dev
+//#include "Machines/Dev/6Axis.h"
+
 // SourceRabbit Machines
 //#include "Machines/Quantum.h"
 //#include "Machines/MicroMill.h"
