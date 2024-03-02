@@ -166,7 +166,7 @@ void isr_control_inputs();
 void system_execute_startup(char *line);
 Error execute_line(char *line, uint8_t client);
 Error system_execute_line(char *line);
-Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStream *);
+Error do_command_or_setting(const char *key, char *value);
 void system_flag_wco_change();
 
 // Returns machine position of axis 'idx'. Must be sent a 'step' array.

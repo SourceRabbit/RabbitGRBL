@@ -100,7 +100,7 @@ Error execute_line(char *line, uint8_t client)
     {
         return Error::SystemGcLock;
     }
-    return gc_execute_line(line, client);
+    return gc_execute_line(line);
 }
 
 bool can_park()

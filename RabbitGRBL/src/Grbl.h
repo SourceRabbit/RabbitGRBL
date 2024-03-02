@@ -35,7 +35,6 @@ const char *const GRBL_VERSION_BUILD = "20240126";
 #include "NutsBolts.h"
 #include "Defaults.h"
 #include "Error.h"
-#include "WebUI/ESPResponse.h"
 #include "Probe.h"
 #include "System.h"
 #include "GCode.h"

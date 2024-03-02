@@ -357,7 +357,7 @@ Error doJog(const char *value)
     char jogLine[LINE_BUFFER_SIZE];
     strcpy(jogLine, "$J=");
     strcat(jogLine, value);
-    return gc_execute_line(jogLine, CLIENT_SERIAL);
+    return gc_execute_line(jogLine);
 }
 
 const char *alarmString(ExecAlarm alarmNumber)
@@ -687,13 +687,13 @@ void system_execute_startup(char *line)
     strncpy(gcline, startup_line_0->get(), 255);
     if (*gcline)
     {
-        status_code = gc_execute_line(gcline, CLIENT_SERIAL);
+        status_code = gc_execute_line(gcline);
         report_execute_startup_message(gcline, status_code);
     }
     strncpy(gcline, startup_line_1->get(), 255);
     if (*gcline)
     {
-        status_code = gc_execute_line(gcline, CLIENT_SERIAL);
+        status_code = gc_execute_line(gcline);
         report_execute_startup_message(gcline, status_code);
     }
 }
