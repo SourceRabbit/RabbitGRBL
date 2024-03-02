@@ -136,6 +136,7 @@ void client_init()
 static uint8_t getClientChar(uint8_t *data)
 {
     int res;
+
 #ifdef REVERT_TO_ARDUINO_SERIAL
     if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Serial.read()) != -1)
     {
@@ -145,11 +146,6 @@ static uint8_t getClientChar(uint8_t *data)
 #endif
         *data = res;
         return CLIENT_SERIAL;
-    }
-    if (WebUI::inputBuffer.available())
-    {
-        *data = WebUI::inputBuffer.read();
-        return CLIENT_INPUT;
     }
 
     return CLIENT_ALL;

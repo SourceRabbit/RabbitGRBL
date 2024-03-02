@@ -102,15 +102,10 @@ namespace Spindles
         _pwm_min_value = (_pwm_period * spindle_pwm_min_value->get() / 100.0);
         _pwm_max_value = (_pwm_period * spindle_pwm_max_value->get() / 100.0);
 
-#ifdef ENABLE_PIECEWISE_LINEAR_SPINDLE
-        _min_rpm = RPM_MIN;
-        _max_rpm = RPM_MAX;
-        _piecewide_linear = true;
-#else
         _min_rpm = rpm_min->get();
         _max_rpm = rpm_max->get();
         _piecewide_linear = false;
-#endif
+
         // The pwm_gradient is the pwm duty cycle units per rpm
         // _pwm_gradient = (_pwm_max_value - _pwm_min_value) / (_max_rpm - _min_rpm);
 

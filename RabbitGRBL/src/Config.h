@@ -30,13 +30,6 @@
 
 // IMPORTANT: Any changes here requires a full re-compiling of the source code to propagate them.
 
-/*
-ESP 32 Notes
-
-Some features should not be changed. See notes below.
-
-*/
-
 #include <Arduino.h>
 
 #include "NutsBolts.h"
@@ -83,7 +76,9 @@ const int MAX_N_AXIS = 6;
 // Serial baud rate
 // OK to change, but the ESP32 boot text is 115200, so you will not see that is your
 // serial monitor, sender, etc uses a different value than 115200
+#ifndef BAUD_RATE
 #define BAUD_RATE 115200
+#endif
 
 // Define realtime command special characters. These characters are 'picked-off' directly from the
 // serial read data stream and are not passed to the grbl line execution parser. Select characters
@@ -516,22 +511,4 @@ const double PARKING_PULLOUT_INCREMENT = 5.0; // Spindle pull-out and plunge dis
 // to ensure the laser doesn't inadvertently remain powered while at a stop and cause a fire.
 #define DISABLE_LASER_DURING_HOLD // Default enabled. Comment to disable.
 
-// Enables a piecewise linear model of the spindle PWM/speed output. Requires a solution by the
-// 'fit_nonlinear_spindle.py' script in the /doc/script folder of the repo. See file comments
-// on how to gather spindle data and run the script to generate a solution.
-// #define ENABLE_PIECEWISE_LINEAR_SPINDLE  // Default disabled. Uncomment to enable.
-
-// N_PIECES, RPM_MAX, RPM_MIN, RPM_POINTxx, and RPM_LINE_XX constants are all set and given by
-// the 'fit_nonlinear_spindle.py' script solution. Used only when ENABLE_PIECEWISE_LINEAR_SPINDLE
-// is enabled. Make sure the constant values are exactly the same as the script solution.
-// NOTE: When N_PIECES < 4, unused RPM_LINE and RPM_POINT defines are not required and omitted.
-/*
-#define N_PIECES 4  // Integer (1-4). Number of piecewise lines used in script solution.
-#define RPM_MAX  11686.4  // Max RPM of model. $30 > RPM_MAX will be limited to RPM_MAX.
-#define RPM_MIN  202.5    // Min RPM of model. $31 < RPM_MIN will be limited to RPM_MIN.
-*/
-
 const int N_PIECES = 3;
-
-const double RPM_MAX = 150000;
-const double RPM_MIN = 0;

@@ -52,7 +52,7 @@ enum class Message : uint8_t
 #define CLIENT_TELNET 3
 #define CLIENT_INPUT 4
 #define CLIENT_ALL 0xFF
-#define CLIENT_COUNT 5 // total number of client types regardless if they are used
+#define CLIENT_COUNT 1 // total number of client types regardless if they are used
 
 enum class MsgLevel : int8_t
 { // Use $Message/Level

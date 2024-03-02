@@ -46,6 +46,7 @@ static void empty_line(uint8_t client)
     cl->len = 0;
     cl->buffer[0] = '\0';
 }
+
 static void empty_lines()
 {
     for (uint8_t client = 0; client < CLIENT_COUNT; client++)
