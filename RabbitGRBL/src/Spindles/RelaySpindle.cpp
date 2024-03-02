@@ -46,8 +46,7 @@ namespace Spindles {
 
     // prints the startup message of the spindle config
     void Relay ::config_message() {
-        grbl_msg_sendf(CLIENT_ALL,
-                       MsgLevel::Info,
+        grbl_msg_sendf(MsgLevel::Info,
                        "Relay spindle Output:%s, Enbl:%s, Dir:%s",
                        pinName(_output_pin).c_str(),
                        pinName(_enable_pin).c_str(),

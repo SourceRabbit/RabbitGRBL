@@ -94,7 +94,7 @@ public:
     // Derived classes may override it to do something.
     virtual void addWebui(WebUI::JSONencoder *){};
 
-    virtual Error action(char *value, WebUI::ESPResponseStream *out) = 0;
+    virtual Error action(char *value) = 0;
 };
 
 class Setting : public Word
@@ -116,27 +116,27 @@ public:
 
     Error check(char *s);
 
-    static Error report_nvs_stats(const char *value, WebUI::ESPResponseStream *out)
+    static Error report_nvs_stats(const char *value)
     {
         nvs_stats_t stats;
         if (esp_err_t err = nvs_get_stats(NULL, &stats))
         {
             return Error::NvsGetStatsFailed;
         }
-        grbl_sendf(out->client(), "[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
+        grbl_sendf("[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
 #if 0 // The SDK we use does not have this yet
         nvs_iterator_t it = nvs_entry_find(NULL, NULL, NVS_TYPE_ANY);
         while (it != NULL) {
             nvs_entry_info_t info;
             nvs_entry_info(it, &info);
             it = nvs_entry_next(it);
-            grbl_sendf(out->client(), "namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
+            grbl_sendf("namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
         }
 #endif
         return Error::Ok;
     }
 
-    static Error eraseNVS(const char *value, WebUI::ESPResponseStream *out)
+    static Error eraseNVS(const char *value)
     {
         nvs_erase_all(_handle);
         return Error::Ok;
@@ -469,21 +469,22 @@ extern bool notCycleOrHold();
 class GrblCommand : public Command
 {
 private:
-    Error (*_action)(const char *, WebUI::ESPResponseStream *);
+    Error (*_action)(const char *);
 
 public:
     GrblCommand(const char *grblName,
                 const char *name,
-                Error (*action)(const char *, WebUI::ESPResponseStream *),
+                Error (*action)(const char *),
                 bool (*cmdChecker)(),
                 permissions_t auth) : Command(NULL, GRBLCMD, auth, grblName, name, cmdChecker),
                                       _action(action) {}
 
     GrblCommand(const char *grblName,
                 const char *name,
-                Error (*action)(const char *, WebUI::ESPResponseStream *),
+                Error (*action)(const char *),
                 bool (*cmdChecker)()) : GrblCommand(grblName, name, action, cmdChecker, WG) {}
-    Error action(char *value, WebUI::ESPResponseStream *response);
+
+    Error action(char *value);
 };
 
 template <typename T>

@@ -83,7 +83,7 @@ void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data)
 
     if (perform_backlash_compensation_motion)
     {
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Anti backlash Motion");
+        // grbl_msg_sendf(MsgLevel::Info, "Anti backlash Motion");
 
         // Queue the backlash motion into planner buffer
         plan_line_data_t pl_backlash_data;

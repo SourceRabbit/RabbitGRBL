@@ -2,14 +2,14 @@
 #include <map>
 #include "Regex.h"
 
-void show_setting(const char *name, const char *value, const char *description, WebUI::ESPResponseStream *out)
+void show_setting(const char *name, const char *value, const char *description)
 {
-    grbl_sendf(out->client(), "$%s=%s", name, value);
+    grbl_sendf("$%s=%s", name, value);
     if (description)
     {
-        grbl_sendf(out->client(), "    %s", description);
+        grbl_sendf("    %s", description);
     }
-    grbl_sendf(out->client(), "\r\n");
+    grbl_sendf("\r\n");
 }
 
 void settings_restore(uint8_t restore_flag)
@@ -32,7 +32,7 @@ void settings_restore(uint8_t restore_flag)
                 }
             }
         }
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Settings reset done");
+        grbl_msg_sendf(MsgLevel::Info, "Settings reset done");
     }
     if (restore_flag & SettingsRestore::Parameters)
     {
@@ -41,7 +41,7 @@ void settings_restore(uint8_t restore_flag)
             coords[idx]->setDefault();
         }
     }
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Position offsets reset done");
+    grbl_msg_sendf(MsgLevel::Info, "Position offsets reset done");
 }
 
 // Get settings values from non volatile storage into memory
@@ -68,19 +68,19 @@ void settings_init()
     load_settings();
 }
 
-Error show_grbl_help(const char *value, WebUI::ESPResponseStream *out)
+Error show_grbl_help(const char *value)
 {
-    report_grbl_help(out->client());
+    report_grbl_help();
     return Error::Ok;
 }
 
-Error report_gcode(const char *value, WebUI::ESPResponseStream *out)
+Error report_gcode(const char *value)
 {
-    report_gcode_modes(out->client());
+    report_gcode_modes();
     return Error::Ok;
 }
 
-void show_grbl_settings(WebUI::ESPResponseStream *out, type_t type, bool wantAxis)
+void show_grbl_settings(type_t type, bool wantAxis)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
@@ -91,52 +91,52 @@ void show_grbl_settings(WebUI::ESPResponseStream *out, type_t type, bool wantAxi
             // but is arguably clearer when written out
             if ((wantAxis && isAxis) || (!wantAxis && !isAxis))
             {
-                show_setting(s->getGrblName(), s->getCompatibleValue(), NULL, out);
+                show_setting(s->getGrblName(), s->getCompatibleValue(), NULL);
             }
         }
     }
 }
 
-Error report_normal_settings(const char *value, WebUI::ESPResponseStream *out)
+Error report_normal_settings(const char *value)
 {
-    show_grbl_settings(out, GRBL, false); // GRBL non-axis settings
-    show_grbl_settings(out, GRBL, true);  // GRBL axis settings
+    show_grbl_settings(GRBL, false); // GRBL non-axis settings
+    show_grbl_settings(GRBL, true);  // GRBL axis settings
     return Error::Ok;
 }
 
-Error report_extended_settings(const char *value, WebUI::ESPResponseStream *out)
+Error report_extended_settings(const char *value)
 {
-    show_grbl_settings(out, GRBL, false);     // GRBL non-axis settings
-    show_grbl_settings(out, EXTENDED, false); // Extended non-axis settings
-    show_grbl_settings(out, GRBL, true);      // GRBL axis settings
-    show_grbl_settings(out, EXTENDED, true);  // Extended axis settings
+    show_grbl_settings(GRBL, false);     // GRBL non-axis settings
+    show_grbl_settings(EXTENDED, false); // Extended non-axis settings
+    show_grbl_settings(GRBL, true);      // GRBL axis settings
+    show_grbl_settings(EXTENDED, true);  // Extended axis settings
     return Error::Ok;
 }
 
-Error list_grbl_names(const char *value, WebUI::ESPResponseStream *out)
+Error list_grbl_names(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
         const char *gn = s->getGrblName();
         if (gn)
         {
-            grbl_sendf(out->client(), "$%s => $%s\r\n", gn, s->getName());
+            grbl_sendf("$%s => $%s\r\n", gn, s->getName());
         }
     }
     return Error::Ok;
 }
 
-Error list_settings(const char *value, WebUI::ESPResponseStream *out)
+Error list_settings(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
         const char *displayValue = s->getStringValue();
-        show_setting(s->getName(), displayValue, NULL, out);
+        show_setting(s->getName(), displayValue, NULL);
     }
     return Error::Ok;
 }
 
-Error list_changed_settings(const char *value, WebUI::ESPResponseStream *out)
+Error list_changed_settings(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
@@ -147,14 +147,14 @@ Error list_changed_settings(const char *value, WebUI::ESPResponseStream *out)
             String message = "(Default=";
             message += defval;
             message += ")";
-            show_setting(s->getName(), value, message.c_str(), out);
+            show_setting(s->getName(), value, message.c_str());
         }
     }
-    grbl_sendf(out->client(), "(Passwords not shown)\r\n");
+    grbl_sendf("(Passwords not shown)\r\n");
     return Error::Ok;
 }
 
-Error list_commands(const char *value, WebUI::ESPResponseStream *out)
+Error list_commands(const char *value)
 {
     for (Command *cp = Command::List; cp; cp = cp->next())
     {
@@ -162,30 +162,30 @@ Error list_commands(const char *value, WebUI::ESPResponseStream *out)
         const char *oldName = cp->getGrblName();
         if (oldName)
         {
-            grbl_sendf(out->client(), "$%s or $%s", name, oldName);
+            grbl_sendf("$%s or $%s", name, oldName);
         }
         else
         {
-            grbl_sendf(out->client(), "$%s", name);
+            grbl_sendf("$%s", name);
         }
         const char *description = cp->getDescription();
         if (description)
         {
-            grbl_sendf(out->client(), " =%s", description);
+            grbl_sendf(" =%s", description);
         }
-        grbl_sendf(out->client(), "\r\n");
+        grbl_sendf("\r\n");
     }
     return Error::Ok;
 }
 
-Error toggle_check_mode(const char *value, WebUI::ESPResponseStream *out)
+Error toggle_check_mode(const char *value)
 {
     // Perform reset when toggling off. Check g-code mode should only work if Grbl
     // is idle and ready, regardless of alarm locks. This is mainly to keep things
     // simple and consistent.
     if (sys.state == State::CheckMode)
     {
-        grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Check mode");
+        grbl_msg_sendf(MsgLevel::Debug, "Check mode");
         mc_reset();
         report_feedback_message(Message::Disabled);
     }
@@ -201,7 +201,7 @@ Error toggle_check_mode(const char *value, WebUI::ESPResponseStream *out)
     return Error::Ok;
 }
 
-Error disable_alarm_lock(const char *value, WebUI::ESPResponseStream *out)
+Error disable_alarm_lock(const char *value)
 {
     if (sys.state == State::Alarm)
     {
@@ -217,9 +217,9 @@ Error disable_alarm_lock(const char *value, WebUI::ESPResponseStream *out)
     return Error::Ok;
 }
 
-Error report_ngc(const char *value, WebUI::ESPResponseStream *out)
+Error report_ngc(const char *value)
 {
-    report_ngc_parameters(out->client());
+    report_ngc_parameters();
     return Error::Ok;
 }
 
@@ -250,61 +250,61 @@ Error home(int cycle)
     return Error::Ok;
 }
 
-Error home_all(const char *value, WebUI::ESPResponseStream *out)
+Error home_all(const char *value)
 {
     return home(HOMING_CYCLE_ALL);
 }
 
-Error home_x(const char *value, WebUI::ESPResponseStream *out)
+Error home_x(const char *value)
 {
     return home(bit(X_AXIS));
 }
 
-Error home_y(const char *value, WebUI::ESPResponseStream *out)
+Error home_y(const char *value)
 {
     return home(bit(Y_AXIS));
 }
 
-Error home_z(const char *value, WebUI::ESPResponseStream *out)
+Error home_z(const char *value)
 {
     return home(bit(Z_AXIS));
 }
 
-Error home_a(const char *value, WebUI::ESPResponseStream *out)
+Error home_a(const char *value)
 {
     return home(bit(A_AXIS));
 }
 
-Error home_b(const char *value, WebUI::ESPResponseStream *out)
+Error home_b(const char *value)
 {
     return home(bit(B_AXIS));
 }
 
-Error home_c(const char *value, WebUI::ESPResponseStream *out)
+Error home_c(const char *value)
 {
     return home(bit(C_AXIS));
 }
 
-Error sleep_grbl(const char *value, WebUI::ESPResponseStream *out)
+Error sleep_grbl(const char *value)
 {
     sys_rt_exec_state.bit.sleep = true;
     return Error::Ok;
 }
 
-Error get_report_build_info(const char *value, WebUI::ESPResponseStream *out)
+Error get_report_build_info(const char *value)
 {
     if (!value)
     {
-        report_build_info(build_info->get(), out->client());
+        report_build_info(build_info->get());
         return Error::Ok;
     }
     return Error::InvalidStatement;
 }
 
-Error report_startup_lines(const char *value, WebUI::ESPResponseStream *out)
+Error report_startup_lines(const char *value)
 {
-    report_startup_line(0, startup_line_0->get(), out->client());
-    report_startup_line(1, startup_line_1->get(), out->client());
+    report_startup_line(0, startup_line_0->get());
+    report_startup_line(1, startup_line_1->get());
     return Error::Ok;
 }
 
@@ -324,7 +324,7 @@ std::map<const char *, uint8_t, cmp_str> restoreCommands = {
     {"@", SettingsRestore::Wifi},
     {"wifi", SettingsRestore::Wifi},
 };
-Error restore_settings(const char *value, WebUI::ESPResponseStream *out)
+Error restore_settings(const char *value)
 {
     if (!value)
     {
@@ -339,12 +339,12 @@ Error restore_settings(const char *value, WebUI::ESPResponseStream *out)
     return Error::Ok;
 }
 
-Error showState(const char *value, WebUI::ESPResponseStream *out)
+Error showState(const char *value)
 {
-    grbl_sendf(out->client(), "State 0x%x\r\n", sys.state);
+    grbl_sendf("State 0x%x\r\n", sys.state);
     return Error::Ok;
 }
-Error doJog(const char *value, WebUI::ESPResponseStream *out)
+Error doJog(const char *value)
 {
     // For jogging, you must give gc_execute_line() a line that
     // begins with $J=.  There are several ways we can get here,
@@ -357,7 +357,7 @@ Error doJog(const char *value, WebUI::ESPResponseStream *out)
     char jogLine[LINE_BUFFER_SIZE];
     strcpy(jogLine, "$J=");
     strcat(jogLine, value);
-    return gc_execute_line(jogLine, out->client());
+    return gc_execute_line(jogLine, CLIENT_SERIAL);
 }
 
 const char *alarmString(ExecAlarm alarmNumber)
@@ -366,7 +366,7 @@ const char *alarmString(ExecAlarm alarmNumber)
     return it == AlarmNames.end() ? NULL : it->second;
 }
 
-Error listAlarms(const char *value, WebUI::ESPResponseStream *out)
+Error listAlarms(const char *value)
 {
     if (value)
     {
@@ -374,25 +374,25 @@ Error listAlarms(const char *value, WebUI::ESPResponseStream *out)
         uint8_t alarmNumber = strtol(value, &endptr, 10);
         if (*endptr)
         {
-            grbl_sendf(out->client(), "Malformed alarm number: %s\r\n", value);
+            grbl_sendf("Malformed alarm number: %s\r\n", value);
             return Error::InvalidValue;
         }
         const char *alarmName = alarmString(static_cast<ExecAlarm>(alarmNumber));
         if (alarmName)
         {
-            grbl_sendf(out->client(), "%d: %s\r\n", alarmNumber, alarmName);
+            grbl_sendf("%d: %s\r\n", alarmNumber, alarmName);
             return Error::Ok;
         }
         else
         {
-            grbl_sendf(out->client(), "Unknown alarm number: %d\r\n", alarmNumber);
+            grbl_sendf("Unknown alarm number: %d\r\n", alarmNumber);
             return Error::InvalidValue;
         }
     }
 
     for (auto it = AlarmNames.begin(); it != AlarmNames.end(); it++)
     {
-        grbl_sendf(out->client(), "%d: %s\r\n", it->first, it->second);
+        grbl_sendf("%d: %s\r\n", it->first, it->second);
     }
     return Error::Ok;
 }
@@ -403,7 +403,7 @@ const char *errorString(Error errorNumber)
     return it == ErrorNames.end() ? NULL : it->second;
 }
 
-Error listErrors(const char *value, WebUI::ESPResponseStream *out)
+Error listErrors(const char *value)
 {
     if (value)
     {
@@ -411,30 +411,30 @@ Error listErrors(const char *value, WebUI::ESPResponseStream *out)
         uint8_t errorNumber = strtol(value, &endptr, 10);
         if (*endptr)
         {
-            grbl_sendf(out->client(), "Malformed error number: %s\r\n", value);
+            grbl_sendf("Malformed error number: %s\r\n", value);
             return Error::InvalidValue;
         }
         const char *errorName = errorString(static_cast<Error>(errorNumber));
         if (errorName)
         {
-            grbl_sendf(out->client(), "%d: %s\r\n", errorNumber, errorName);
+            grbl_sendf("%d: %s\r\n", errorNumber, errorName);
             return Error::Ok;
         }
         else
         {
-            grbl_sendf(out->client(), "Unknown error number: %d\r\n", errorNumber);
+            grbl_sendf("Unknown error number: %d\r\n", errorNumber);
             return Error::InvalidValue;
         }
     }
 
     for (auto it = ErrorNames.begin(); it != ErrorNames.end(); it++)
     {
-        grbl_sendf(out->client(), "%d: %s\r\n", it->first, it->second);
+        grbl_sendf("%d: %s\r\n", it->first, it->second);
     }
     return Error::Ok;
 }
 
-Error motor_disable(const char *value, WebUI::ESPResponseStream *out)
+Error motor_disable(const char *value)
 {
     char *s;
     if (value == NULL)
@@ -555,7 +555,7 @@ char *normalize_key(char *start)
 
 // This is the handler for all forms of settings commands,
 // $..= and [..], with and without a value.
-Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStream *out)
+Error do_command_or_setting(const char *key, char *value)
 {
     // If value is NULL, it means that there was no value string, i.e.
     // $key without =, or [key] with nothing following.
@@ -575,7 +575,7 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
             }
             else
             {
-                show_setting(s->getName(), s->getStringValue(), NULL, out);
+                show_setting(s->getName(), s->getStringValue(), NULL);
                 return Error::Ok;
             }
         }
@@ -593,7 +593,7 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
             }
             else
             {
-                show_setting(s->getGrblName(), s->getCompatibleValue(), NULL, out);
+                show_setting(s->getGrblName(), s->getCompatibleValue(), NULL);
                 return Error::Ok;
             }
         }
@@ -605,7 +605,7 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
     {
         if ((strcasecmp(cp->getName(), key) == 0) || (cp->getGrblName() && strcasecmp(cp->getGrblName(), key) == 0))
         {
-            return cp->action(value, out);
+            return cp->action(value);
         }
     }
 
@@ -627,7 +627,7 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
             if (regexMatch(lcKey.c_str(), lcTest.c_str()))
             {
                 const char *displayValue = s->getStringValue();
-                show_setting(s->getName(), displayValue, NULL, out);
+                show_setting(s->getName(), displayValue, NULL);
                 found = true;
             }
         }
@@ -639,7 +639,7 @@ Error do_command_or_setting(const char *key, char *value, WebUI::ESPResponseStre
     return Error::InvalidStatement;
 }
 
-Error system_execute_line(char *line, WebUI::ESPResponseStream *out)
+Error system_execute_line(char *line)
 {
     char *value;
     if (*line++ == '[')
@@ -676,14 +676,9 @@ Error system_execute_line(char *line, WebUI::ESPResponseStream *out)
     // NULL - [ESPxxx] with nothing after ]
     // empty string - $xxx= with nothing after
     // non-empty string - [ESPxxx]yyy or $xxx=yyy
-    return do_command_or_setting(key, value, out);
+    return do_command_or_setting(key, value);
 }
 
-Error system_execute_line(char *line, uint8_t client)
-{
-    WebUI::ESPResponseStream stream(client, true);
-    return system_execute_line(line, &stream);
-}
 
 void system_execute_startup(char *line)
 {
@@ -693,12 +688,12 @@ void system_execute_startup(char *line)
     if (*gcline)
     {
         status_code = gc_execute_line(gcline, CLIENT_SERIAL);
-        report_execute_startup_message(gcline, status_code, CLIENT_SERIAL);
+        report_execute_startup_message(gcline, status_code);
     }
     strncpy(gcline, startup_line_1->get(), 255);
     if (*gcline)
     {
         status_code = gc_execute_line(gcline, CLIENT_SERIAL);
-        report_execute_startup_message(gcline, status_code, CLIENT_SERIAL);
+        report_execute_startup_message(gcline, status_code);
     }
 }

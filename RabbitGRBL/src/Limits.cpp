@@ -59,12 +59,12 @@ void IRAM_ATTR isr_limit_switches()
             // Check limit pin state.
             if (limits_get_state())
             {
-                grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Hard limits");
+                grbl_msg_sendf(MsgLevel::Debug, "Hard limits");
                 mc_reset();                               // Initiate system kill.
                 sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
             }
 #else
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Hard limits");
+            grbl_msg_sendf(MsgLevel::Debug, "Hard limits");
             mc_reset();                               // Initiate system kill.
             sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
 #endif
@@ -239,7 +239,7 @@ void limits_go_home(uint8_t cycle_mask)
                 if (sys_rt_exec_alarm != ExecAlarm::None)
                 {
                     motors_set_homing_mode(cycle_mask, false); // tell motors homing is done...failed
-                    grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Homing fail");
+                    grbl_msg_sendf(MsgLevel::Debug, "Homing fail");
                     mc_reset(); // Stop motors, if they are running.
                     protocol_execute_realtime();
                     return;
@@ -333,7 +333,7 @@ void limits_init()
 
                 /*if (limit_sw_queue == NULL)
                 {
-                    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s limit switch on pin %s", reportAxisNameMsg(axis, gang_index), pinName(pin).c_str());
+                    grbl_msg_sendf(MsgLevel::Info, "%s limit switch on pin %s", reportAxisNameMsg(axis, gang_index), pinName(pin).c_str());
                 }*/
             }
         }
@@ -420,7 +420,7 @@ void limits_soft_check(float *target)
                 }
             } while (sys.state != State::Idle);
         }
-        grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Soft limits");
+        grbl_msg_sendf(MsgLevel::Debug, "Soft limits");
         mc_reset();                               // Issue system reset and ensure spindle and coolant are shutdown.
         sys_rt_exec_alarm = ExecAlarm::SoftLimit; // Indicate soft limit critical event
         protocol_execute_realtime();              // Execute to enter critical event loop and system abort
@@ -440,7 +440,7 @@ void limitCheckTask(void *pvParameters)
         switch_state = limits_get_state();
         if (switch_state)
         {
-            grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Debug, "Limit Switch State %08d", switch_state);
+            grbl_msg_sendf(MsgLevel::Debug, "Limit Switch State %08d", switch_state);
             mc_reset();                               // Initiate system kill.
             sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
         }

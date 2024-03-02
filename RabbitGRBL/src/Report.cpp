@@ -54,18 +54,14 @@ EspClass esp;
 #endif
 const int DEFAULTBUFFERSIZE = 64;
 
-void grbl_send(uint8_t client, const char *text)
+void grbl_send(const char *text)
 {
-    client_write(client, text);
+    client_write(text);
 }
 
 // This is a formating version of the grbl_send(CLIENT_ALL,...) function that work like printf
-void grbl_sendf(uint8_t client, const char *format, ...)
+void grbl_sendf(const char *format, ...)
 {
-    if (client == CLIENT_INPUT)
-    {
-        return;
-    }
     char loc_buf[64];
     char *temp = loc_buf;
     va_list arg;
@@ -83,7 +79,7 @@ void grbl_sendf(uint8_t client, const char *format, ...)
         }
     }
     len = vsnprintf(temp, len + 1, format, arg);
-    grbl_send(client, temp);
+    grbl_send(temp);
     va_end(arg);
     if (temp != loc_buf)
     {
@@ -91,12 +87,8 @@ void grbl_sendf(uint8_t client, const char *format, ...)
     }
 }
 // Use to send [MSG:xxxx] Type messages. The level allows messages to be easily suppressed
-void grbl_msg_sendf(uint8_t client, MsgLevel level, const char *format, ...)
+void grbl_msg_sendf(MsgLevel level, const char *format, ...)
 {
-    if (client == CLIENT_INPUT)
-    {
-        return;
-    }
 
     if (message_level != NULL)
     { // might be null before messages are setup
@@ -123,7 +115,7 @@ void grbl_msg_sendf(uint8_t client, MsgLevel level, const char *format, ...)
         }
     }
     len = vsnprintf(temp, len + 1, format, arg);
-    grbl_sendf(client, "[MSG:%s]\r\n", temp);
+    grbl_sendf("[MSG:%s]\r\n", temp);
     va_end(arg);
     if (temp != loc_buf)
     {
@@ -226,12 +218,12 @@ static String report_util_axis_values(const float *axis_value)
 // operation. Errors events can originate from the g-code parser, settings module, or asynchronously
 // from a critical error, such as a triggered hard limit. Interface should always monitor for these
 // responses.
-void report_status_message(Error status_code, uint8_t client)
+void report_status_message(Error status_code)
 {
     switch (status_code)
     {
     case Error::Ok: // Error::Ok
-        grbl_send(client, "ok\r\n");
+        grbl_send("ok\r\n");
         break;
     default:
 
@@ -240,11 +232,11 @@ void report_status_message(Error status_code, uint8_t client)
         // Many senders support both formats.
         if (verbose_errors->get())
         {
-            grbl_sendf(client, "error: %s\r\n", errorString(status_code));
+            grbl_sendf("error: %s\r\n", errorString(status_code));
         }
         else
         {
-            grbl_sendf(client, "error:%d\r\n", static_cast<int>(status_code));
+            grbl_sendf("error:%d\r\n", static_cast<int>(status_code));
         }
     }
 }
@@ -252,8 +244,8 @@ void report_status_message(Error status_code, uint8_t client)
 // Prints alarm messages.
 void report_alarm_message(ExecAlarm alarm_code)
 {
-    grbl_sendf(CLIENT_ALL, "ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
-    delay_ms(500);                                                        // Force delay to ensure message clears serial write buffer.
+    grbl_sendf("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
+    delay_ms(500);                                            // Force delay to ensure message clears serial write buffer.
 }
 
 std::map<Message, const char *> MessageText = {
@@ -283,26 +275,26 @@ void report_feedback_message(Message message)
     auto it = MessageText.find(message);
     if (it != MessageText.end())
     {
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, it->second);
+        grbl_msg_sendf(MsgLevel::Info, it->second);
     }
 }
 
 // Welcome message
-void report_init_message(uint8_t client)
+void report_init_message()
 {
-    grbl_sendf(client, "\r\nGrbl %s %s ['$' for help]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
+    grbl_sendf("\r\nGrbl %s %s ['$' for help]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
-void report_grbl_help(uint8_t client)
+void report_grbl_help()
 {
-    grbl_send(client, "[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
+    grbl_send("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
 }
 
 // Prints current probe parameters. Upon a probe command, these parameters are updated upon a
 // successful probe or upon a failed probe with the G38.3 without errors command (if supported).
 // These values are retained until Grbl is power-cycled, whereby they will be re-zeroed.
-void report_probe_parameters(uint8_t client)
+void report_probe_parameters()
 {
     // Report in terms of machine position.
     float print_position[MAX_N_AXIS];
@@ -316,11 +308,11 @@ void report_probe_parameters(uint8_t client)
     // add the success indicator and add closing characters
     sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
     strcat(probe_rpt, temp);
-    grbl_send(client, probe_rpt); // send the report
+    grbl_send(probe_rpt); // send the report
 }
 
 // Prints Grbl NGC parameters (coordinate offsets, probing)
-void report_ngc_parameters(uint8_t client)
+void report_ngc_parameters()
 {
     String ngc_rpt = "";
 
@@ -345,12 +337,12 @@ void report_ngc_parameters(uint8_t client)
     ngc_rpt += String(tlo, 3);
     ;
     ngc_rpt += "]\r\n";
-    grbl_send(client, ngc_rpt.c_str());
-    report_probe_parameters(client);
+    grbl_send(ngc_rpt.c_str());
+    report_probe_parameters();
 }
 
 // Print current gcode parser mode state
-void report_gcode_modes(uint8_t client)
+void report_gcode_modes()
 {
     char temp[20];
     char modes_rpt[75];
@@ -518,69 +510,68 @@ void report_gcode_modes(uint8_t client)
     sprintf(temp, " S%d", uint32_t(gc_state.spindle_speed));
     strcat(modes_rpt, temp);
     strcat(modes_rpt, "]\r\n");
-    grbl_send(client, modes_rpt);
+    grbl_send(modes_rpt);
 }
 
 // Prints specified startup line
-void report_startup_line(uint8_t n, const char *line, uint8_t client)
+void report_startup_line(uint8_t n, const char *line)
 {
-    grbl_sendf(client, "$N%d=%s\r\n", n, line); // OK to send to all
+    grbl_sendf("$N%d=%s\r\n", n, line); // OK to send to all
 }
 
-void report_execute_startup_message(const char *line, Error status_code, uint8_t client)
+void report_execute_startup_message(const char *line, Error status_code)
 {
-    grbl_sendf(client, ">%s:", line); // OK to send to all
-    report_status_message(status_code, client);
+    grbl_sendf(">%s:", line); // OK to send to all
+    report_status_message(status_code);
 }
 
 // Prints build info line
-void report_build_info(const char *line, uint8_t client)
+void report_build_info(const char *line)
 {
-    grbl_sendf(client, "[VER:%s.%s:%s]\r\n[OPT:", GRBL_VERSION, GRBL_VERSION_BUILD, line);
+    grbl_sendf("[VER:%s.%s:%s]\r\n[OPT:", GRBL_VERSION, GRBL_VERSION_BUILD, line);
 #ifdef COOLANT_MIST_PIN
-    grbl_send(client, "M"); // TODO Need to deal with M8...it could be disabled
+    grbl_send("M"); // TODO Need to deal with M8...it could be disabled
 #endif
 #ifdef PARKING_ENABLE
-    grbl_send(client, "P");
+    grbl_send("P");
 #endif
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-    grbl_send(client, "H");
+    grbl_send("H");
 #endif
 #ifdef LIMITS_TWO_SWITCHES_ON_AXES
-    grbl_send(client, "L");
+    grbl_send("L");
 #endif
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
-    grbl_send(client, "A");
+    grbl_send("A");
 #endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
-    grbl_send(client, "R");
+    grbl_send("R");
 #endif
 #ifndef ENABLE_RESTORE_WIPE_ALL // NOTE: Shown when disabled.
-    grbl_send(client, "*");
+    grbl_send("*");
 #endif
 #ifndef ENABLE_RESTORE_DEFAULT_SETTINGS // NOTE: Shown when disabled.
-    grbl_send(client, "$");
+    grbl_send("$");
 #endif
 #ifndef ENABLE_RESTORE_CLEAR_PARAMETERS // NOTE: Shown when disabled.
-    grbl_send(client, "#");
+    grbl_send("#");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE // NOTE: Shown when disabled.
-    grbl_send(client, "E");
+    grbl_send("E");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE // NOTE: Shown when disabled.
-    grbl_send(client, "W");
+    grbl_send("W");
 #endif
     // NOTE: Compiled values, like override increments/max/min values, may be added at some point later.
     // These will likely have a comma delimiter to separate them.
-    grbl_send(client, "]\r\n");
-    report_machine_type(client);
+    grbl_send("]\r\n");
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,
 // and has been sent into protocol_execute_line() routine to be executed by Grbl.
-void report_echo_line_received(char *line, uint8_t client)
+void report_echo_line_received(char *line)
 {
-    grbl_sendf(client, "[echo: %s]\r\n", line);
+    grbl_sendf("[echo: %s]\r\n", line);
 }
 
 // Calculate the position for status reports.
@@ -620,7 +611,7 @@ void report_calc_status_position(float *print_position, float *wco, bool wpos)
 // specific needs, but the desired real-time data report must be as short as possible. This is
 // requires as it minimizes the computational overhead and allows grbl to keep running smoothly,
 // especially during g-code programs with fast, short line segments and high frequency reports (5-20Hz).
-void report_realtime_status(uint8_t client)
+void report_realtime_status()
 {
     float print_position[MAX_N_AXIS];
     char status[200];
@@ -647,11 +638,7 @@ void report_realtime_status(uint8_t client)
     if (bit_istrue(status_mask->get(), RtStatus::Buffer))
     {
         int bufsize = DEFAULTBUFFERSIZE;
-
-        if (client == CLIENT_SERIAL)
-        {
-            bufsize = client_get_rx_buffer_available(CLIENT_SERIAL);
-        }
+        bufsize = client_get_rx_buffer_available();
         sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), bufsize);
         strcat(status, temp);
     }
@@ -844,7 +831,7 @@ void report_realtime_status(uint8_t client)
     strcat(status, temp);
 #endif
     strcat(status, ">\r\n");
-    grbl_send(client, status);
+    grbl_send(status);
 }
 
 void report_realtime_steps()
@@ -853,7 +840,7 @@ void report_realtime_steps()
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
     {
-        grbl_sendf(CLIENT_ALL, "%ld\n", sys_position[idx]); // OK to send to all ... debug stuff
+        grbl_sendf("%ld\n", sys_position[idx]); // OK to send to all ... debug stuff
     }
 }
 
@@ -870,13 +857,8 @@ void report_gcode_comment(char *comment)
             index++;
         }
         msg[index - offset] = 0; // null terminate
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "GCode Comment...%s", msg);
+        grbl_msg_sendf(MsgLevel::Info, "GCode Comment...%s", msg);
     }
-}
-
-void report_machine_type(uint8_t client)
-{
-    grbl_msg_sendf(client, MsgLevel::Info, "Using machine:%s", MACHINE_NAME);
 }
 
 /*
@@ -895,7 +877,7 @@ void report_hex_msg(char *buf, const char *prefix, int len)
         strcat(report, temp);
     }
 
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s", report);
+    grbl_msg_sendf(MsgLevel::Info, "%s", report);
 }
 
 void report_hex_msg(uint8_t *buf, const char *prefix, int len)
@@ -909,7 +891,7 @@ void report_hex_msg(uint8_t *buf, const char *prefix, int len)
         strcat(report, temp);
     }
 
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s", report);
+    grbl_msg_sendf(MsgLevel::Info, "%s", report);
 }
 
 char *report_state_text()
@@ -1018,7 +1000,7 @@ void reportTaskStackSize(UBaseType_t &saved)
     if (newHighWater != saved)
     {
         saved = newHighWater;
-        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s Min Stack Space: %d", pcTaskGetTaskName(NULL), saved);
+        grbl_msg_sendf(MsgLevel::Info, "%s Min Stack Space: %d", pcTaskGetTaskName(NULL), saved);
     }
 #endif
 }
@@ -1042,7 +1024,6 @@ void calc_wpos(float *print_position)
     {
         print_position[idx] -= wco[idx];
     }
-
 }
 
 float *get_wco()
@@ -1060,4 +1041,3 @@ float *get_wco()
     }
     return wco;
 }
-

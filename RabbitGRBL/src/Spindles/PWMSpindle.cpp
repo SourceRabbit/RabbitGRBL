@@ -82,7 +82,7 @@ namespace Spindles
 
         if (_output_pin == UNDEFINED_PIN)
         {
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
+            grbl_msg_sendf(MsgLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
             return; // We cannot continue without the output pin
         }
 
@@ -94,7 +94,7 @@ namespace Spindles
 
         if (spindle_pwm_min_value->get() > spindle_pwm_min_value->get())
         {
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Spindle min pwm is greater than max. Check $35 and $36");
+            grbl_msg_sendf(MsgLevel::Info, "Warning: Spindle min pwm is greater than max. Check $35 and $36");
         }
 
         // pre-caculate some PWM count values
@@ -146,7 +146,7 @@ namespace Spindles
         {
             // pwm_value = piecewise_linear_fit(rpm); TODO
             pwm_value = 0;
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Warning: Linear fit not implemented yet.");
+            grbl_msg_sendf(MsgLevel::Info, "Warning: Linear fit not implemented yet.");
         }
         else
         {
@@ -180,7 +180,7 @@ namespace Spindles
             stop();
             if (use_delays && (_current_state != state))
             {
-                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin down delay");
+                // grbl_msg_sendf(MsgLevel::Info, "Spin down delay");
                 delay(_spindown_delay);
             }
         }
@@ -191,7 +191,7 @@ namespace Spindles
             set_enable_pin(state != SpindleState::Disable); // must be done after setting rpm for enable features to work
             if (use_delays && (_current_state != state))
             {
-                // grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spin up delay");
+                // grbl_msg_sendf(MsgLevel::Info, "Spin up delay");
                 delay(_spinup_delay);
             }
         }
@@ -224,8 +224,7 @@ namespace Spindles
     // prints the startup message of the spindle config
     void PWM::config_message()
     {
-        /*grbl_msg_sendf(CLIENT_ALL,
-                       MsgLevel::Info,
+        /*grbl_msg_sendf(MsgLevel::Info,
                        "PWM spindle Output:%s, Enbl:%s, Dir:%s, Freq:%dHz, Res:%dbits",
                        pinName(_output_pin).c_str(),
                        pinName(_enable_pin).c_str(),

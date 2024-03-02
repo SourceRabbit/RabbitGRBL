@@ -37,14 +37,7 @@ namespace WebUI
     void ESPResponseStream::println(const char *data)
     {
         print(data);
-        if (_client == CLIENT_TELNET)
-        {
-            print("\r\n");
-        }
-        else
-        {
-            print("\n");
-        }
+        print("\n");
     }
 
     // helper to format size to readable string
@@ -70,12 +63,7 @@ namespace WebUI
 
     void ESPResponseStream::print(const char *data)
     {
-        if (_client == CLIENT_INPUT)
-        {
-            return;
-        }
-
-        grbl_send(_client, data);
+        grbl_send(data);
     }
 
     void ESPResponseStream::flush()

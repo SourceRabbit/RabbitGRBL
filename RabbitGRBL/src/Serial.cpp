@@ -6,6 +6,8 @@
     2018 -	Bart Dring This file was modified for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
+    2024 - Nikos Siatras (https://github.com/nsiatras)
+
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -16,42 +18,6 @@
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-
-  What is going on here?
-
-  Original Grbl only supports communication via serial port. That is why this
-  file is call serial.cpp. Grbl_ESP32 supports many "clients".
-
-  Clients are sources of commands like the serial port or a bluetooth connection.
-  Multiple clients can be active at a time. If a client asks for status, only the client will
-  receive the reply to the command.
-
-  The serial port acts as the debugging port because it is always on and does not
-  need to be reconnected after reboot. Messages about the configuration and other events
-  are sent to the serial port automatically, without a request command. These are in the
-  [MSG: xxxxxx] format. Gcode senders are should be OK with this because Grbl has always
-  send some messages like this.
-
-  Important: It is up user that the clients play well together. Ideally, if one client
-  is sending the gcode, the others should just be doing status, feedhold, etc.
-
-  Clients send gcode, grbl commands ($$, [ESP...], etc) and realtime commands (?,!.~, etc)
-  Gcode and Grbl commands are a string of printable characters followed by a '\r' or '\n'
-  Realtime commands are single characters with no '\r' or '\n'
-
-  After sending a gcode or grbl command, you must wait for an OK to send another.
-  This is because only a certain number of commands can be buffered at a time.
-  Grbl will tell you when it is ready for another one with the OK.
-
-  Realtime commands can be sent at any time and will acted upon very quickly.
-  Realtime commands can be anywhere in the stream.
-
-  To allow the realtime commands to be randomly mixed in the stream of data, we
-  read all clients as fast as possible. The realtime commands are acted upon and the other charcters are
-  placed into a client_buffer[client].
-
-  The main protocol loop reads from client_buffer[]
-
 
 */
 
@@ -67,10 +33,10 @@ portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 static TaskHandle_t clientCheckTaskHandle = 0;
 
-WebUI::InputBuffer client_buffer[CLIENT_COUNT]; // create a buffer for each client
+WebUI::InputBuffer client_buffer; // create a buffer for each client
 
 // Returns the number of bytes available in a client buffer.
-uint8_t client_get_rx_buffer_available(uint8_t client)
+uint8_t client_get_rx_buffer_available()
 {
 #ifdef REVERT_TO_ARDUINO_SERIAL
     return 128 - Serial.available();
@@ -89,8 +55,9 @@ void heapCheckTask(void *pvParameters)
         if (newHeapSize != heapSize)
         {
             heapSize = newHeapSize;
-            grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "heap %d", heapSize);
+            grbl_msg_sendf(MsgLevel::Info, "heap %d", heapSize);
         }
+
         vTaskDelay(3000 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
@@ -109,13 +76,13 @@ void client_init()
 
 #ifdef REVERT_TO_ARDUINO_SERIAL
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
-    client_reset_read_buffer(CLIENT_ALL);
+    client_reset_read_buffer();
     Serial.write("\r\n"); // create some white space after ESP32 boot info
 #else
     Uart0.setPins(1, 3); // Tx 1, Rx 3 - standard hardware pins
     Uart0.begin(BAUD_RATE, Uart::Data::Bits8, Uart::Stop::Bits1, Uart::Parity::None);
 
-    client_reset_read_buffer(CLIENT_ALL);
+    client_reset_read_buffer();
     Uart0.write("\r\n"); // create some white space after ESP32 boot info
 #endif
     clientCheckTaskHandle = 0;
@@ -138,10 +105,10 @@ static uint8_t getClientChar(uint8_t *data)
     int res;
 
 #ifdef REVERT_TO_ARDUINO_SERIAL
-    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Serial.read()) != -1)
+    if (client_buffer.availableforwrite() && (res = Serial.read()) != -1)
     {
 #else
-    if (client_buffer[CLIENT_SERIAL].availableforwrite() && (res = Uart0.read()) != -1)
+    if (client_buffer.availableforwrite() && (res = Uart0.read()) != -1)
     {
 #endif
         *data = res;
@@ -158,20 +125,22 @@ void clientCheckTask(void *pvParameters)
     uint8_t data = 0;
     uint8_t client; // who sent the data
     static UBaseType_t uxHighWaterMark = 0;
+
     while (true)
-    { // run continuously
-        while ((client = getClientChar(&data)) != CLIENT_ALL)
+    {
+        // run continuously
+        while ((client = getClientChar(&data)) == CLIENT_SERIAL)
         {
             // Pick off realtime command characters directly from the serial stream. These characters are
             // not passed into the main buffer, but these set system state flag bits for realtime execution.
             if (is_realtime_command(data))
             {
-                execute_realtime_command(static_cast<Cmd>(data), client);
+                execute_realtime_command(static_cast<Cmd>(data));
             }
             else
             {
                 vTaskEnterCritical(&myMutex);
-                client_buffer[client].write(data);
+                client_buffer.write(data);
                 vTaskExitCritical(&myMutex);
             }
         } // if something available
@@ -185,22 +154,16 @@ void clientCheckTask(void *pvParameters)
     }
 }
 
-void client_reset_read_buffer(uint8_t client)
+void client_reset_read_buffer()
 {
-    for (uint8_t client_num = 0; client_num < CLIENT_COUNT; client_num++)
-    {
-        if (client == client_num || client == CLIENT_ALL)
-        {
-            client_buffer[client_num].begin();
-        }
-    }
+    client_buffer.begin();
 }
 
 // Fetches the first byte in the client read buffer. Called by protocol loop.
-int client_read(uint8_t client)
+int client_read()
 {
     vTaskEnterCritical(&myMutex);
-    int data = client_buffer[client].read();
+    int data = client_buffer.read();
     vTaskExitCritical(&myMutex);
     return data;
 }
@@ -217,43 +180,54 @@ bool is_realtime_command(uint8_t data)
 }
 
 // Act upon a realtime character
-void execute_realtime_command(Cmd command, uint8_t client)
+void execute_realtime_command(Cmd command)
 {
     switch (command)
     {
+
     case Cmd::Reset:
-        grbl_msg_sendf(CLIENT_ALL, MsgLevel::Debug, "Cmd::Reset");
+        // grbl_msg_sendf(MsgLevel::Debug, "Cmd::Reset");
         mc_reset(); // Call motion control reset routine.
         break;
+
     case Cmd::StatusReport:
-        report_realtime_status(client); // direct call instead of setting flag
+        report_realtime_status(); // direct call instead of setting flag
         break;
+
     case Cmd::CycleStart:
         sys_rt_exec_state.bit.cycleStart = true;
         break;
+
     case Cmd::FeedHold:
         sys_rt_exec_state.bit.feedHold = true;
         break;
+
     case Cmd::SafetyDoor:
         sys_rt_exec_state.bit.safetyDoor = true;
         break;
+
     case Cmd::JogCancel:
         if (sys.state == State::Jog)
-        { // Block all other states from invoking motion cancel.
+        {
+            // Block all other states from invoking motion cancel.
             sys_rt_exec_state.bit.motionCancel = true;
         }
         break;
+
     case Cmd::DebugReport:
 #ifdef DEBUG
         sys_rt_exec_debug = true;
 #endif
         break;
+
     case Cmd::SpindleOvrStop:
         sys_rt_exec_accessory_override.bit.spindleOvrStop = 1;
         break;
+
     case Cmd::FeedOvrReset:
         sys_rt_f_override = FeedOverride::Default;
         break;
+
     case Cmd::FeedOvrCoarsePlus:
         sys_rt_f_override += FeedOverride::CoarseIncrement;
         if (sys_rt_f_override > FeedOverride::Max)
@@ -261,6 +235,7 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_f_override = FeedOverride::Max;
         }
         break;
+
     case Cmd::FeedOvrCoarseMinus:
         sys_rt_f_override -= FeedOverride::CoarseIncrement;
         if (sys_rt_f_override < FeedOverride::Min)
@@ -275,6 +250,7 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_f_override = FeedOverride::Max;
         }
         break;
+
     case Cmd::FeedOvrFineMinus:
         sys_rt_f_override -= FeedOverride::FineIncrement;
         if (sys_rt_f_override < FeedOverride::Min)
@@ -282,21 +258,27 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_f_override = FeedOverride::Min;
         }
         break;
+
     case Cmd::RapidOvrReset:
         sys_rt_r_override = RapidOverride::Default;
         break;
+
     case Cmd::RapidOvrMedium:
         sys_rt_r_override = RapidOverride::Medium;
         break;
+
     case Cmd::RapidOvrLow:
         sys_rt_r_override = RapidOverride::Low;
         break;
+
     case Cmd::RapidOvrExtraLow:
         sys_rt_r_override = RapidOverride::ExtraLow;
         break;
+
     case Cmd::SpindleOvrReset:
         sys_rt_s_override = SpindleSpeedOverride::Default;
         break;
+
     case Cmd::SpindleOvrCoarsePlus:
         sys_rt_s_override += SpindleSpeedOverride::CoarseIncrement;
         if (sys_rt_s_override > SpindleSpeedOverride::Max)
@@ -304,6 +286,7 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_s_override = SpindleSpeedOverride::Max;
         }
         break;
+
     case Cmd::SpindleOvrCoarseMinus:
         sys_rt_s_override -= SpindleSpeedOverride::CoarseIncrement;
         if (sys_rt_s_override < SpindleSpeedOverride::Min)
@@ -311,6 +294,7 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_s_override = SpindleSpeedOverride::Min;
         }
         break;
+
     case Cmd::SpindleOvrFinePlus:
         sys_rt_s_override += SpindleSpeedOverride::FineIncrement;
         if (sys_rt_s_override > SpindleSpeedOverride::Max)
@@ -318,6 +302,7 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_s_override = SpindleSpeedOverride::Max;
         }
         break;
+
     case Cmd::SpindleOvrFineMinus:
         sys_rt_s_override -= SpindleSpeedOverride::FineIncrement;
         if (sys_rt_s_override < SpindleSpeedOverride::Min)
@@ -325,28 +310,22 @@ void execute_realtime_command(Cmd command, uint8_t client)
             sys_rt_s_override = SpindleSpeedOverride::Min;
         }
         break;
+
     case Cmd::CoolantFloodOvrToggle:
         sys_rt_exec_accessory_override.bit.coolantFloodOvrToggle = 1;
         break;
+
     case Cmd::CoolantMistOvrToggle:
         sys_rt_exec_accessory_override.bit.coolantMistOvrToggle = 1;
         break;
     }
 }
 
-void client_write(uint8_t client, const char *text)
+void client_write(const char *text)
 {
-    if (client == CLIENT_INPUT)
-    {
-        return;
-    }
-
-    if (client == CLIENT_SERIAL || client == CLIENT_ALL)
-    {
 #ifdef REVERT_TO_ARDUINO_SERIAL
-        Serial.write(text);
+    Serial.write(text);
 #else
-        Uart0.write(text);
+    Uart0.write(text);
 #endif
-    }
 }

@@ -197,7 +197,7 @@ static bool checkSpindleChange(char *val)
             { // old spindle
                 vTaskDelay(spindle_delay_spindown->get() * 1000);
             }
-            grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Spindle turned off with setting change");
+            grbl_msg_sendf(MsgLevel::Info, "Spindle turned off with setting change");
         }
         gc_state.spindle_speed = 0;  // Set S value to 0
         spindle->deinit();           // old spindle

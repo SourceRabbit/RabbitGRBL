@@ -37,7 +37,7 @@ void probe_init()
         pinMode(PROBE_PIN, INPUT_PULLUP); // Enable internal pull-up resistors. Normal high operation.
 #endif
 
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Probe on pin %s", pinName(PROBE_PIN).c_str());
+        // grbl_msg_sendf(MsgLevel::Info, "Probe on pin %s", pinName(PROBE_PIN).c_str());
     }
 }
 

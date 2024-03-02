@@ -136,7 +136,7 @@ Error gc_execute_line(char *line, uint8_t client)
     // Step 0 - remove whitespace and comments and convert to upper case
     collapseGCode(line);
 #ifdef REPORT_ECHO_LINE_RECEIVED
-    report_echo_line_received(line, client);
+    report_echo_line_received(line);
 #endif
 
     /* -------------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ Error gc_execute_line(char *line, uint8_t client)
                 // only allow G38 "Probe" commands if a probe pin is defined.
                 if (PROBE_PIN == UNDEFINED_PIN)
                 {
-                    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "No probe pin defined");
+                    grbl_msg_sendf(MsgLevel::Info, "No probe pin defined");
                     FAIL(Error::GcodeUnsupportedCommand); // [Unsupported G command]
                 }
                 // Check for G0/1/2/3/38 being called with G10/28/30/92 on same block.
@@ -526,7 +526,7 @@ Error gc_execute_line(char *line, uint8_t client)
                     }
                     else
                     {
-                        grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "M4 requires laser mode or a reversable spindle");
+                        grbl_msg_sendf(MsgLevel::Info, "M4 requires laser mode or a reversable spindle");
                         FAIL(Error::GcodeUnsupportedCommand);
                     }
                     break;
@@ -654,7 +654,7 @@ Error gc_execute_line(char *line, uint8_t client)
             case 'E':
                 axis_word_bit = GCodeWord::E;
                 gc_block.values.e = int_value;
-                // grbl_msg_sendf(CLIENT_SERIAL, MSG_LEVEL_INFO, "E %d", gc_block.values.e);
+                // grbl_msg_sendf(MSG_LEVEL_INFO, "E %d", gc_block.values.e);
                 break;
             case 'F':
                 axis_word_bit = GCodeWord::F;
@@ -691,7 +691,7 @@ Error gc_execute_line(char *line, uint8_t client)
             case 'Q':
                 axis_word_bit = GCodeWord::Q;
                 gc_block.values.q = value;
-                // grbl_msg_sendf(CLIENT_SERIAL, MSG_LEVEL_INFO, "Q %2.2f", value);
+                // grbl_msg_sendf(MSG_LEVEL_INFO, "Q %2.2f", value);
                 break;
             case 'R':
                 axis_word_bit = GCodeWord::R;
@@ -707,7 +707,7 @@ Error gc_execute_line(char *line, uint8_t client)
                 {
                     FAIL(Error::GcodeMaxValueExceeded);
                 }
-                grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Tool No: %d", int_value);
+                grbl_msg_sendf(MsgLevel::Info, "Tool No: %d", int_value);
                 gc_state.tool = int_value;
                 break;
             case 'X':

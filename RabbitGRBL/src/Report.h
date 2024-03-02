@@ -7,6 +7,8 @@
 
   2018 -	Bart Dring This file was modifed for use on the ESP32
           CPU. Do not use this with Grbl for atMega328P
+          
+  2024 - Nikos Siatras (https://github.com/nsiatras)
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,9 +49,6 @@ enum class Message : uint8_t
 };
 
 #define CLIENT_SERIAL 0
-#define CLIENT_BT 1
-#define CLIENT_WEBUI 2
-#define CLIENT_TELNET 3
 #define CLIENT_INPUT 4
 #define CLIENT_ALL 0xFF
 #define CLIENT_COUNT 1 // total number of client types regardless if they are used
@@ -65,16 +64,16 @@ enum class MsgLevel : int8_t
 };
 
 // functions to send data to the user.
-void grbl_send(uint8_t client, const char *text);
-void grbl_sendf(uint8_t client, const char *format, ...);
-void grbl_msg_sendf(uint8_t client, MsgLevel level, const char *format, ...);
+void grbl_send(const char *text);
+void grbl_sendf(const char *format, ...);
+void grbl_msg_sendf(MsgLevel level, const char *format, ...);
 
 // function to notify
 void grbl_notify(const char *title, const char *msg);
 void grbl_notifyf(const char *title, const char *format, ...);
 
 // Prints system status messages.
-void report_status_message(Error status_code, uint8_t client);
+void report_status_message(Error status_code);
 void report_realtime_steps();
 
 // Prints system alarm messages.
@@ -84,46 +83,41 @@ void report_alarm_message(ExecAlarm alarm_code);
 void report_feedback_message(Message message);
 
 // Prints welcome message
-void report_init_message(uint8_t client);
+void report_init_message();
 
 // Prints Grbl help and current global settings
-void report_grbl_help(uint8_t client);
-
-// Prints Grbl global settings
-void report_grbl_settings(uint8_t client, uint8_t show_extended);
+void report_grbl_help();
 
 // Prints an echo of the pre-parsed line received right before execution.
-void report_echo_line_received(char *line, uint8_t client);
+void report_echo_line_received(char *line);
 
 // calculate the postion for status reports
 void report_calc_status_position(float *print_position, float *wco, bool wpos);
 
 // Prints realtime status report
-void report_realtime_status(uint8_t client);
+void report_realtime_status();
 
 // Prints recorded probe position
-void report_probe_parameters(uint8_t client);
+void report_probe_parameters();
 
 // Prints Grbl NGC parameters (coordinate offsets, probe)
-void report_ngc_parameters(uint8_t client);
+void report_ngc_parameters();
 
 // Prints current g-code parser mode state
-void report_gcode_modes(uint8_t client);
+void report_gcode_modes();
 
 // Prints startup line when requested and executed.
-void report_startup_line(uint8_t n, const char *line, uint8_t client);
-void report_execute_startup_message(const char *line, Error status_code, uint8_t client);
+void report_startup_line(uint8_t n, const char *line);
+void report_execute_startup_message(const char *line, Error status_code);
 
 // Prints build info and user info
-void report_build_info(const char *line, uint8_t client);
+void report_build_info(const char *line);
 
 void report_gcode_comment(char *comment);
 
 #ifdef DEBUG
 void report_realtime_debug();
 #endif
-
-void report_machine_type(uint8_t client);
 
 void report_hex_msg(char *buf, const char *prefix, int len);
 void report_hex_msg(uint8_t *buf, const char *prefix, int len);

@@ -24,12 +24,10 @@ void grbl_init()
 {
     client_init(); // Setup serial baud rate and interrupts
     display_init();
-    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Rabbit Grbl Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD); // print grbl_esp32 verion info
-    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());              // print the SDK version
+    // grbl_msg_sendf(MsgLevel::Info, "Rabbit Grbl Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD); // print grbl_esp32 verion info
+    // grbl_msg_sendf(MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());              // print the SDK version
 // show the map name at startup
-#ifdef MACHINE_NAME
-    report_machine_type(CLIENT_SERIAL);
-#endif
+
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
     system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
@@ -85,7 +83,7 @@ static void reset_variables()
     sys_rt_s_override = SpindleSpeedOverride::Default;
 
     // Reset Grbl primary systems.
-    client_reset_read_buffer(CLIENT_ALL);
+    client_reset_read_buffer();
     gc_init(); // Set g-code parser to default state
     spindle->stop();
     CoolantManager::Initialize();
@@ -97,7 +95,7 @@ static void reset_variables()
     plan_sync_position();
     backlash_reset_targets();
     gc_sync_position();
-    report_init_message(CLIENT_ALL);
+    report_init_message();
 }
 
 void run_once()

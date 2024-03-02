@@ -39,7 +39,7 @@ namespace Motors
         }
         else
         {
-            grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Error, "Error: out of RMT channels");
+            grbl_msg_sendf(MsgLevel::Error, "Error: out of RMT channels");
         }
         return rmt_channel_t(next_RMT_chan_num);
     }
@@ -105,8 +105,7 @@ namespace Motors
 
     void StandardStepper::config_message()
     {
-        /*grbl_msg_sendf(CLIENT_SERIAL,
-                        MsgLevel::Info,
+        /*grbl_msg_sendf(MsgLevel::Info,
                         "%s Standard Stepper Step:%s Dir:%s Disable:%s %s",
                         reportAxisNameMsg(_axis_index, _dual_axis_index),
                         pinName(_step_pin).c_str(),

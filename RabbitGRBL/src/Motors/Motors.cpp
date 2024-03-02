@@ -25,7 +25,7 @@
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
 void init_motors()
 {
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Init Motors");
+        // grbl_msg_sendf(MsgLevel::Info, "Init Motors");
 
         auto n_axis = number_axis->get();
 
@@ -173,7 +173,7 @@ void init_motors()
         if (STEPPERS_DISABLE_PIN != UNDEFINED_PIN)
         {
                 pinMode(STEPPERS_DISABLE_PIN, OUTPUT); // global motor enable pin
-                // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
+                // grbl_msg_sendf(MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
         }
 
         // Initialize motors
@@ -236,7 +236,7 @@ void motors_set_disable(bool disable, uint8_t mask)
 
 void motors_read_settings()
 {
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Read Settings");
+        // grbl_msg_sendf(MsgLevel::Info, "Read Settings");
         auto n_axis = number_axis->get();
         for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
         {
@@ -270,7 +270,7 @@ uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming)
 bool motors_direction(uint8_t dir_mask)
 {
         auto n_axis = number_axis->get();
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
+        // grbl_msg_sendf(MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
         // Set the direction pins, but optimize for the common
         // situation where the direction bits haven't changed.
@@ -297,7 +297,7 @@ bool motors_direction(uint8_t dir_mask)
 void motors_step(uint8_t step_mask)
 {
         auto n_axis = number_axis->get();
-        // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
+        // grbl_msg_sendf(MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
         // Turn on step pulses for motors that are supposed to step now
         for (uint8_t axis = X_AXIS; axis < n_axis; axis++)

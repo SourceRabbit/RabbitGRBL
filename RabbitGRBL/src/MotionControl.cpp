@@ -254,7 +254,7 @@ static bool axis_is_squared(uint8_t axis_mask)
         {
             return true;
         }
-        grbl_msg_sendf(CLIENT_ALL, MsgLevel::Info, "Cannot multi-axis home with squared axes. Homing normally");
+        grbl_msg_sendf(MsgLevel::Info, "Cannot multi-axis home with squared axes. Homing normally");
         return false;
     }
 
@@ -344,7 +344,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
         }
         if (no_cycles_defined)
         {
-            report_status_message(Error::HomingNoCycles, CLIENT_ALL);
+            report_status_message(Error::HomingNoCycles);
         }
     }
     protocol_execute_realtime(); // Check for reset and set system abort.
@@ -401,7 +401,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
         return GCUpdatePos::None;      // Nothing else to do but bail.
     }
     // Setup and queue probing motion. Auto cycle-start should not start the cycle.
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Found");
+    grbl_msg_sendf(MsgLevel::Info, "Found");
     mc_line(target, pl_data);
     // Activate the probing state monitor in the stepper module.
     sys_probe_state = Probe::Active;
@@ -447,7 +447,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
 
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
-    report_probe_parameters(CLIENT_ALL);
+    report_probe_parameters();
 #endif
     if (sys.probe_succeeded)
     {
@@ -512,7 +512,7 @@ void mc_override_ctrl_update(uint8_t override_state)
 // realtime abort command and hard limits. So, keep to a minimum.
 void mc_reset()
 {
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Debug, "mc_reset()");
+    grbl_msg_sendf(MsgLevel::Debug, "mc_reset()");
     // Only this function can set the system reset. Helps prevent multiple kill calls.
     if (!sys_rt_exec_state.bit.reset)
     {

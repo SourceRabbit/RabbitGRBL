@@ -83,7 +83,7 @@ void Setting::init()
     {
         if (esp_err_t err = nvs_open("Grbl_ESP32", NVS_READWRITE, &_handle))
         {
-            grbl_sendf(CLIENT_SERIAL, "nvs_open failed with error %d\r\n", err);
+            grbl_sendf("nvs_open failed with error %d\r\n", err);
         }
     }
 }
@@ -878,13 +878,13 @@ void IPaddrSetting::addWebui(WebUI::JSONencoder *j)
 
 AxisSettings::AxisSettings(const char *axisName) : name(axisName) {}
 
-Error GrblCommand::action(char *value, WebUI::ESPResponseStream *out)
+Error GrblCommand::action(char *value)
 {
     if (_cmdChecker && _cmdChecker())
     {
         return Error::IdleError;
     }
-    return _action((const char *)value, out);
+    return _action((const char *)value);
 };
 Coordinates *coords[CoordIndex::End];
 

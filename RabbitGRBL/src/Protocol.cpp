@@ -38,26 +38,24 @@ typedef struct
     int len;
     int line_number;
 } client_line_t;
-client_line_t client_lines[CLIENT_COUNT];
 
-static void empty_line(uint8_t client)
+client_line_t client_lines;
+
+static void empty_line()
 {
-    client_line_t *cl = &client_lines[client];
+    client_line_t *cl = &client_lines;
     cl->len = 0;
     cl->buffer[0] = '\0';
 }
 
 static void empty_lines()
 {
-    for (uint8_t client = 0; client < CLIENT_COUNT; client++)
-    {
-        empty_line(client);
-    }
+    empty_line();
 }
 
 Error add_char_to_line(char c, uint8_t client)
 {
-    client_line_t *cl = &client_lines[client];
+    client_line_t *cl = &client_lines;
     // Simple editing for interactive input
     if (c == '\b')
     {
@@ -95,7 +93,7 @@ Error execute_line(char *line, uint8_t client)
     // Grbl '$' or WebUI '[ESPxxx]' system command
     if (line[0] == '$' || line[0] == '[')
     {
-        return system_execute_line(line, client);
+        return system_execute_line(line);
     }
     // Everything else is gcode. Block if in alarm or jog mode.
     if (sys.state == State::Alarm || sys.state == State::Jog)
@@ -119,7 +117,7 @@ bool can_park()
 */
 void protocol_main_loop()
 {
-    client_reset_read_buffer(CLIENT_ALL);
+    client_reset_read_buffer();
     empty_lines();
     // uint8_t client = CLIENT_SERIAL; // default client
     //  Perform some machine checks to make sure everything is good to go.
@@ -165,38 +163,37 @@ void protocol_main_loop()
         // filtering is the same with serial and file input.
         uint8_t client = CLIENT_SERIAL;
         char *line;
-        for (client = 0; client < CLIENT_COUNT; client++)
+
+        while ((c = client_read()) != -1)
         {
-            while ((c = client_read(client)) != -1)
+            Error res = add_char_to_line(c, client);
+            switch (res)
             {
-                Error res = add_char_to_line(c, client);
-                switch (res)
+            case Error::Ok:
+                break;
+            case Error::Eol:
+                protocol_execute_realtime(); // Runtime command check point.
+                if (sys.abort)
                 {
-                case Error::Ok:
-                    break;
-                case Error::Eol:
-                    protocol_execute_realtime(); // Runtime command check point.
-                    if (sys.abort)
-                    {
-                        return; // Bail to calling function upon system abort
-                    }
-                    line = client_lines[client].buffer;
-#ifdef REPORT_ECHO_RAW_LINE_RECEIVED
-                    report_echo_line_received(line, client);
-#endif
-                    // auth_level can be upgraded by supplying a password on the command line
-                    report_status_message(execute_line(line, client), client);
-                    empty_line(client);
-                    break;
-                case Error::Overflow:
-                    report_status_message(Error::Overflow, client);
-                    empty_line(client);
-                    break;
-                default:
-                    break;
+                    return; // Bail to calling function upon system abort
                 }
-            } // while serial read
-        }     // for clients
+                line = client_lines.buffer;
+#ifdef REPORT_ECHO_RAW_LINE_RECEIVED
+                report_echo_line_received(line);
+#endif
+                // auth_level can be upgraded by supplying a password on the command line
+                report_status_message(execute_line(line, client));
+                empty_line();
+                break;
+            case Error::Overflow:
+                report_status_message(Error::Overflow);
+                empty_line();
+                break;
+            default:
+                break;
+            }
+        } // while serial read
+
         // If there are no more characters in the serial read buffer to be processed and executed,
         // this indicates that g-code streaming has either filled the planner buffer or has
         // completed. In either case, auto-cycle start, if enabled, any queued moves.
@@ -297,22 +294,27 @@ void protocol_exec_rt_system()
         }
         sys_rt_exec_alarm = ExecAlarm::None;
     }
+
     ExecState rt_exec_state;
     rt_exec_state.value = sys_rt_exec_state.value; // Copy volatile sys_rt_exec_state.
+
     if (rt_exec_state.value != 0 || cycle_stop)
-    { // Test if any bits are on
+    {
+        // Test if any bits are on
         // Execute system abort.
         if (rt_exec_state.bit.reset)
         {
             sys.abort = true; // Only place this is set true.
             return;           // Nothing else to do but exit.
         }
+
         // Execute and serial print status
         if (rt_exec_state.bit.statusReport)
         {
-            report_realtime_status(CLIENT_ALL);
+            report_realtime_status();
             sys_rt_exec_state.bit.statusReport = false;
         }
+
         // NOTE: Once hold is initiated, the system immediately enters a suspend state to block all
         // main program processes until either reset or resumed. This ensures a hold completes safely.
         if (rt_exec_state.bit.motionCancel || rt_exec_state.bit.feedHold || rt_exec_state.bit.safetyDoor || rt_exec_state.bit.sleep)

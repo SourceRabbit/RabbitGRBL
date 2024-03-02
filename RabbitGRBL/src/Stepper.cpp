@@ -376,7 +376,7 @@ void stepper_init()
 {
     busy.store(false);
 
-    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Axis count %d", number_axis->get());
+    grbl_msg_sendf(MsgLevel::Info, "Axis count %d", number_axis->get());
 
 #ifdef USE_I2S_STEPS
     // I2S stepper stream mode use callback but timer interrupt
@@ -400,7 +400,7 @@ void stepper_switch(stepper_id_t new_stepper)
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
 void st_wake_up()
 {
-    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "st_wake_up");
+    // grbl_msg_sendf(MsgLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
     motors_set_disable(false);
     stepper_idle = false;
@@ -908,8 +908,8 @@ void st_prep_buffer()
                 if (st_prep_block->is_pwm_rate_adjusted)
                 {
                     rpm *= (prep.current_speed * prep.inv_rate);
-                    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "RPM %.2f", rpm);
-                    // grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Rates CV %.2f IV %.2f RPM %.2f", prep.current_speed, prep.inv_rate, rpm);
+                    // grbl_msg_sendf(MsgLevel::Info, "RPM %.2f", rpm);
+                    // grbl_msg_sendf(MsgLevel::Info, "Rates CV %.2f IV %.2f RPM %.2f", prep.current_speed, prep.inv_rate, rpm);
                 }
                 // If current_speed is zero, then may need to be rpm_min*(100/MAX_SPINDLE_SPEED_OVERRIDE)
                 // but this would be instantaneous only and during a motion. May not matter at all.
