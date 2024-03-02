@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WebUI/JSONEncoder.h"
+
 #include <map>
 #include <nvs.h>
 
@@ -89,10 +89,6 @@ public:
     ~Command() {}
     Command(const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*cmdChecker)());
 
-    // The default implementation of addWebui() does nothing.
-    // Derived classes may override it to do something.
-    virtual void addWebui(WebUI::JSONencoder *){};
-
     virtual Error action(char *value) = 0;
 };
 
@@ -153,10 +149,6 @@ public:
     virtual void load(){};
     virtual void setDefault(){};
 
-    // The default implementation of addWebui() does nothing.
-    // Derived classes may override it to do something.
-    virtual void addWebui(WebUI::JSONencoder *){};
-
     virtual Error setStringValue(char *value) = 0;
     Error setStringValue(String s) { return setStringValue(s.c_str()); }
     virtual const char *getStringValue() = 0;
@@ -198,7 +190,6 @@ public:
 
     void load();
     void setDefault();
-    void addWebui(WebUI::JSONencoder *);
     Error setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
@@ -227,7 +218,6 @@ public:
 
     void load();
     void setDefault();
-    void addWebui(WebUI::JSONencoder *);
     Error setStringValue(char *value);
     const char *getCompatibleValue();
     const char *getStringValue();
@@ -295,7 +285,6 @@ public:
     void load();
     void setDefault();
     // There are no Float settings in WebUI
-    void addWebui(WebUI::JSONencoder *) {}
     Error setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
@@ -329,7 +318,6 @@ public:
 
     void load();
     void setDefault();
-    void addWebui(WebUI::JSONencoder *);
     Error setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
@@ -371,7 +359,6 @@ public:
 
     void load();
     void setDefault();
-    void addWebui(WebUI::JSONencoder *);
     Error setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
@@ -400,7 +387,6 @@ public:
     void setDefault();
     // There are no Flag settings in WebUI
     // The booleans are expressed as Enums
-    void addWebui(WebUI::JSONencoder *) {}
     Error setStringValue(char *value);
     const char *getCompatibleValue();
     const char *getStringValue();
@@ -409,38 +395,6 @@ public:
     bool get() { return _currentValue; }
 };
 
-class IPaddrSetting : public Setting
-{
-private:
-    uint32_t _defaultValue;
-    uint32_t _currentValue;
-    uint32_t _storedValue;
-
-public:
-    IPaddrSetting(const char *description,
-                  type_t type,
-                  permissions_t permissions,
-                  const char *grblName,
-                  const char *name,
-                  uint32_t defVal,
-                  bool (*checker)(char *));
-    IPaddrSetting(const char *description,
-                  type_t type,
-                  permissions_t permissions,
-                  const char *grblName,
-                  const char *name,
-                  const char *defVal,
-                  bool (*checker)(char *));
-
-    void load();
-    void setDefault();
-    void addWebui(WebUI::JSONencoder *);
-    Error setStringValue(char *value);
-    const char *getStringValue();
-    const char *getDefaultString();
-
-    uint32_t get() { return _currentValue; }
-};
 
 class AxisSettings
 {

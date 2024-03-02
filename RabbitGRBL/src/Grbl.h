@@ -50,7 +50,7 @@ const char *const GRBL_VERSION_BUILD = "20240126";
 #include "Motors/Motors.h"
 #include "Stepper.h"
 #include "Jog.h"
-#include "WebUI/InputBuffer.h"
+#include "InputBuffer/InputBuffer.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
 #include "Coolant/CoolantManager.h"

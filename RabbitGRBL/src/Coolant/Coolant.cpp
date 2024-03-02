@@ -3,6 +3,7 @@
 
   Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
+  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Grbl is free software: you can redistribute it and/or modify

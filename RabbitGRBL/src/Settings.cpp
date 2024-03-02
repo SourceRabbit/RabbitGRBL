@@ -1,5 +1,5 @@
 #include "Grbl.h"
-#include "WebUI/JSONEncoder.h"
+
 #include <map>
 #include <nvs.h>
 
@@ -209,15 +209,6 @@ const char *IntSetting::getStringValue()
     return strval;
 }
 
-void IntSetting::addWebui(WebUI::JSONencoder *j)
-{
-    if (getDescription())
-    {
-        j->begin_webui(getName(), getDescription(), "I", getStringValue(), _minValue, _maxValue);
-        j->end_object();
-    }
-}
-
 AxisMaskSetting::AxisMaskSetting(const char *description,
                                  type_t type,
                                  permissions_t permissions,
@@ -334,15 +325,6 @@ const char *AxisMaskSetting::getStringValue()
 {
     static char strval[32];
     return maskToString(get(), strval);
-}
-
-void AxisMaskSetting::addWebui(WebUI::JSONencoder *j)
-{
-    if (getDescription())
-    {
-        j->begin_webui(getName(), getDescription(), "I", getStringValue(), 0, (1 << MAX_N_AXIS) - 1);
-        j->end_object();
-    }
 }
 
 FloatSetting::FloatSetting(const char *description,
@@ -548,16 +530,6 @@ const char *StringSetting::getStringValue()
     return (_checker && isPassword(_checker)) ? "******" : get();
 }
 
-void StringSetting::addWebui(WebUI::JSONencoder *j)
-{
-    if (!getDescription())
-    {
-        return;
-    }
-    j->begin_webui(getName(), getDescription(), "S", getStringValue(), _minLength, _maxLength);
-    j->end_object();
-}
-
 typedef std::map<const char *, int8_t, cmp_str> enum_opt_t;
 
 EnumSetting::EnumSetting(const char *description,
@@ -674,24 +646,6 @@ const char *EnumSetting::getStringValue()
     return enumToString(get());
 }
 
-void EnumSetting::addWebui(WebUI::JSONencoder *j)
-{
-    if (!getDescription())
-    {
-        return;
-    }
-    j->begin_webui(getName(), getDescription(), "B", String(get()).c_str());
-    j->begin_array("O");
-    for (enum_opt_t::iterator it = _options->begin(); it != _options->end(); it++)
-    {
-        j->begin_object();
-        j->member(it->first, it->second);
-        j->end_object();
-    }
-    j->end_array();
-    j->end_object();
-}
-
 FlagSetting::FlagSetting(const char *description,
                          type_t type,
                          permissions_t permissions,
@@ -764,116 +718,6 @@ const char *FlagSetting::getStringValue()
 const char *FlagSetting::getCompatibleValue()
 {
     return get() ? "1" : "0";
-}
-
-IPaddrSetting::IPaddrSetting(const char *description,
-                             type_t type,
-                             permissions_t permissions,
-                             const char *grblName,
-                             const char *name,
-                             uint32_t defVal,
-                             bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker) // There are no GRBL IP settings.
-                                                               ,
-                                                               _defaultValue(defVal), _currentValue(defVal)
-{
-}
-
-IPaddrSetting::IPaddrSetting(const char *description,
-                             type_t type,
-                             permissions_t permissions,
-                             const char *grblName,
-                             const char *name,
-                             const char *defVal,
-                             bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker)
-{
-    IPAddress ipaddr;
-    if (ipaddr.fromString(defVal))
-    {
-        _defaultValue = ipaddr;
-        _currentValue = _defaultValue;
-    }
-    else
-    {
-        throw std::runtime_error("Bad IPaddr default");
-    }
-}
-
-void IPaddrSetting::load()
-{
-    esp_err_t err = nvs_get_i32(_handle, _keyName, (int32_t *)&_storedValue);
-    if (err)
-    {
-        _storedValue = 0x000000ff; // Unreasonable value for any IP thing
-        _currentValue = _defaultValue;
-    }
-    else
-    {
-        _currentValue = _storedValue;
-    }
-}
-
-void IPaddrSetting::setDefault()
-{
-    _currentValue = _defaultValue;
-    if (_storedValue != _currentValue)
-    {
-        nvs_erase_key(_handle, _keyName);
-    }
-}
-
-Error IPaddrSetting::setStringValue(char *s)
-{
-    s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
-    {
-        return err;
-    }
-    IPAddress ipaddr;
-    if (!ipaddr.fromString(s))
-    {
-        return Error::InvalidValue;
-    }
-    _currentValue = ipaddr;
-    if (_storedValue != _currentValue)
-    {
-        if (_currentValue == _defaultValue)
-        {
-            nvs_erase_key(_handle, _keyName);
-        }
-        else
-        {
-            if (nvs_set_i32(_handle, _keyName, (int32_t)_currentValue))
-            {
-                return Error::NvsSetFailed;
-            }
-            _storedValue = _currentValue;
-        }
-    }
-    check(NULL);
-    return Error::Ok;
-}
-
-const char *IPaddrSetting::getDefaultString()
-{
-    static String s;
-    s = IPAddress(_defaultValue).toString();
-    return s.c_str();
-}
-const char *IPaddrSetting::getStringValue()
-{
-    static String s;
-    s = IPAddress(get()).toString();
-    return s.c_str();
-}
-
-void IPaddrSetting::addWebui(WebUI::JSONencoder *j)
-{
-    if (getDescription())
-    {
-        j->begin_webui(getName(), getDescription(), "A", getStringValue());
-        j->end_object();
-    }
 }
 
 AxisSettings::AxisSettings(const char *axisName) : name(axisName) {}
