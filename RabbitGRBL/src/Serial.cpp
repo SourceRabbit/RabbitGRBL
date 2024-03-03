@@ -117,9 +117,9 @@ void clientCheckTask(void *pvParameters)
             }
             else
             {
-                vTaskEnterCritical(&myMutex);
+                vPortEnterCritical(&myMutex);
                 client_buffer.write(data);
-                vTaskExitCritical(&myMutex);
+                vPortExitCritical(&myMutex);
             }
         } // if something available
 
@@ -140,9 +140,9 @@ void client_reset_read_buffer()
 // Fetches the first byte in the client read buffer. Called by protocol loop.
 int client_read()
 {
-    vTaskEnterCritical(&myMutex);
+    vPortEnterCritical(&myMutex);
     int data = client_buffer.read();
-    vTaskExitCritical(&myMutex);
+    vPortExitCritical(&myMutex);
     return data;
 }
 
