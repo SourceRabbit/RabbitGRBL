@@ -39,8 +39,6 @@
 // a task to read for incoming data from serial port
 void clientCheckTask(void *pvParameters);
 
-void client_write(const char *text);
-
 // Fetches the first byte in the serial read buffer. Called by main program.
 int client_read();
 

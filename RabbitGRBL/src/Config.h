@@ -94,24 +94,23 @@ const int MAX_N_AXIS = 6;
 
 enum class Cmd : uint8_t
 {
-    Reset = 0x18, // Ctrl-X
+    Reset = 0x18,                   // Ctrl-X
     StatusReport = '?',
     CycleStart = '~',
     FeedHold = '!',
     SafetyDoor = 0x84,
     JogCancel = 0x85,
-    DebugReport = 0x86,  // Only when DEBUG enabled, sends debug report in '{}' braces.
-    FeedOvrReset = 0x90, // Restores feed override value to 100%.
+    FeedOvrReset = 0x90,            // Restores feed override value to 100%.
     FeedOvrCoarsePlus = 0x91,
     FeedOvrCoarseMinus = 0x92,
     FeedOvrFinePlus = 0x93,
     FeedOvrFineMinus = 0x94,
-    RapidOvrReset = 0x95, // Restores rapid override value to 100%.
+    RapidOvrReset = 0x95,           // Restores rapid override value to 100%.
     RapidOvrMedium = 0x96,
     RapidOvrLow = 0x97,
-    RapidOvrExtraLow = 0x98,     // *NOT SUPPORTED*
-    SpindleOvrReset = 0x99,      // Restores spindle override value to 100%.
-    SpindleOvrCoarsePlus = 0x9A, // 154
+    RapidOvrExtraLow = 0x98,        // *NOT SUPPORTED*
+    SpindleOvrReset = 0x99,         // Restores spindle override value to 100%.
+    SpindleOvrCoarsePlus = 0x9A,    // 154
     SpindleOvrCoarseMinus = 0x9B,
     SpindleOvrFinePlus = 0x9C,
     SpindleOvrFineMinus = 0x9D,
@@ -223,6 +222,7 @@ namespace FeedOverride
     const int CoarseIncrement = 10; // (1-99). Usually 10%.
     const int FineIncrement = 1;    // (1-99). Usually 1%.
 };
+
 namespace RapidOverride
 {
     const int Default = 100; // 100%. Don't change this value.

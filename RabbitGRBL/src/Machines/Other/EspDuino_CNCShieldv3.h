@@ -85,24 +85,27 @@
 #define DEFAULT_A_ACCELERATION 60.0   // $123 steps/sec^2 mm/sec^2
 
 // Protoneer V3.0 CNC Shield Pinout
-#define X_STEP_PIN GPIO_NUM_26
-#define X_DIRECTION_PIN GPIO_NUM_16
+#define X_STEP_PIN                      GPIO_NUM_26
+#define X_DIRECTION_PIN                 GPIO_NUM_16
 
-#define Y_STEP_PIN GPIO_NUM_25
-#define Y_DIRECTION_PIN GPIO_NUM_27
+#define Y_STEP_PIN                      GPIO_NUM_25
+#define Y_DIRECTION_PIN                 GPIO_NUM_27
 
-#define Z_STEP_PIN GPIO_NUM_17
-#define Z_DIRECTION_PIN GPIO_NUM_14
+#define Z_STEP_PIN                      GPIO_NUM_17
+#define Z_DIRECTION_PIN                 GPIO_NUM_14
 
-#define STEPPERS_DISABLE_PIN GPIO_NUM_12
+#define STEPPERS_DISABLE_PIN            GPIO_NUM_12
 
-#define SPINDLE_PWM_PIN GPIO_NUM_19 // Laser PWM is Spindle Enable on Shield
+#define SPINDLE_TYPE                    SpindleType::PWM
+#define DEFAULT_SPINDLE_RPM_MAX         25000
+#define DEFAULT_SPINDLE_FREQ            3000
+#define SPINDLE_PWM_PIN                 GPIO_NUM_19 // Laser PWM is Spindle Enable on Shield
 
-#define COOLANT_FLOOD_PIN GPIO_NUM_34
-#define COOLANT_MIST_PIN GPIO_NUM_36
+#define COOLANT_FLOOD_PIN               GPIO_NUM_34
+#define COOLANT_MIST_PIN                GPIO_NUM_36
 
-#define X_LIMIT_PIN GPIO_NUM_13
-#define Y_LIMIT_PIN GPIO_NUM_5
-#define Z_LIMIT_PIN GPIO_NUM_23
+#define X_LIMIT_PIN                     GPIO_NUM_13
+#define Y_LIMIT_PIN                     GPIO_NUM_5
+#define Z_LIMIT_PIN                     GPIO_NUM_23
 
-#define PROBE_PIN GPIO_NUM_39 // NEEDS 10kohm EXTERNAL PULLUP
+#define PROBE_PIN                       GPIO_NUM_39 // NEEDS 10kohm EXTERNAL PULLUP

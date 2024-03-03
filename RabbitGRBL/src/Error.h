@@ -7,7 +7,7 @@
 
 	2018 -	Bart Dring This file was modifed for use on the ESP32
 					CPU. Do not use this with Grbl for atMega328P
-        2020 - Mitch Bradley
+  2020 - Mitch Bradley
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

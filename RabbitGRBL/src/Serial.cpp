@@ -33,7 +33,6 @@ WebUI::InputBuffer client_buffer; // create a buffer for each client
 uint8_t client_get_rx_buffer_available()
 {
     return 128 - Serial.available();
-    //    return client_buffer[client].availableforwrite();
 }
 
 void heapCheckTask(void *pvParameters)
@@ -51,27 +50,19 @@ void heapCheckTask(void *pvParameters)
         vTaskDelay(3000 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
-#ifdef DEBUG_TASK_STACK
-        reportTaskStackSize(uxHighWaterMark);
-#endif
     }
 }
 
 void client_init()
 {
-#ifdef DEBUG_REPORT_HEAP_SIZE
-    // For a 2000-word stack, uxTaskGetStackHighWaterMark reports 288 words available
-    xTaskCreatePinnedToCore(heapCheckTask, "heapTask", 2000, NULL, 1, NULL, 1);
-#endif
-
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
     client_reset_read_buffer();
     Serial.write("\r\n"); // create some white space after ESP32 boot info
 
     clientCheckTaskHandle = 0;
+
     // create a task to check for incoming data
     // For a 4096-word stack, uxTaskGetStackHighWaterMark reports 244 words available
-    // after WebUI attaches.
     xTaskCreatePinnedToCore(clientCheckTask,   // task
                             "clientCheckTask", // name for task
                             4096,              // size of task stack
@@ -83,31 +74,30 @@ void client_init()
     );
 }
 
-static uint8_t getClientChar(uint8_t *data)
+static bool getClientChar(uint8_t *data)
 {
     int res;
 
     if (client_buffer.availableforwrite() && (res = Serial.read()) != -1)
     {
         *data = res;
-        return CLIENT_SERIAL;
+        return true;
     }
 
-    return CLIENT_ALL;
+    return false;
 }
 
 // this task runs and checks for data on all interfaces
-// REaltime stuff is acted upon, then characters are added to the appropriate buffer
+// Realtime stuff is acted upon, then characters are added to the appropriate buffer
 void clientCheckTask(void *pvParameters)
 {
     uint8_t data = 0;
-    uint8_t client; // who sent the data
     static UBaseType_t uxHighWaterMark = 0;
 
     while (true)
     {
         // run continuously
-        while ((client = getClientChar(&data)) == CLIENT_SERIAL)
+        while (getClientChar(&data))
         {
             // Pick off realtime command characters directly from the serial stream. These characters are
             // not passed into the main buffer, but these set system state flag bits for realtime execution.
@@ -128,9 +118,6 @@ void clientCheckTask(void *pvParameters)
         vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
 
         static UBaseType_t uxHighWaterMark = 0;
-#ifdef DEBUG_TASK_STACK
-        reportTaskStackSize(uxHighWaterMark);
-#endif
     }
 }
 
@@ -168,7 +155,6 @@ void execute_realtime_command(Cmd command)
     {
 
     case Cmd::Reset:
-        // grbl_msg_sendf(MsgLevel::Debug, "Cmd::Reset");
         mc_reset(); // Call motion control reset routine.
         break;
 
@@ -196,12 +182,6 @@ void execute_realtime_command(Cmd command)
         }
         break;
 
-    case Cmd::DebugReport:
-#ifdef DEBUG
-        sys_rt_exec_debug = true;
-#endif
-        break;
-
     case Cmd::SpindleOvrStop:
         sys_rt_exec_accessory_override.bit.spindleOvrStop = 1;
         break;
@@ -225,6 +205,7 @@ void execute_realtime_command(Cmd command)
             sys_rt_f_override = FeedOverride::Min;
         }
         break;
+
     case Cmd::FeedOvrFinePlus:
         sys_rt_f_override += FeedOverride::FineIncrement;
         if (sys_rt_f_override > FeedOverride::Max)
@@ -301,9 +282,4 @@ void execute_realtime_command(Cmd command)
         sys_rt_exec_accessory_override.bit.coolantMistOvrToggle = 1;
         break;
     }
-}
-
-void client_write(const char *text)
-{
-    Serial.write(text);
 }

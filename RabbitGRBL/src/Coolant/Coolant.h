@@ -37,12 +37,8 @@ public:
   /// @param start_delay_setting a FloatSetting defining the coolant's turn on delay in seconds.
   virtual void Initialize(uint8_t pin, bool invertPinOutput, FloatSetting *start_delay_setting);
 
-  /// @brief Turns the coolant immidiately On.
+  /// @brief Turns the coolant On.
   virtual void TurnOn();
-
-  /// @brief Turn the coolant immidiately On  and waits as many seconds as
-  /// the start_delay_setting variable defines.
-  virtual void TurnOnWithDelay();
 
   /// @brief Turns the coolant immidiately off.
   virtual void TurnOff();

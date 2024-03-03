@@ -214,7 +214,7 @@ void mc_arc(float *target,
             }
         }
     }
-    
+
     // Ensure last segment arrives at target location.
     mc_line(target, pl_data);
 }
@@ -391,17 +391,19 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     uint8_t is_no_error = bit_istrue(parser_flags, GCParserProbeIsNoError);
     sys.probe_succeeded = false; // Re-initialize probe history before beginning cycle.
     set_probe_direction(is_probe_away);
+
     // After syncing, check if probe is already triggered. If so, halt and issue alarm.
     // NOTE: This probe initialization error applies to all probing cycles.
     if (probe_get_state() ^ is_probe_away)
-    { // Check probe pin state.
+    {
+        // Check probe pin state.
         sys_rt_exec_alarm = ExecAlarm::ProbeFailInitial;
         protocol_execute_realtime();
         RESTORE_STEPPER(save_stepper); // Switch the stepper mode to the previous mode
         return GCUpdatePos::None;      // Nothing else to do but bail.
     }
     // Setup and queue probing motion. Auto cycle-start should not start the cycle.
-    grbl_msg_sendf(MsgLevel::Info, "Found");
+    // grbl_msg_sendf(MsgLevel::Info, "Found");
     mc_line(target, pl_data);
     // Activate the probing state monitor in the stepper module.
     sys_probe_state = Probe::Active;
@@ -512,16 +514,17 @@ void mc_override_ctrl_update(uint8_t override_state)
 // realtime abort command and hard limits. So, keep to a minimum.
 void mc_reset()
 {
-    grbl_msg_sendf(MsgLevel::Debug, "mc_reset()");
-    // Only this function can set the system reset. Helps prevent multiple kill calls.
+    // grbl_msg_sendf(MsgLevel::Info, "Motion Control Reset");
+    //  Only this function can set the system reset. Helps prevent multiple kill calls.
     if (!sys_rt_exec_state.bit.reset)
     {
         sys_rt_exec_state.bit.reset = true;
+
         // Kill spindle and coolant.
         spindle->stop();
         CoolantManager::TurnAllCoolantsOff();
 
-        // turn off all User I/O immediately
+        // Turn off all User I/O immediately
         sys_digital_all_off();
         sys_analog_all_off();
 

@@ -21,24 +21,31 @@
 */
 #include "NullSpindle.h"
 
-namespace Spindles {
+namespace Spindles
+{
     // ======================= Null ==============================
     // Null is just bunch of do nothing (ignore) methods to be used when you don't want a spindle
 
-    void Null::init() {
+    void Null::init()
+    {
         is_reversable = false;
-        use_delays    = false;
+        use_delays = false;
         config_message();
     }
-    uint32_t Null::set_rpm(uint32_t rpm) {
+    uint32_t Null::set_rpm(uint32_t rpm)
+    {
         sys.spindle_speed = rpm;
         return rpm;
     }
-    void Null::set_state(SpindleState state, uint32_t rpm) {
-        _current_state    = state;
+    void Null::set_state(SpindleState state, uint32_t rpm)
+    {
+        _current_state = state;
         sys.spindle_speed = rpm;
     }
     SpindleState Null::get_state() { return _current_state; }
-    void         Null::stop() {}
-    void         Null::config_message() { grbl_msg_sendf(MsgLevel::Info, "No spindle"); }
+    void Null::stop() {}
+    void Null::config_message()
+    {
+        grbl_msg_sendf(MsgLevel::Info, "No spindle");
+    }
 }

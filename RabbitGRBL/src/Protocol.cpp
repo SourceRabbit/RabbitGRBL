@@ -41,19 +41,14 @@ typedef struct
 
 client_line_t client_lines;
 
-static void empty_line()
+static void empty_lines()
 {
     client_line_t *cl = &client_lines;
     cl->len = 0;
     cl->buffer[0] = '\0';
 }
 
-static void empty_lines()
-{
-    empty_line();
-}
-
-Error add_char_to_line(char c, uint8_t client)
+Error add_char_to_line(char c)
 {
     client_line_t *cl = &client_lines;
     // Simple editing for interactive input
@@ -82,19 +77,22 @@ Error add_char_to_line(char c, uint8_t client)
     return Error::Ok;
 }
 
-Error execute_line(char *line, uint8_t client)
+Error execute_line(char *line)
 {
     Error result = Error::Ok;
+
     // Empty or comment line. For syncing purposes.
     if (line[0] == 0)
     {
         return Error::Ok;
     }
+
     // Grbl '$' or WebUI '[ESPxxx]' system command
     if (line[0] == '$' || line[0] == '[')
     {
         return system_execute_line(line);
     }
+
     // Everything else is gcode. Block if in alarm or jog mode.
     if (sys.state == State::Alarm || sys.state == State::Jog)
     {
@@ -119,7 +117,7 @@ void protocol_main_loop()
 {
     client_reset_read_buffer();
     empty_lines();
-    // uint8_t client = CLIENT_SERIAL; // default client
+
     //  Perform some machine checks to make sure everything is good to go.
 #ifdef CHECK_LIMITS_AT_INIT
     if (hard_limits->get())
@@ -161,16 +159,17 @@ void protocol_main_loop()
         // Receive one line of incoming serial data, as the data becomes available.
         // Filtering, if necessary, is done later in gc_execute_line(), so the
         // filtering is the same with serial and file input.
-        uint8_t client = CLIENT_SERIAL;
         char *line;
 
         while ((c = client_read()) != -1)
         {
-            Error res = add_char_to_line(c, client);
+            Error res = add_char_to_line(c);
             switch (res)
             {
+
             case Error::Ok:
                 break;
+
             case Error::Eol:
                 protocol_execute_realtime(); // Runtime command check point.
                 if (sys.abort)
@@ -178,17 +177,20 @@ void protocol_main_loop()
                     return; // Bail to calling function upon system abort
                 }
                 line = client_lines.buffer;
+
 #ifdef REPORT_ECHO_RAW_LINE_RECEIVED
                 report_echo_line_received(line);
 #endif
                 // auth_level can be upgraded by supplying a password on the command line
-                report_status_message(execute_line(line, client));
-                empty_line();
+                report_status_message(execute_line(line));
+                empty_lines();
                 break;
+
             case Error::Overflow:
                 report_status_message(Error::Overflow);
-                empty_line();
+                empty_lines();
                 break;
+
             default:
                 break;
             }
@@ -588,13 +590,6 @@ void protocol_exec_rt_system()
 #endif
     }
 
-#ifdef DEBUG
-    if (sys_rt_exec_debug)
-    {
-        report_realtime_debug();
-        sys_rt_exec_debug = false;
-    }
-#endif
     // Reload step segment buffer
     switch (sys.state)
     {

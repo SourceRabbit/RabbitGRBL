@@ -62,6 +62,8 @@ void CoolantManager::Initialize()
 #ifdef COOLANT_FLOOD_PIN
         CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, coolant_flood_start_delay);
         // grbl_msg_sendf(MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
+#else
+        CoolantManager::Flood_Coolant.Initialize(0, true);
 #endif
         CoolantManager::fCoolants[1] = &CoolantManager::Flood_Coolant;
 
@@ -72,7 +74,7 @@ void CoolantManager::Initialize()
 }
 
 /**
- * Turn all coolants offs
+ * Turns all coolants off
  */
 void CoolantManager::TurnAllCoolantsOff()
 {

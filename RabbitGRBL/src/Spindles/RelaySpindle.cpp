@@ -23,14 +23,17 @@
 
 // ========================= Relay ==================================
 
-namespace Spindles {
+namespace Spindles
+{
     /*
     This is a sub class of PWM but is a digital rather than PWM output
 */
-    void Relay::init() {
+    void Relay::init()
+    {
         get_pins_and_settings();
 
-        if (_output_pin == UNDEFINED_PIN) {
+        if (_output_pin == UNDEFINED_PIN)
+        {
             return;
         }
 
@@ -39,13 +42,14 @@ namespace Spindles {
         pinMode(_direction_pin, OUTPUT);
 
         is_reversable = (_direction_pin != UNDEFINED_PIN);
-        use_delays    = true;
+        use_delays = true;
 
         config_message();
     }
 
     // prints the startup message of the spindle config
-    void Relay ::config_message() {
+    void Relay ::config_message()
+    {
         grbl_msg_sendf(MsgLevel::Info,
                        "Relay spindle Output:%s, Enbl:%s, Dir:%s",
                        pinName(_output_pin).c_str(),
@@ -53,8 +57,10 @@ namespace Spindles {
                        pinName(_direction_pin).c_str());
     }
 
-    uint32_t Relay::set_rpm(uint32_t rpm) {
-        if (_output_pin == UNDEFINED_PIN) {
+    uint32_t Relay::set_rpm(uint32_t rpm)
+    {
+        if (_output_pin == UNDEFINED_PIN)
+        {
             return rpm;
         }
 
@@ -64,10 +70,11 @@ namespace Spindles {
         return rpm;
     }
 
-    void Relay::set_output(uint32_t duty) {
+    void Relay::set_output(uint32_t duty)
+    {
 #ifdef INVERT_SPINDLE_PWM
-        duty = (duty == 0);  // flip duty
+        duty = (duty == 0); // flip duty
 #endif
-        digitalWrite(_output_pin, duty > 0);  // anything greater
+        digitalWrite(_output_pin, duty > 0); // anything greater
     }
 }

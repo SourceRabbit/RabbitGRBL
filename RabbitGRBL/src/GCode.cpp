@@ -614,6 +614,7 @@ Error gc_execute_line(char *line)
             GCodeWord axis_word_bit;
             switch (letter)
             {
+
             case 'A':
                 if (n_axis > A_AXIS)
                 {
@@ -626,6 +627,7 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
+
             case 'B':
                 if (n_axis > B_AXIS)
                 {
@@ -638,6 +640,7 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
+
             case 'C':
                 if (n_axis > C_AXIS)
                 {
@@ -650,57 +653,67 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
-            // case 'D': // Not supported
+
             case 'E':
                 axis_word_bit = GCodeWord::E;
                 gc_block.values.e = int_value;
                 // grbl_msg_sendf(MSG_LEVEL_INFO, "E %d", gc_block.values.e);
                 break;
+
             case 'F':
                 axis_word_bit = GCodeWord::F;
                 gc_block.values.f = value;
                 break;
-            // case 'H': // Not supported
+
             case 'I':
                 axis_word_bit = GCodeWord::I;
                 gc_block.values.ijk[X_AXIS] = value;
                 ijk_words |= bit(X_AXIS);
                 break;
+
             case 'J':
                 axis_word_bit = GCodeWord::J;
                 gc_block.values.ijk[Y_AXIS] = value;
                 ijk_words |= bit(Y_AXIS);
                 break;
+
             case 'K':
                 axis_word_bit = GCodeWord::K;
                 gc_block.values.ijk[Z_AXIS] = value;
                 ijk_words |= bit(Z_AXIS);
                 break;
+
             case 'L':
                 axis_word_bit = GCodeWord::L;
                 gc_block.values.l = int_value;
                 break;
+
             case 'N':
                 axis_word_bit = GCodeWord::N;
                 gc_block.values.n = trunc(value);
                 break;
+
             case 'P':
                 axis_word_bit = GCodeWord::P;
                 gc_block.values.p = value;
                 break;
+
             case 'Q':
                 axis_word_bit = GCodeWord::Q;
                 gc_block.values.q = value;
                 // grbl_msg_sendf(MSG_LEVEL_INFO, "Q %2.2f", value);
                 break;
+
             case 'R':
                 axis_word_bit = GCodeWord::R;
                 gc_block.values.r = value;
                 break;
+
             case 'S':
                 axis_word_bit = GCodeWord::S;
                 gc_block.values.s = value;
                 break;
+
             case 'T':
                 axis_word_bit = GCodeWord::T;
                 if (value > MaxToolNumber)
@@ -710,6 +723,7 @@ Error gc_execute_line(char *line)
                 grbl_msg_sendf(MsgLevel::Info, "Tool No: %d", int_value);
                 gc_state.tool = int_value;
                 break;
+
             case 'X':
                 if (n_axis > X_AXIS)
                 {
@@ -722,6 +736,7 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
+
             case 'Y':
                 if (n_axis > Y_AXIS)
                 {
@@ -734,6 +749,7 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
+
             case 'Z':
                 if (n_axis > Z_AXIS)
                 {
@@ -746,15 +762,18 @@ Error gc_execute_line(char *line)
                     FAIL(Error::GcodeUnsupportedCommand);
                 }
                 break;
+
             default:
                 FAIL(Error::GcodeUnsupportedCommand);
             }
+
             // NOTE: Variable 'axis_word_bit' is always assigned, if the non-command letter is valid.
             uint32_t bitmask = bit(axis_word_bit);
             if (bit_istrue(value_words, bitmask))
             {
                 FAIL(Error::GcodeWordRepeated); // [Word repeated]
             }
+
             // Check for invalid negative values for words F, N, P, T, and S.
             // NOTE: Negative value check is done here simply for code-efficiency.
             if (bitmask & (bit(GCodeWord::F) | bit(GCodeWord::N) | bit(GCodeWord::P) | bit(GCodeWord::T) | bit(GCodeWord::S)))
@@ -1603,23 +1622,25 @@ Error gc_execute_line(char *line)
     case GCodeCoolant::M7:
         gc_state.modal.coolant.Mist = 1;
         protocol_buffer_synchronize();
-        // Ask Mist Coolant to start and wait...
-        CoolantManager::Mist_Coolant.TurnOnWithDelay();
+        // Ask Mist Coolant to TurnOn
+        CoolantManager::Mist_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
         protocol_buffer_synchronize();
-        // Ask Flood Coolant to start and wait...
-        CoolantManager::Flood_Coolant.TurnOnWithDelay();
+        // Ask Flood Coolant to TurnOn
+        CoolantManager::Flood_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M9:
         gc_state.modal.coolant = {};
+        // Turn all Collants off
         CoolantManager::TurnAllCoolantsOff();
         break;
     }
     pl_data->coolant = gc_state.modal.coolant; // Set state for planner use.
+
     // turn on/off an i/o pin
     if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync) ||
         (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate))
@@ -1641,15 +1662,18 @@ Error gc_execute_line(char *line)
             FAIL(Error::PParamMaxExceeded);
         }
     }
+
     if ((gc_block.modal.io_control == IoControl::SetAnalogSync) || (gc_block.modal.io_control == IoControl::SetAnalogImmediate))
     {
         if (gc_block.values.e < MaxUserDigitalPin)
         {
             gc_block.values.q = constrain(gc_block.values.q, 0.0, 100.0); // force into valid range
+
             if (gc_block.modal.io_control == IoControl::SetAnalogSync)
             {
                 protocol_buffer_synchronize();
             }
+
             if (!sys_set_analog((int)gc_block.values.e, gc_block.values.q))
             {
                 FAIL(Error::PParamMaxExceeded);

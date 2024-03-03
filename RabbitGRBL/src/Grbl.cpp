@@ -24,9 +24,8 @@ void grbl_init()
 {
     client_init(); // Setup serial baud rate and interrupts
     display_init();
-    // grbl_msg_sendf(MsgLevel::Info, "Rabbit Grbl Ver %s Date %s", GRBL_VERSION, GRBL_VERSION_BUILD); // print grbl_esp32 verion info
-    // grbl_msg_sendf(MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());              // print the SDK version
-// show the map name at startup
+
+    // show the map name at startup
 
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
@@ -91,6 +90,7 @@ static void reset_variables()
     probe_init();
     plan_reset(); // Clear block buffer and planner variables
     st_reset();   // Clear stepper subsystem variables
+
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
     backlash_reset_targets();
@@ -110,13 +110,3 @@ void run_once()
 void __attribute__((weak)) machine_init() {}
 
 void __attribute__((weak)) display_init() {}
-/*
-  setup() and loop() in the Arduino .ino implements this control flow:
-
-  void main() {
-     init();          // setup()
-     while (1) {      // loop()
-         run_once();
-     }
-  }
-*/

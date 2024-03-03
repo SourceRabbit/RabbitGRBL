@@ -376,12 +376,8 @@ void stepper_init()
 {
     busy.store(false);
 
-    grbl_msg_sendf(MsgLevel::Info, "Axis count %d", number_axis->get());
+    //grbl_msg_sendf(MsgLevel::Info, "Axis count %d", number_axis->get());
 
-#ifdef USE_I2S_STEPS
-    // I2S stepper stream mode use callback but timer interrupt
-    i2s_out_set_pulse_callback(stepper_pulse_func);
-#endif
     // Other stepper use timer interrupt
     Stepper_Timer_Init();
 }

@@ -54,12 +54,10 @@ EspClass esp;
 #endif
 const int DEFAULTBUFFERSIZE = 64;
 
-void grbl_send(const char *text)
-{
-    client_write(text);
-}
-
-// This is a formating version of the grbl_send(CLIENT_ALL,...) function that work like printf
+/**
+ * This is a formating version of the Serial.write method.
+ * It works like printf
+ */
 void grbl_sendf(const char *format, ...)
 {
     char loc_buf[64];
@@ -79,19 +77,20 @@ void grbl_sendf(const char *format, ...)
         }
     }
     len = vsnprintf(temp, len + 1, format, arg);
-    grbl_send(temp);
+    Serial.write(temp);
     va_end(arg);
     if (temp != loc_buf)
     {
         delete[] temp;
     }
 }
+
 // Use to send [MSG:xxxx] Type messages. The level allows messages to be easily suppressed
 void grbl_msg_sendf(MsgLevel level, const char *format, ...)
 {
-
     if (message_level != NULL)
-    { // might be null before messages are setup
+    {
+        // might be null before messages are setup
         if (level > static_cast<MsgLevel>(message_level->get()))
         {
             return;
@@ -116,41 +115,6 @@ void grbl_msg_sendf(MsgLevel level, const char *format, ...)
     }
     len = vsnprintf(temp, len + 1, format, arg);
     grbl_sendf("[MSG:%s]\r\n", temp);
-    va_end(arg);
-    if (temp != loc_buf)
-    {
-        delete[] temp;
-    }
-}
-
-// function to notify
-void grbl_notify(const char *title, const char *msg)
-{
-#ifdef ENABLE_NOTIFICATIONS
-    WebUI::notificationsservice.sendMSG(title, msg);
-#endif
-}
-
-void grbl_notifyf(const char *title, const char *format, ...)
-{
-    char loc_buf[64];
-    char *temp = loc_buf;
-    va_list arg;
-    va_list copy;
-    va_start(arg, format);
-    va_copy(copy, arg);
-    size_t len = vsnprintf(NULL, 0, format, arg);
-    va_end(copy);
-    if (len >= sizeof(loc_buf))
-    {
-        temp = new char[len + 1];
-        if (temp == NULL)
-        {
-            return;
-        }
-    }
-    len = vsnprintf(temp, len + 1, format, arg);
-    grbl_notify(title, temp);
     va_end(arg);
     if (temp != loc_buf)
     {
@@ -223,7 +187,7 @@ void report_status_message(Error status_code)
     switch (status_code)
     {
     case Error::Ok: // Error::Ok
-        grbl_send("ok\r\n");
+        Serial.write("ok\r\n");
         break;
     default:
 
@@ -283,12 +247,13 @@ void report_feedback_message(Message message)
 void report_init_message()
 {
     grbl_sendf("\r\nGrbl %s %s ['$' for help]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
+    // grbl_msg_sendf(MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());
 }
 
 // Grbl help message
 void report_grbl_help()
 {
-    grbl_send("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
+    Serial.write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
 }
 
 // Prints current probe parameters. Upon a probe command, these parameters are updated upon a
@@ -308,7 +273,7 @@ void report_probe_parameters()
     // add the success indicator and add closing characters
     sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
     strcat(probe_rpt, temp);
-    grbl_send(probe_rpt); // send the report
+    Serial.write(probe_rpt); // send the report
 }
 
 // Prints Grbl NGC parameters (coordinate offsets, probing)
@@ -337,7 +302,7 @@ void report_ngc_parameters()
     ngc_rpt += String(tlo, 3);
     ;
     ngc_rpt += "]\r\n";
-    grbl_send(ngc_rpt.c_str());
+    Serial.write(ngc_rpt.c_str());
     report_probe_parameters();
 }
 
@@ -510,7 +475,7 @@ void report_gcode_modes()
     sprintf(temp, " S%d", uint32_t(gc_state.spindle_speed));
     strcat(modes_rpt, temp);
     strcat(modes_rpt, "]\r\n");
-    grbl_send(modes_rpt);
+    Serial.write(modes_rpt);
 }
 
 // Prints specified startup line
@@ -530,41 +495,41 @@ void report_build_info(const char *line)
 {
     grbl_sendf("[VER:%s.%s:%s]\r\n[OPT:", GRBL_VERSION, GRBL_VERSION_BUILD, line);
 #ifdef COOLANT_MIST_PIN
-    grbl_send("M"); // TODO Need to deal with M8...it could be disabled
+    Serial.write("M"); // TODO Need to deal with M8...it could be disabled
 #endif
 #ifdef PARKING_ENABLE
-    grbl_send("P");
+    Serial.write("P");
 #endif
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-    grbl_send("H");
+    Serial.write("H");
 #endif
 #ifdef LIMITS_TWO_SWITCHES_ON_AXES
-    grbl_send("L");
+    Serial.write("L");
 #endif
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
-    grbl_send("A");
+    Serial.write("A");
 #endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
-    grbl_send("R");
+    Serial.write("R");
 #endif
 #ifndef ENABLE_RESTORE_WIPE_ALL // NOTE: Shown when disabled.
-    grbl_send("*");
+    Serial.write("*");
 #endif
 #ifndef ENABLE_RESTORE_DEFAULT_SETTINGS // NOTE: Shown when disabled.
-    grbl_send("$");
+    Serial.write("$");
 #endif
 #ifndef ENABLE_RESTORE_CLEAR_PARAMETERS // NOTE: Shown when disabled.
-    grbl_send("#");
+    Serial.write("#");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE // NOTE: Shown when disabled.
-    grbl_send("E");
+    Serial.write("E");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE // NOTE: Shown when disabled.
-    grbl_send("W");
+    Serial.write("W");
 #endif
     // NOTE: Compiled values, like override increments/max/min values, may be added at some point later.
     // These will likely have a comma delimiter to separate them.
-    grbl_send("]\r\n");
+    Serial.write("]\r\n");
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,
@@ -831,7 +796,7 @@ void report_realtime_status()
     strcat(status, temp);
 #endif
     strcat(status, ">\r\n");
-    grbl_send(status);
+    Serial.write(status);
 }
 
 void report_realtime_steps()
@@ -859,39 +824,6 @@ void report_gcode_comment(char *comment)
         msg[index - offset] = 0; // null terminate
         grbl_msg_sendf(MsgLevel::Info, "GCode Comment...%s", msg);
     }
-}
-
-/*
-    Print a message in hex format
-    Ex: report_hex_msg(msg, "Rx:", 6);
-    Would would print something like ... [MSG Rx: 0x01 0x03 0x01 0x08 0x31 0xbf]
-*/
-void report_hex_msg(char *buf, const char *prefix, int len)
-{
-    char report[200];
-    char temp[20];
-    sprintf(report, "%s", prefix);
-    for (int i = 0; i < len; i++)
-    {
-        sprintf(temp, " 0x%02X", buf[i]);
-        strcat(report, temp);
-    }
-
-    grbl_msg_sendf(MsgLevel::Info, "%s", report);
-}
-
-void report_hex_msg(uint8_t *buf, const char *prefix, int len)
-{
-    char report[200];
-    char temp[20];
-    sprintf(report, "%s", prefix);
-    for (int i = 0; i < len; i++)
-    {
-        sprintf(temp, " 0x%02X", buf[i]);
-        strcat(report, temp);
-    }
-
-    grbl_msg_sendf(MsgLevel::Info, "%s", report);
 }
 
 char *report_state_text()
@@ -991,18 +923,6 @@ char *reportAxisNameMsg(uint8_t axis)
     static char name[10];
     sprintf(name, "%c  Axis", report_get_axis_letter(axis));
     return name;
-}
-
-void reportTaskStackSize(UBaseType_t &saved)
-{
-#ifdef DEBUG_REPORT_STACK_FREE
-    UBaseType_t newHighWater = uxTaskGetStackHighWaterMark(NULL);
-    if (newHighWater != saved)
-    {
-        saved = newHighWater;
-        grbl_msg_sendf(MsgLevel::Info, "%s Min Stack Space: %d", pcTaskGetTaskName(NULL), saved);
-    }
-#endif
 }
 
 void calc_mpos(float *print_position)

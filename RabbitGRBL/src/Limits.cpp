@@ -55,6 +55,7 @@ void IRAM_ATTR isr_limit_switches()
             int evt;
             xQueueSendFromISR(limit_sw_queue, &evt, NULL);
 #else
+
 #ifdef HARD_LIMIT_FORCE_STATE_CHECK
             // Check limit pin state.
             if (limits_get_state())
@@ -309,9 +310,11 @@ void limits_init()
 {
     limit_mask = 0;
     int mode = INPUT_PULLUP;
+    
 #ifdef DISABLE_LIMIT_PIN_PULL_UP
     mode = INPUT;
 #endif
+
     auto n_axis = number_axis->get();
     for (int axis = 0; axis < n_axis; axis++)
     {
@@ -445,9 +448,6 @@ void limitCheckTask(void *pvParameters)
             sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
         }
         static UBaseType_t uxHighWaterMark = 0;
-#ifdef DEBUG_TASK_STACK
-        reportTaskStackSize(uxHighWaterMark);
-#endif
     }
 }
 

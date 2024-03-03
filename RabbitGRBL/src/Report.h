@@ -7,7 +7,7 @@
 
   2018 -	Bart Dring This file was modifed for use on the ESP32
           CPU. Do not use this with Grbl for atMega328P
-          
+
   2024 - Nikos Siatras (https://github.com/nsiatras)
 
   Grbl is free software: you can redistribute it and/or modify
@@ -48,11 +48,6 @@ enum class Message : uint8_t
   SdFileQuit = 60, // mc_reset was called during an SD job
 };
 
-#define CLIENT_SERIAL 0
-#define CLIENT_INPUT 4
-#define CLIENT_ALL 0xFF
-#define CLIENT_COUNT 1 // total number of client types regardless if they are used
-
 enum class MsgLevel : int8_t
 { // Use $Message/Level
   None = 0,
@@ -64,13 +59,8 @@ enum class MsgLevel : int8_t
 };
 
 // functions to send data to the user.
-void grbl_send(const char *text);
 void grbl_sendf(const char *format, ...);
 void grbl_msg_sendf(MsgLevel level, const char *format, ...);
-
-// function to notify
-void grbl_notify(const char *title, const char *msg);
-void grbl_notifyf(const char *title, const char *format, ...);
 
 // Prints system status messages.
 void report_status_message(Error status_code);
@@ -115,19 +105,10 @@ void report_build_info(const char *line);
 
 void report_gcode_comment(char *comment);
 
-#ifdef DEBUG
-void report_realtime_debug();
-#endif
-
-void report_hex_msg(char *buf, const char *prefix, int len);
-void report_hex_msg(uint8_t *buf, const char *prefix, int len);
-
 char report_get_axis_letter(uint8_t axis);
 char *reportAxisLimitsMsg(uint8_t axis);
 char *reportAxisNameMsg(uint8_t axis);
 char *reportAxisNameMsg(uint8_t axis, uint8_t dual_axis);
-
-void reportTaskStackSize(UBaseType_t &saved);
 
 char *report_state_text();
 float *get_wco();

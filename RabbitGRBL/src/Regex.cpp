@@ -38,18 +38,22 @@ static bool matchHere(const char *regexp, const char *text)
     {
         return true;
     }
+
     if (regexp[0] == '*')
     {
         return matchStar(regexp + 1, text);
     }
+
     if (regexp[0] == '$' && regexp[1] == '\0')
     {
         return *text == '\0';
     }
+
     if (*text != '\0' && (regexp[0] == *text))
     {
         return matchHere(++regexp, ++text);
     }
+
     return false;
 }
 

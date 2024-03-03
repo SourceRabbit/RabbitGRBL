@@ -48,14 +48,8 @@ void Coolant::TurnOn()
     {
         digitalWrite(this->fPinNumber, (this->fInvertPinOutput) ? 0 : 1);
         this->fIsOn = true;
-    }
-}
 
-void Coolant::TurnOnWithDelay()
-{
-    if (this->fPinNumber > 0)
-    {
-        this->TurnOn();
+        // Wait if delay is set
         if (this->fStartDelaySetting->get() > 0)
         {
             delay_msec((1000.0 * this->fStartDelaySetting->get()), DwellMode::SysSuspend);

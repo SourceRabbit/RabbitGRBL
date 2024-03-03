@@ -30,9 +30,7 @@ volatile ExecState sys_rt_exec_state;                  // Global realtime execut
 volatile ExecAlarm sys_rt_exec_alarm;                  // Global realtime executor bitflag variable for setting various alarms.
 volatile ExecAccessory sys_rt_exec_accessory_override; // Global realtime executor bitflag variable for spindle/coolant overrides.
 volatile bool cycle_stop;                              // For state transitions, instead of bitflag
-#ifdef DEBUG
-volatile bool sys_rt_exec_debug;
-#endif
+
 volatile Percent sys_rt_f_override; // Global realtime executor feedrate override percentage
 volatile Percent sys_rt_r_override; // Global realtime executor rapid override percentage
 volatile Percent sys_rt_s_override; // Global realtime executor spindle override percentage
@@ -133,9 +131,6 @@ void controlCheckTask(void *pvParameters)
         debouncing = false;
 
         static UBaseType_t uxHighWaterMark = 0;
-#ifdef DEBUG_TASK_STACK
-        reportTaskStackSize(uxHighWaterMark);
-#endif
     }
 }
 #endif

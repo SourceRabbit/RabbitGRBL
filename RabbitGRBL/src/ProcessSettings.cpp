@@ -185,9 +185,8 @@ Error toggle_check_mode(const char *value)
     // simple and consistent.
     if (sys.state == State::CheckMode)
     {
-        grbl_msg_sendf(MsgLevel::Debug, "Check mode");
         mc_reset();
-        report_feedback_message(Message::Disabled);
+        // report_feedback_message(Message::Disabled);
     }
     else
     {
@@ -196,7 +195,7 @@ Error toggle_check_mode(const char *value)
             return Error::IdleError; // Requires no alarm mode.
         }
         sys.state = State::CheckMode;
-        report_feedback_message(Message::Enabled);
+        // report_feedback_message(Message::Enabled);
     }
     return Error::Ok;
 }
@@ -229,6 +228,7 @@ Error home(int cycle)
     {
         return Error::SettingDisabled;
     }
+
     if (system_check_safety_door_ajar())
     {
         return Error::CheckDoor; // Block if safety door is ajar.
@@ -678,7 +678,6 @@ Error system_execute_line(char *line)
     // non-empty string - [ESPxxx]yyy or $xxx=yyy
     return do_command_or_setting(key, value);
 }
-
 
 void system_execute_startup(char *line)
 {

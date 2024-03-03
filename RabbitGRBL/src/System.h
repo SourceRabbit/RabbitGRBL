@@ -148,9 +148,7 @@ extern volatile Percent sys_rt_f_override;                    // Feed override v
 extern volatile Percent sys_rt_r_override;                    // Rapid feed override value in percent
 extern volatile Percent sys_rt_s_override;                    // Spindle override value in percent
 extern volatile bool cycle_stop;
-#ifdef DEBUG
-extern volatile bool sys_rt_exec_debug;
-#endif
+
 
 void system_ini(); // Renamed from system_init() due to conflict with esp32 files
 
@@ -164,7 +162,7 @@ void isr_control_inputs();
 
 // Execute the startup script lines stored in non-volatile storage upon initialization
 void system_execute_startup(char *line);
-Error execute_line(char *line, uint8_t client);
+Error execute_line(char *line);
 Error system_execute_line(char *line);
 Error do_command_or_setting(const char *key, char *value);
 void system_flag_wco_change();
