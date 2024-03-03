@@ -8,7 +8,7 @@
   2018 -	Bart Dring This file was modifed for use on the ESP32
           CPU. Do not use this with Grbl for atMega328P
 
-  2024 - Nikos Siatras (https://github.com/nsiatras)       
+  2024 - Nikos Siatras (https://github.com/nsiatras)
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #ifndef RX_BUFFER_SIZE
 #define RX_BUFFER_SIZE 256
 #endif
+
 #ifndef TX_BUFFER_SIZE
 #ifdef USE_LINE_NUMBERS
 #define TX_BUFFER_SIZE 112

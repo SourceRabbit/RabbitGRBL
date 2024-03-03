@@ -150,7 +150,7 @@ Error list_changed_settings(const char *value)
             show_setting(s->getName(), value, message.c_str());
         }
     }
-    grbl_sendf("(Passwords not shown)\r\n");
+
     return Error::Ok;
 }
 

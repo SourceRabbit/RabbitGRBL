@@ -16,12 +16,15 @@
 // "bare * wildcard" is similar to filename wildcarding in many shells
 // and CLIs.
 
-static bool matchHere(const char* regexp, const char* text);
+static bool matchHere(const char *regexp, const char *text);
 
 // matchStar - search for *regexp at beginning of text
-static bool matchStar(const char* regexp, const char* text) {
-    do {
-        if (matchHere(regexp, text)) {
+static bool matchStar(const char *regexp, const char *text)
+{
+    do
+    {
+        if (matchHere(regexp, text))
+        {
             return true;
         }
     } while (*text++ != '\0');
@@ -29,17 +32,22 @@ static bool matchStar(const char* regexp, const char* text) {
 }
 
 // matchHere - search for regex at beginning of text
-static bool matchHere(const char* regexp, const char* text) {
-    if (regexp[0] == '\0') {
+static bool matchHere(const char *regexp, const char *text)
+{
+    if (regexp[0] == '\0')
+    {
         return true;
     }
-    if (regexp[0] == '*') {
+    if (regexp[0] == '*')
+    {
         return matchStar(regexp + 1, text);
     }
-    if (regexp[0] == '$' && regexp[1] == '\0') {
+    if (regexp[0] == '$' && regexp[1] == '\0')
+    {
         return *text == '\0';
     }
-    if (*text != '\0' && (regexp[0] == *text)) {
+    if (*text != '\0' && (regexp[0] == *text))
+    {
         return matchHere(++regexp, ++text);
     }
     return false;
@@ -47,12 +55,16 @@ static bool matchHere(const char* regexp, const char* text) {
 
 // match - search for regular expression anywhere in text
 // Returns true if text contains the regular expression regexp
-bool regexMatch(const char* regexp, const char* text) {
-    if (regexp[0] == '^') {
+bool regexMatch(const char *regexp, const char *text)
+{
+    if (regexp[0] == '^')
+    {
         return matchHere(++regexp, text);
     }
-    do {
-        if (matchHere(regexp, text)) {
+    do
+    {
+        if (matchHere(regexp, text))
+        {
             return true;
         }
     } while (*text++ != '\0');

@@ -7,14 +7,17 @@ bool anyState()
 {
     return false;
 }
+
 bool idleOrJog()
 {
     return sys.state != State::Idle && sys.state != State::Jog;
 }
+
 bool idleOrAlarm()
 {
     return sys.state != State::Idle && sys.state != State::Alarm;
 }
+
 bool notCycleOrHold()
 {
     return sys.state == State::Cycle && sys.state == State::Hold;
@@ -515,19 +518,14 @@ Error StringSetting::setStringValue(char *s)
     return Error::Ok;
 }
 
-static bool isPassword(bool (*_checker)(char *))
-{
-    return _checker == false;
-}
-
 const char *StringSetting::getDefaultString()
 {
-    // If the string is a password do not display it
-    return (_checker && isPassword(_checker)) ? "******" : _defaultValue.c_str();
+    return _defaultValue.c_str();
 }
+
 const char *StringSetting::getStringValue()
 {
-    return (_checker && isPassword(_checker)) ? "******" : get();
+    return get();
 }
 
 typedef std::map<const char *, int8_t, cmp_str> enum_opt_t;
