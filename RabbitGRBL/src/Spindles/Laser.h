@@ -23,22 +23,24 @@
 */
 #include "PWMSpindle.h"
 
-namespace Spindles {
-    // this is the same as a PWM spindle but the M4 compensation is supported.
-    class Laser : public PWM {
-    public:
-        Laser() = default;
+namespace Spindles
+{
+	// this is the same as a PWM spindle but the M4 compensation is supported.
+	class Laser : public PWM
+	{
+	public:
+		Laser() = default;
 
-        Laser(const Laser&) = delete;
-        Laser(Laser&&)      = delete;
-        Laser& operator=(const Laser&) = delete;
-        Laser& operator=(Laser&&) = delete;
+		Laser(const Laser &) = delete;
+		Laser(Laser &&) = delete;
+		Laser &operator=(const Laser &) = delete;
+		Laser &operator=(Laser &&) = delete;
 
-        bool inLaserMode() override;
-        void config_message() override;
-        void get_pins_and_settings() override;
-        void deinit() override;
+		bool inLaserMode() override;
+		void config_message() override;
+		void get_pins_and_settings() override;
+		void deinit() override;
 
-        virtual ~Laser() {}
-    };
+		virtual ~Laser() {}
+	};
 }

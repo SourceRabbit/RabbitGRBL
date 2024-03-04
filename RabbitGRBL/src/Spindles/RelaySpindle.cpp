@@ -59,6 +59,9 @@ namespace Spindles
 
     uint32_t Relay::set_rpm(uint32_t rpm)
     {
+        // Max RPM security check
+        rpm = (rpm > _max_rpm) ? _max_rpm : rpm;
+
         if (_output_pin == UNDEFINED_PIN)
         {
             return rpm;

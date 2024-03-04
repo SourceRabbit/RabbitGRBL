@@ -27,30 +27,12 @@ portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 static TaskHandle_t clientCheckTaskHandle = 0;
 
-WebUI::InputBuffer client_buffer; // create a buffer for each client
+WebUI::InputBuffer client_buffer; // Creates the serial connection buffer
 
 // Returns the number of bytes available in a client buffer.
 uint8_t client_get_rx_buffer_available()
 {
     return 128 - Serial.available();
-}
-
-void heapCheckTask(void *pvParameters)
-{
-    static uint32_t heapSize = 0;
-    while (true)
-    {
-        uint32_t newHeapSize = xPortGetFreeHeapSize();
-        if (newHeapSize != heapSize)
-        {
-            heapSize = newHeapSize;
-            grbl_msg_sendf(MsgLevel::Info, "heap %d", heapSize);
-        }
-
-        vTaskDelay(3000 / portTICK_RATE_MS); // Yield to other tasks
-
-        static UBaseType_t uxHighWaterMark = 0;
-    }
 }
 
 void client_init()
@@ -72,6 +54,11 @@ void client_init()
                             SUPPORT_TASK_CORE // must run the task on same core
                                               // core
     );
+}
+
+void client_reset_read_buffer()
+{
+    client_buffer.begin();
 }
 
 static bool getClientChar(uint8_t *data)
@@ -121,11 +108,6 @@ void clientCheckTask(void *pvParameters)
     }
 }
 
-void client_reset_read_buffer()
-{
-    client_buffer.begin();
-}
-
 // Fetches the first byte in the client read buffer. Called by protocol loop.
 int client_read()
 {
@@ -135,17 +117,6 @@ int client_read()
     vTaskExitCritical(&myMutex);
     // vPortExitCritical(&myMutex);
     return data;
-}
-
-// checks to see if a character is a realtime character
-bool is_realtime_command(uint8_t data)
-{
-    if (data >= 0x80)
-    {
-        return true;
-    }
-    auto cmd = static_cast<Cmd>(data);
-    return cmd == Cmd::Reset || cmd == Cmd::StatusReport || cmd == Cmd::CycleStart || cmd == Cmd::FeedHold;
 }
 
 // Act upon a realtime character
@@ -282,4 +253,15 @@ void execute_realtime_command(Cmd command)
         sys_rt_exec_accessory_override.bit.coolantMistOvrToggle = 1;
         break;
     }
+}
+
+// checks to see if a character is a realtime character
+bool is_realtime_command(uint8_t data)
+{
+    if (data >= 0x80)
+    {
+        return true;
+    }
+    auto cmd = static_cast<Cmd>(data);
+    return cmd == Cmd::Reset || cmd == Cmd::StatusReport || cmd == Cmd::CycleStart || cmd == Cmd::FeedHold;
 }

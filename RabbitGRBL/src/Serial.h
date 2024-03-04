@@ -36,6 +36,9 @@
 #endif
 #endif
 
+void client_init();
+void client_reset_read_buffer();
+
 // a task to read for incoming data from serial port
 void clientCheckTask(void *pvParameters);
 
@@ -44,9 +47,6 @@ int client_read();
 
 // See if the character is an action command like feedhold or jogging. If so, do the action and return true
 uint8_t check_action_command(uint8_t data);
-
-void client_init();
-void client_reset_read_buffer();
 
 // Returns the number of bytes available in the RX serial buffer.
 uint8_t client_get_rx_buffer_available();
