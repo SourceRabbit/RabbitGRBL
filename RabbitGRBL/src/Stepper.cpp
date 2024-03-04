@@ -292,7 +292,7 @@ static void stepper_pulse_func()
                 st.steps[axis] = st.exec_block->steps[axis] >> st.exec_segment->amass_level;
             }
             // Set real-time spindle output as segment is loaded, just prior to the first step.
-            spindle->set_rpm(st.exec_segment->spindle_rpm);
+            fSpindle->set_rpm(st.exec_segment->spindle_rpm);
         }
         else
         {
@@ -303,7 +303,7 @@ static void stepper_pulse_func()
                 // Ensure pwm is set properly upon completion of rate-controlled motion.
                 if (st.exec_block != NULL && st.exec_block->is_pwm_rate_adjusted)
                 {
-                    spindle->set_rpm(0);
+                    fSpindle->set_rpm(0);
                 }
             }
             cycle_stop = true;
@@ -632,8 +632,8 @@ void st_prep_buffer()
 
                 st_prep_block->is_pwm_rate_adjusted = false; // set default value
                 // prep.inv_rate is only used if is_pwm_rate_adjusted is true
-                if (spindle->inLaserMode())
-                { //
+                if (fSpindle->inLaserMode())
+                { 
                     if (pl_block->spindle == SpindleState::Ccw)
                     {
                         // Pre-compute inverse programmed rate to speed up PWM updating per step segment.

@@ -107,7 +107,7 @@ bool can_park()
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
         sys.override_ctrl == Override::ParkingMotion &&
 #endif
-        homing_enable->get() && !spindle->inLaserMode();
+        homing_enable->get() && !fSpindle->inLaserMode();
 }
 
 /*
@@ -542,7 +542,7 @@ void protocol_exec_rt_system()
         // If spinlde is on, tell it the rpm has been overridden
         if (gc_state.modal.spindle != SpindleState::Disable)
         {
-            spindle->set_rpm(gc_state.spindle_speed);
+            fSpindle->set_rpm(gc_state.spindle_speed);
         }
     }
 
@@ -645,7 +645,7 @@ static void protocol_exec_rt_suspend()
         restore_spindle_speed = block->spindle_speed;
     }
 #ifdef DISABLE_LASER_DURING_HOLD
-    if (spindle->inLaserMode())
+    if (fSpindle->inLaserMode())
     {
         sys_rt_exec_accessory_override.bit.spindleOvrStop = true;
     }
@@ -670,7 +670,7 @@ static void protocol_exec_rt_suspend()
                     // Ensure any prior spindle stop override is disabled at start of safety door routine.
                     sys.spindle_stop_ovr.value = 0; // Disable override
 #ifndef PARKING_ENABLE
-                    spindle->set_state(SpindleState::Disable, 0); // De-energize
+                    fSpindle->set_state(SpindleState::Disable, 0); // De-energize
                     CoolantManager::TurnAllCoolantsOff();
 #else
                     // Get current position and store restore location and spindle retract waypoint.
@@ -706,7 +706,7 @@ static void protocol_exec_rt_suspend()
                         pl_data->motion.systemMotion = 1;
                         pl_data->motion.noFeedOverride = 1;
                         pl_data->spindle_speed = 0.0;
-                        spindle->set_state(pl_data->spindle, 0); // De-energize
+                        fSpindle->set_state(pl_data->spindle, 0); // De-energize
                         CoolantManager::TurnAllCoolantsOff();
 
                         //  Execute fast parking retract motion to parking target location.
@@ -721,7 +721,7 @@ static void protocol_exec_rt_suspend()
                     {
                         // Parking motion not possible. Just disable the spindle and coolant.
                         // NOTE: Laser mode does not start a parking motion to ensure the laser stops immediately.
-                        spindle->set_state(SpindleState::Disable, 0); // De-energize
+                        fSpindle->set_state(SpindleState::Disable, 0); // De-energize
                         CoolantManager::TurnAllCoolantsOff();
                     }
 #endif
@@ -734,7 +734,7 @@ static void protocol_exec_rt_suspend()
                     {
                         report_feedback_message(Message::SleepMode);
                         // Spindle and coolant should already be stopped, but do it again just to be sure.
-                        spindle->set_state(SpindleState::Disable, 0); // De-energize
+                        fSpindle->set_state(SpindleState::Disable, 0); // De-energize
                         CoolantManager::TurnAllCoolantsOff();
                         st_go_idle(); // Disable steppers
                         while (!(sys.abort))
@@ -774,14 +774,14 @@ static void protocol_exec_rt_suspend()
                             // Block if safety door re-opened during prior restore actions.
                             if (!sys.suspend.bit.restartRetract)
                             {
-                                if (spindle->inLaserMode())
+                                if (fSpindle->inLaserMode())
                                 {
                                     // When in laser mode, ignore spindle spin-up delay. Set to turn on laser when cycle starts.
                                     sys.step_control.updateSpindleRpm = true;
                                 }
                                 else
                                 {
-                                    spindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
+                                    fSpindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
                                     // restore delay is done in the spindle class
                                     // delay_sec(int32_t(1000.0 * spindle_delay_spinup->get()), DwellMode::SysSuspend);
                                 }
@@ -833,7 +833,7 @@ static void protocol_exec_rt_suspend()
                     {
                         if (gc_state.modal.spindle != SpindleState::Disable)
                         {
-                            spindle->set_state(SpindleState::Disable, 0); // De-energize
+                            fSpindle->set_state(SpindleState::Disable, 0); // De-energize
                             sys.spindle_stop_ovr.value = 0;
                             sys.spindle_stop_ovr.bit.enabled = true; // Set stop override state to enabled, if de-energized.
                         }
@@ -848,14 +848,14 @@ static void protocol_exec_rt_suspend()
                         if (gc_state.modal.spindle != SpindleState::Disable)
                         {
                             report_feedback_message(Message::SpindleRestore);
-                            if (spindle->inLaserMode())
+                            if (fSpindle->inLaserMode())
                             {
                                 // When in laser mode, ignore spindle spin-up delay. Set to turn on laser when cycle starts.
                                 sys.step_control.updateSpindleRpm = true;
                             }
                             else
                             {
-                                spindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
+                                fSpindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
                             }
                         }
                         if (sys.spindle_stop_ovr.bit.restoreCycle)
@@ -871,7 +871,7 @@ static void protocol_exec_rt_suspend()
                     // NOTE: sys.step_control.updateSpindleRpm is automatically reset upon resume in step generator.
                     if (sys.step_control.updateSpindleRpm)
                     {
-                        spindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
+                        fSpindle->set_state(restore_spindle, (uint32_t)restore_spindle_speed);
                         sys.step_control.updateSpindleRpm = false;
                     }
                 }

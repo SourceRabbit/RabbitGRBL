@@ -193,14 +193,14 @@ static bool checkSpindleChange(char *val)
         if (gc_state.modal.spindle != SpindleState::Disable)
         {
             gc_state.modal.spindle = SpindleState::Disable;
-            if (spindle->use_delays && spindle_delay_spindown->get() != 0)
+            if (fSpindle->use_delays && spindle_delay_spindown->get() != 0)
             { // old spindle
                 vTaskDelay(spindle_delay_spindown->get() * 1000);
             }
             grbl_msg_sendf(MsgLevel::Info, "Spindle turned off with setting change");
         }
         gc_state.spindle_speed = 0;  // Set S value to 0
-        spindle->deinit();           // old spindle
+        fSpindle->deinit();           // old spindle
         Spindles::Spindle::select(); // get new spindle
         return true;
     }

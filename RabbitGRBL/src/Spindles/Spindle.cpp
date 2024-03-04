@@ -50,24 +50,24 @@ namespace Spindles
         switch (static_cast<SpindleType>(spindle_type->get()))
         {
         case SpindleType::PWM:
-            spindle = &pwm;
+            fSpindle = &pwm;
             break;
         case SpindleType::RELAY:
-            spindle = &relay;
+            fSpindle = &relay;
             break;
         case SpindleType::LASER:
-            spindle = &laser;
+            fSpindle = &laser;
             break;
         case SpindleType::BESC:
-            spindle = &besc;
+            fSpindle = &besc;
             break;
         case SpindleType::NONE:
         default:
-            spindle = &null;
+            fSpindle = &null;
             break;
         }
 
-        spindle->init();
+        fSpindle->init();
     }
 
     // ========================= Spindle ==================================
@@ -90,4 +90,5 @@ namespace Spindles
     void Spindle::deinit() { stop(); }
 }
 
-Spindles::Spindle *spindle;
+// Declares the machine's spindle
+Spindles::Spindle *fSpindle;

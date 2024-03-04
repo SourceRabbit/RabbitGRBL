@@ -767,7 +767,7 @@ void report_realtime_status()
 
         sprintf(temp, "|Ov:%d,%d,%d", sys.f_override, sys.r_override, sys.spindle_speed_ovr);
         strcat(status, temp);
-        SpindleState sp_state = spindle->get_state();
+        SpindleState sp_state = fSpindle->get_state();
 
         if (sp_state != SpindleState::Disable || CoolantManager::Flood_Coolant.isOn() || CoolantManager::Mist_Coolant.isOn())
         {

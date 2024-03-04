@@ -29,9 +29,6 @@ public:
     static bool isTriggered();
     static void StateMonitor();
 
-    /*static bool getSystemProbeState();
-    static void setSystemProbeState(bool state);*/
-
     static bool isSystemUsingProbe();
     static void setSystemProbeState(bool state);
 

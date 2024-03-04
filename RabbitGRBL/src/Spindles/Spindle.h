@@ -78,4 +78,4 @@ namespace Spindles
 
 }
 
-extern Spindles::Spindle *spindle;
+extern Spindles::Spindle *fSpindle;

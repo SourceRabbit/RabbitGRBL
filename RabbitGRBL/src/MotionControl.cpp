@@ -291,6 +291,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // -------------------------------------------------------------------------------------
     // Perform homing routine. NOTE: Special motion case. Only system reset works.
     n_homing_locate_cycle = NHomingLocateCycle;
+    
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
     /*
     if (cycle_mask) { limits_go_home(cycle_mask); } // Perform homing cycle based on mask.
@@ -527,7 +528,7 @@ void mc_reset()
         sys_rt_exec_state.bit.reset = true;
 
         // Kill spindle and coolant.
-        spindle->stop();
+        fSpindle->stop();
         CoolantManager::TurnAllCoolantsOff();
 
         // Turn off all User I/O immediately

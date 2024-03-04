@@ -520,7 +520,7 @@ Error gc_execute_line(char *line)
                     gc_block.modal.spindle = SpindleState::Cw;
                     break;
                 case 4: // Supported if SPINDLE_DIR_PIN is defined or laser mode is on.
-                    if (spindle->is_reversable || spindle->inLaserMode())
+                    if (fSpindle->is_reversable || fSpindle->inLaserMode())
                     {
                         gc_block.modal.spindle = SpindleState::Ccw;
                     }
@@ -1509,7 +1509,7 @@ Error gc_execute_line(char *line)
         return status;
     }
     // If in laser mode, setup laser power based on current and past parser conditions.
-    if (spindle->inLaserMode())
+    if (fSpindle->inLaserMode())
     {
         if (!((gc_block.modal.motion == Motion::Linear) || (gc_block.modal.motion == Motion::CwArc) ||
               (gc_block.modal.motion == Motion::CcwArc)))
@@ -1573,11 +1573,11 @@ Error gc_execute_line(char *line)
             {
                 if (bit_istrue(gc_parser_flags, GCParserLaserDisable))
                 {
-                    spindle->sync(gc_state.modal.spindle, 0);
+                    fSpindle->sync(gc_state.modal.spindle, 0);
                 }
                 else
                 {
-                    spindle->sync(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
+                    fSpindle->sync(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
                 }
             }
         }
@@ -1603,7 +1603,7 @@ Error gc_execute_line(char *line)
         // Update spindle control and apply spindle speed when enabling it in this block.
         // NOTE: All spindle state changes are synced, even in laser mode. Also, pl_data,
         // rather than gc_state, is used to manage laser state for non-laser motions.
-        spindle->sync(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
+        fSpindle->sync(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
         gc_state.modal.spindle = gc_block.modal.spindle;
     }
     pl_data->spindle = gc_state.modal.spindle;
@@ -1881,7 +1881,7 @@ Error gc_execute_line(char *line)
         {
             coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
-            spindle->set_state(SpindleState::Disable, 0);
+            fSpindle->set_state(SpindleState::Disable, 0);
             CoolantManager::TurnAllCoolantsOff();
         }
         report_feedback_message(Message::ProgramEnd);
