@@ -56,7 +56,7 @@ void grbl_init()
 #endif
 
     Spindles::Spindle::select();
-    WebUI::inputBuffer.begin();
+    fSerialInputBuffer.begin();
 }
 
 static void reset_variables()

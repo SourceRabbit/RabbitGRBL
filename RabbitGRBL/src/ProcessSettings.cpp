@@ -56,11 +56,6 @@ void load_settings()
 extern void make_settings();
 extern void make_grbl_commands();
 
-namespace WebUI
-{
-    extern void make_web_settings();
-}
-
 void settings_init()
 {
     make_settings();

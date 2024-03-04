@@ -284,6 +284,7 @@ public:
 
     void load();
     void setDefault();
+
     // There are no Float settings in WebUI
     Error setStringValue(char *value);
     const char *getStringValue();
@@ -385,6 +386,7 @@ public:
 
     void load();
     void setDefault();
+    
     // There are no Flag settings in WebUI
     // The booleans are expressed as Enums
     Error setStringValue(char *value);

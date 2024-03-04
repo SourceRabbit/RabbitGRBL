@@ -27,7 +27,7 @@ portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 static TaskHandle_t clientCheckTaskHandle = 0;
 
-WebUI::InputBuffer client_buffer; // Creates the serial connection buffer
+InputBuffer client_buffer; // Creates the serial connection buffer
 
 // Returns the number of bytes available in a client buffer.
 uint8_t client_get_rx_buffer_available()
