@@ -70,7 +70,8 @@ static void reset_variables()
     sys.spindle_speed_ovr = SpindleSpeedOverride::Default;     // Set to 100%
     memset(sys_probe_position, 0, sizeof(sys_probe_position)); // Clear probe position.
 
-    sys_probe_state = Probe::Off;
+    Probe::setSystemProbeState(false);
+
     sys_rt_exec_state.value = 0;
     sys_rt_exec_accessory_override.value = 0;
     sys_rt_exec_alarm = ExecAlarm::None;
@@ -87,7 +88,7 @@ static void reset_variables()
     spindle->stop();
     CoolantManager::Initialize();
     limits_init();
-    probe_init();
+    Probe::Initialize();
     plan_reset(); // Clear block buffer and planner variables
     st_reset();   // Clear stepper subsystem variables
 

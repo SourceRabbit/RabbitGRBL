@@ -140,7 +140,6 @@ union ControlPins
 extern int32_t sys_position[MAX_N_AXIS];       // Real-time machine (aka home) position vector in steps.
 extern int32_t sys_probe_position[MAX_N_AXIS]; // Last probe position in machine coordinates and steps.
 
-extern volatile Probe sys_probe_state;                        // Probing state value.  Used to coordinate the probing cycle with stepper ISR.
 extern volatile ExecState sys_rt_exec_state;                  // Global realtime executor bitflag variable for state management. See EXEC bitmasks.
 extern volatile ExecAlarm sys_rt_exec_alarm;                  // Global realtime executor bitflag variable for setting various alarms.
 extern volatile ExecAccessory sys_rt_exec_accessory_override; // Global realtime executor bitflag variable for spindle/coolant overrides.
@@ -148,7 +147,6 @@ extern volatile Percent sys_rt_f_override;                    // Feed override v
 extern volatile Percent sys_rt_r_override;                    // Rapid feed override value in percent
 extern volatile Percent sys_rt_s_override;                    // Spindle override value in percent
 extern volatile bool cycle_stop;
-
 
 void system_ini(); // Renamed from system_init() due to conflict with esp32 files
 

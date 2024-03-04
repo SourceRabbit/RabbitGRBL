@@ -311,9 +311,9 @@ static void stepper_pulse_func()
         }
     }
     // Check probing state.
-    if (sys_probe_state == Probe::Active)
+    if (Probe::isSystemUsingProbe())
     {
-        probe_state_monitor();
+        Probe::StateMonitor();
     }
     // Reset step out bits.
     st.step_outbits = 0;

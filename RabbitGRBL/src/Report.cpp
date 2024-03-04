@@ -635,17 +635,22 @@ void report_realtime_status()
     }
     strcat(status, temp);
 #endif
+
 #ifdef REPORT_FIELD_PIN_STATE
+
     AxisMask lim_pin_state = limits_get_state();
     ControlPins ctrl_pin_state = system_control_get_state();
-    bool prb_pin_state = probe_get_state();
-    if (lim_pin_state || ctrl_pin_state.value || prb_pin_state)
+
+    bool isProbeTriggered = Probe::isTriggered();
+
+    if (lim_pin_state || ctrl_pin_state.value || isProbeTriggered)
     {
         strcat(status, "|Pn:");
-        if (prb_pin_state)
+        if (isProbeTriggered)
         {
             strcat(status, "P");
         }
+        
         if (lim_pin_state)
         {
             auto n_axis = number_axis->get();
@@ -674,6 +679,7 @@ void report_realtime_status()
                 strcat(status, "C");
             }
         }
+
         if (ctrl_pin_state.value)
         {
             if (ctrl_pin_state.bit.safetyDoor)

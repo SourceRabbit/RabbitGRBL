@@ -1,11 +1,9 @@
 /*
-  Probe.cpp - code pertaining to probing methods
-  Part of Grbl
+  Probe.c
 
-  Copyright (c) 2014-2016 Sungeun K. Jeon for Gnea Research LLC
-
-    2018 -	Bart Dring This file was modifed for use on the ESP32
-                    CPU. Do not use this with Grbl for atMega328P
+  Copyright (c) 2024 Nikolaos Siatras
+  Twitter: nsiatras
+  Website: https://www.sourcerabbit.com
 
   Grbl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,13 +19,17 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Grbl.h"
+#include "../Grbl.h"
+#include "Probe.h"
 
-// Inverts the probe pin state depending on user settings and probing cycle mode.
-static bool is_probe_away;
+// Private (Statics)
+bool Probe::fIsProbeAway = false;
+volatile bool Probe::fSystemIsUsingProbe = false;
 
-// Probe pin initialization routine.
-void probe_init()
+/**
+ * Initializes the machine's probe
+ */
+void Probe::Initialize()
 {
     if (PROBE_PIN != UNDEFINED_PIN)
     {
@@ -36,18 +38,24 @@ void probe_init()
 #else
         pinMode(PROBE_PIN, INPUT_PULLUP); // Enable internal pull-up resistors. Normal high operation.
 #endif
-
         // grbl_msg_sendf(MsgLevel::Info, "Probe on pin %s", pinName(PROBE_PIN).c_str());
     }
 }
 
-void set_probe_direction(bool is_away)
+/**
+ * Sets the probe's direction
+ */
+void Probe::setDirection(bool isAway)
 {
-    is_probe_away = is_away;
+    Probe::fIsProbeAway = isAway;
 }
 
-// Returns the probe pin state. Triggered = true. Called by gcode parser and probe state monitor.
-bool probe_get_state()
+/**
+ * Returns the probe pin state.
+ * Triggered = true.
+ * This method is called from gcode parser and probe state monitor
+ */
+bool Probe::isTriggered()
 {
     return (PROBE_PIN == UNDEFINED_PIN) ? false : digitalRead(PROBE_PIN) ^ probe_invert->get();
 }
@@ -55,12 +63,29 @@ bool probe_get_state()
 // Monitors probe pin state and records the system position when detected. Called by the
 // stepper ISR per ISR tick.
 // NOTE: This function must be extremely efficient as to not bog down the stepper ISR.
-void probe_state_monitor()
+void Probe::StateMonitor()
 {
-    if (probe_get_state() ^ is_probe_away)
+    if (Probe::isTriggered() ^ Probe::fIsProbeAway)
     {
-        sys_probe_state = Probe::Off;
+        Probe::fSystemIsUsingProbe = false;
         memcpy(sys_probe_position, sys_position, sizeof(sys_position));
         sys_rt_exec_state.bit.motionCancel = true;
     }
+}
+
+/**
+ * Returns true if the System is using Probe
+ */
+bool Probe::isSystemUsingProbe()
+{
+    return Probe::fSystemIsUsingProbe;
+}
+
+/**
+ * Set's the probe system state value.
+ * Used to coordinate the probing cycle with stepper ISR.
+ */
+void Probe::setSystemProbeState(bool state)
+{
+    Probe::fSystemIsUsingProbe = state;
 }
