@@ -373,6 +373,7 @@ uint8_t sys_calc_pwm_precision(uint32_t freq)
 
     return precision - 1;
 }
+
 void __attribute__((weak)) user_defined_macro(uint8_t index)
 {
     // must be in Idle

@@ -47,7 +47,7 @@ struct PrepFlag
   uint8_t decelOverride : 1;
 };
 
-// fStepperTimer should be an integer divisor of the bus speed, i.e. of fTimers
+// fStepperTimer should be an integer divisor of the bus speed, i.e. of fTimersClock
 const uint32_t fStepperTimer = 20000000; // frequency of step pulse timer
 const int ticksPerMicrosecond = fStepperTimer / 1000000;
 
