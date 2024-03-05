@@ -97,7 +97,7 @@ void BacklashManager::CompensateBacklash(float *target, plan_line_data_t *pl_dat
 
         backlash_data->spindle = pl_data->spindle;
         backlash_data->spindle_speed = pl_data->spindle_speed;
-        backlash_data->feed_rate = pl_data->feed_rate < 10 ? 10000 : pl_data->feed_rate;
+        backlash_data->feed_rate = 20000;//pl_data->feed_rate < 10 ? 20000 : pl_data->feed_rate;
         backlash_data->coolant = pl_data->coolant;
         backlash_data->motion = {};
         backlash_data->motion.antiBacklashMotion = 1;
