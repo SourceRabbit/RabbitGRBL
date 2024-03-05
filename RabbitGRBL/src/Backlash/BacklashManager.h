@@ -1,7 +1,7 @@
 /*
-  Backlash.h
+  BacklashManager.h
 
-  Copyright (c) 2023 Nikolaos Siatras
+  Copyright (c) 20243 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
@@ -22,10 +22,18 @@
 
 #pragma once
 
-#include "Grbl.h"
+#include "../Grbl.h"
 
-void backlash_ini(void);
-void backlash_compensate_backlash(float *target, plan_line_data_t *pl_data);
+class BacklashManager
+{
+public:
+  static void Initialize();
+  static void CompensateBacklash(float *target, plan_line_data_t *pl_data);
 
-void backlash_reset_targets(void);
-void backlash_synch_position_while_using_probe(void);
+  static void ResetTargets();
+  static void SynchPositionWhileUsingProbe();
+
+private:
+  static float fPreviousTargets[];
+  static uint8_t fAxisDirections[];
+};

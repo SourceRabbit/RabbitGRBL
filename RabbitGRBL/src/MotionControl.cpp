@@ -61,7 +61,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
 
     ////////////////////////////////////////////////////////////////////
     // Backlash Compensation
-    backlash_compensate_backlash(target, pl_data);
+    BacklashManager::CompensateBacklash(target, pl_data);
     ////////////////////////////////////////////////////////////////////
 
     do
@@ -291,7 +291,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // -------------------------------------------------------------------------------------
     // Perform homing routine. NOTE: Special motion case. Only system reset works.
     n_homing_locate_cycle = NHomingLocateCycle;
-    
+
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
     /*
     if (cycle_mask) { limits_go_home(cycle_mask); } // Perform homing cycle based on mask.
@@ -358,7 +358,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // Sync gcode parser and planner positions to homed position.
     gc_sync_position();
     plan_sync_position();
-    backlash_reset_targets();
+    BacklashManager::ResetTargets();
 
     // If hard limits feature enabled, re-enable hard limits pin change register after homing cycle.
     limits_init();
@@ -451,7 +451,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     st_reset();           // Reset step segment buffer.
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
-    backlash_synch_position_while_using_probe();
+    BacklashManager::SynchPositionWhileUsingProbe();
 
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.

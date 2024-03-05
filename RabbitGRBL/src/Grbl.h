@@ -40,7 +40,7 @@ const char *const GRBL_VERSION_BUILD = "20240303";
 #include "GCode.h"
 #include "Planner.h"
 #include "Limits.h"
-#include "Backlash.h"
+#include "Backlash/BacklashManager.h"
 #include "MotionControl.h"
 #include "Protocol.h"
 #include "Serial.h"

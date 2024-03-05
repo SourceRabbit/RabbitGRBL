@@ -30,7 +30,7 @@ void grbl_init()
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
     system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
-    backlash_ini();
+    BacklashManager::Initialize();
     init_motors();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
@@ -94,7 +94,7 @@ static void reset_variables()
 
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
-    backlash_reset_targets();
+    BacklashManager::ResetTargets();
     gc_sync_position();
     report_init_message();
 }
