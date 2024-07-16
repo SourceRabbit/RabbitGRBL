@@ -14,7 +14,7 @@
 #define DEFAULT_JUNCTION_DEVIATION 			0.025  	// $11 mm
 #define DEFAULT_ARC_TOLERANCE 				0.005  	// $12 mm
 
-#define DEFAULT_DIRECTION_INVERT_MASK 		4
+#define DEFAULT_DIRECTION_INVERT_MASK 		3		// $3 - Direction port invert, mask
 #define DEFAULT_INVERT_LIMIT_PINS 			0
 #define DEFAULT_INVERT_PROBE_PIN 			0
 
