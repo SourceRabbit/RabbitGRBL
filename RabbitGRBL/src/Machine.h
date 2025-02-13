@@ -5,7 +5,7 @@
 //#include "Machines/SourceRabbit/Controllers/4Axis_CNC_Motherboard_Compact_1_1.h"
 
 // Third Part
-//#include "Machines/Other/EsτpDuino_CNCShieldv3.h"
+//#include "Machines/Other/EspDuino_CNCShieldv3.h"
 
 // Dev
 //#include "Machines/Dev/5Axis.h"
