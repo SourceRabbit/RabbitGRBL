@@ -30,3 +30,7 @@ The following products are 100% compatible with the Rabbit GRBL firmware
 
 ### How to build and use
 Find more information on the Wiki [https://github.com/SourceRabbit/Rabbit_GRBL/wiki](https://github.com/SourceRabbit/Rabbit_GRBL/wiki)
+
+
+
+Find more on <a href="https://www.sourcerabbit.com/">www.sourcerabbit.com</a>
