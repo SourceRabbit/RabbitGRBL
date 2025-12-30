@@ -1,12 +1,17 @@
+# Rabbit GRBL 
 <p>
   <img align="left" width="220" 
        src="https://github.com/SourceRabbit/RabbitGRBL/blob/main/Images/rabbit-grbl-logo.png"
        alt="Rabbit GRBL Logo">
+<strong>
+  GRBL-compatible motion control firmware for ESP32
+</strong><br><br>
+Deterministic, high-speed and stable motion control firmware,
+designed for real CNC machines and long production jobs,
+with predictable behavior, precise timing and reliable multi-axis control,
+engineered for continuous operation, low latency, accuracy, robustness, scalability, safety.
 
-  <h1>Rabbit GRBL</h1>
-  <strong>GRBL-compatible motion control firmware for ESP32</strong><br><br>
-  Deterministic, high-speed and stable motion control firmware,
-  designed for real CNC machines and long production jobs.
+
 </p>
 
 <br clear="left"/>
