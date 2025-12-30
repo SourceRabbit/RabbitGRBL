@@ -1,21 +1,18 @@
-<table>
-  <tr>
-    <td width="260" align="center">
-      <img src="https://github.com/SourceRabbit/RabbitGRBL/blob/main/Images/rabbit-grbl-logo.png"
-           alt="Rabbit GRBL Logo"
-           width="220">
-    </td>
-    <td>
-      <h1>Rabbit GRBL</h1>
-      <strong>GRBL-compatible motion control firmware for ESP32</strong><br><br>
-      Deterministic, high-speed and stable motion control firmware,
-      designed for real CNC machines and long production jobs.
-    </td>
-  </tr>
-</table>
+<p>
+  <img align="left" width="220" 
+       src="https://github.com/SourceRabbit/RabbitGRBL/blob/main/Images/rabbit-grbl-logo.png"
+       alt="Rabbit GRBL Logo">
+
+  <h1>Rabbit GRBL</h1>
+  <strong>GRBL-compatible motion control firmware for ESP32</strong><br><br>
+  Deterministic, high-speed and stable motion control firmware,
+  designed for real CNC machines and long production jobs.
+</p>
+
+<br clear="left"/>
+
 
 [![](https://dcbadge.limes.pink/api/server/nRKETyjJ7E)](https://discord.gg/nRKETyjJ7E)
-
 
 ## Introduction
 
