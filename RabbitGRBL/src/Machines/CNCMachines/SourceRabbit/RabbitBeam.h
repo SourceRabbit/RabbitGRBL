@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define MACHINE_NAME            "Rabbit Beam"
+#define MACHINE_NAME "Rabbit Beam"
 
 #ifdef N_AXIS
 	#undef N_AXIS

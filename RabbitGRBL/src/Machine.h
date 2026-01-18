@@ -1,31 +1,18 @@
 #pragma once
 
-// SourceRabbit Controllers
-#include "Machines/SourceRabbit/Controllers/4Axis_CNC_Motherboard_1_3.h"
-//#include "Machines/SourceRabbit/Controllers/4Axis_CNC_Motherboard_Compact_1_1.h"
-//#include "Machines/SourceRabbit/Controllers/4Axis_CNC_Motherboard_Compact_1_1_ClonedY.h"
+// SourceRabbit Motion Controllers
+#include "Machines/MotionControllers/SourceRabbit/4axis_cnc_motherboard_1_3.h"
 
+// Other
+//#include "Machines/MotionControllers/Other/espduino_cnc_shieldv3.h"
 
-// Third Part
-//#include "Machines/Other/EspDuino_CNCShieldv3.h"
-
-// Dev
-//#include "Machines/Dev/5Axis.h"
 
 // SourceRabbit Machines
-//#include "Machines/SourceRabbit/Machines/Quantum.h"
-//#include "Machines/SourceRabbit/Machines/VM1.h"
-//#include "Machines/SourceRabbit/Machines/RabbitMillMega_300x600x100.h"
-//#include "Machines/SourceRabbit/Machines/RabbitMillMega_400x800x100.h"
-//#include "Machines/SourceRabbit/Machines/RabbitMill_Neo.h"
-
-// Example Machines
-//#include "Machines/Examples/4Axis_CNC_Motherboard_1_3_ClonedY.h"
+//#include "Machines/CNCMachines/SourceRabbit/Quantum.h"
+//#include "Machines/CNCMachines/SourceRabbit/VM1.h"
+//#include "Machines/CNCMachines/SourceRabbit/RabbitMillMega_300x600x100.h"
+//#include "Machines/CNCMachines/SourceRabbit/RabbitMillMega_400x800x100.h"
+//#include "Machines/CNCMachines/SourceRabbit/RabbitMill_Neo.h"
 
 // Other machines
-//#include "Machines/SourceRabbit/Custom/ZX7045_4Axis.h"
-
-
-
-
-
+//#include "Machines/CNCMachines/Other/zx7045_4axis.h"
