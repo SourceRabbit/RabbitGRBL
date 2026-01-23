@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 
+    Modifications for RabbitGRBL
+    2026-01-23 - Nikos Siatras
+    - Optimized PWM::set_rpm() (override math and RPM limiting logic)
+
 */
 #include "PWMSpindle.h"
 #include "soc/ledc_struct.h"
@@ -117,48 +121,27 @@ namespace Spindles
 
     uint32_t PWM::set_rpm(uint32_t rpm)
     {
-        uint32_t pwm_value;
-
-        // Max RPM security check
-        rpm = (rpm > _max_rpm) ? _max_rpm : rpm;
-
         if (_output_pin == UNDEFINED_PIN)
         {
             return rpm;
         }
 
-        // apply override
-        rpm = rpm * sys.spindle_speed_ovr / 100; // Scale by spindle speed override value (uint8_t percent)
+        // Apply override (percent)
+        rpm = rpm * sys.spindle_speed_ovr / 100U; // Scale by spindle speed override value (uint8_t percent)
 
         // Apply RPM limits
         if ((_min_rpm >= _max_rpm) || (rpm >= _max_rpm))
         {
             rpm = _max_rpm;
         }
-        else if (rpm != 0 && rpm <= _min_rpm)
+        else if ((rpm != 0U) && (rpm <= _min_rpm))
         {
             rpm = _min_rpm;
         }
 
         sys.spindle_speed = rpm;
 
-        if (_piecewide_linear)
-        {
-            // pwm_value = piecewise_linear_fit(rpm); TODO
-            pwm_value = 0;
-            grbl_msg_sendf(MsgLevel::Info, "Warning: Linear fit not implemented yet.");
-        }
-        else
-        {
-            if (rpm == 0)
-            {
-                pwm_value = _pwm_off_value;
-            }
-            else
-            {
-                pwm_value = map_uint32_t(rpm, _min_rpm, _max_rpm, _pwm_min_value, _pwm_max_value);
-            }
-        }
+        const uint32_t pwm_value = (rpm == 0U) ? _pwm_off_value : map_uint32_t(rpm, _min_rpm, _max_rpm, _pwm_min_value, _pwm_max_value);
 
         set_enable_pin(gc_state.modal.spindle != SpindleState::Disable);
         set_output(pwm_value);
@@ -266,14 +249,6 @@ namespace Spindles
 
     void PWM::set_enable_pin(bool enable)
     {
-        // static bool prev_enable = false;
-
-        // if (prev_enable == enable) {
-        //     return;
-        // }
-
-        // prev_enable = enable;
-
         if (_enable_pin == UNDEFINED_PIN)
         {
             return;

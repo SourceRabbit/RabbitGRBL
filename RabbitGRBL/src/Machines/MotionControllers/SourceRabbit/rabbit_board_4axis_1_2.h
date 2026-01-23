@@ -34,11 +34,11 @@
 // SPEEDS AND ACCELLERATIONS
 #define DEFAULT_X_STEPS_PER_MM 				400.0	// $100 steps/mm
 #define DEFAULT_X_MAX_RATE 					4000.0  // $110 mm/min
-#define DEFAULT_X_ACCELERATION 				80.0	// $120 mm/sec^2
+#define DEFAULT_X_ACCELERATION 				60.0	// $120 mm/sec^2
 
 #define DEFAULT_Y_STEPS_PER_MM 				400.0	// $101 steps/mm
 #define DEFAULT_Y_MAX_RATE 					4000.0  // $111 mm/min
-#define DEFAULT_Y_ACCELERATION 				80.0	// $121 mm/sec^2
+#define DEFAULT_Y_ACCELERATION 				60.0	// $121 mm/sec^2
 
 #define DEFAULT_Z_STEPS_PER_MM 				400.0	// $102 steps/mm
 #define DEFAULT_Z_MAX_RATE 					2500.0  // $112 mm/min
@@ -48,7 +48,6 @@
 #define DEFAULT_A_MAX_RATE 					7200.0  // $113 mm/min or degrees/min
 #define DEFAULT_A_ACCELERATION 				60.0	// $123 steps/sec^2 mm/sec^2
 
-// Rabbit Board 4-Axis 
 #define X_STEP_PIN              			GPIO_NUM_16
 #define X_DIRECTION_PIN         			GPIO_NUM_33
 #define Y_STEP_PIN              			GPIO_NUM_25
@@ -60,8 +59,8 @@
 #define STEPPERS_DISABLE_PIN    			GPIO_NUM_15
 
 #define SPINDLE_TYPE            			SpindleType::PWM 
-#define	DEFAULT_SPINDLE_RPM_MAX 			25000
-#define DEFAULT_SPINDLE_FREQ 				3000
+#define	DEFAULT_SPINDLE_RPM_MAX 			30000
+#define DEFAULT_SPINDLE_FREQ 				5000
 #define SPINDLE_OUTPUT_PIN      			GPIO_NUM_2
 #define SPINDLE_DIR_PIN      				GPIO_NUM_21
 
