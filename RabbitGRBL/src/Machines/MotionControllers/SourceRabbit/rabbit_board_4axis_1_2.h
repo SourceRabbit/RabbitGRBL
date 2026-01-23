@@ -62,8 +62,8 @@
 #define SPINDLE_TYPE            			SpindleType::PWM 
 #define	DEFAULT_SPINDLE_RPM_MAX 			25000
 #define DEFAULT_SPINDLE_FREQ 				3000
-#define SPINDLE_OUTPUT_PIN      			GPIO_NUM_21
-#define SPINDLE_DIR_PIN      				GPIO_NUM_2
+#define SPINDLE_OUTPUT_PIN      			GPIO_NUM_2
+#define SPINDLE_DIR_PIN      				GPIO_NUM_21
 
 #define X_LIMIT_PIN             			GPIO_NUM_36
 #define Y_LIMIT_PIN             			GPIO_NUM_39
