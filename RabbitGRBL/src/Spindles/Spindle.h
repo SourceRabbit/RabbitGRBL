@@ -50,16 +50,16 @@ namespace Spindles
         virtual ~Spindle() {}
 
         virtual void Initialize() = 0;
+        virtual void Synch(SpindleState state, uint32_t rpm);
+        virtual void Stop() = 0;
+        virtual void Dispose();
+
+        virtual bool inLaserMode();
+        virtual bool isReversable();
         virtual uint32_t setRPM(uint32_t rpm) = 0;
         virtual void setState(SpindleState state, uint32_t rpm) = 0;
         virtual SpindleState getState() = 0;
-        virtual void Stop() = 0;
-        virtual bool inLaserMode();
-        virtual bool isReversable();
-        virtual void Synch(SpindleState state, uint32_t rpm);
-        virtual void Dispose();
 
-       
         volatile SpindleState fCurrentState = SpindleState::Disable;
 
         bool fUseDelays;

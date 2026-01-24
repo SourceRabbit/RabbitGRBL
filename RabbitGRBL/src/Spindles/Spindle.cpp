@@ -33,7 +33,6 @@
 #include "PWMSpindle.h"
 #include "RelaySpindle.h"
 #include "Laser.h"
-#include "BESCSpindle.h"
 
 // Declares the machine's spindle
 Spindles::Spindle *fSpindle;
@@ -46,8 +45,7 @@ namespace Spindles
     PWM pwm;
     Relay relay;
     Laser laser;
-    BESC besc;
-
+ 
     void Spindle::Select()
     {
         switch (static_cast<ESpindleType>(settings_spindle_type->get()))
@@ -61,9 +59,7 @@ namespace Spindles
         case ESpindleType::LASER:
             fSpindle = &laser;
             break;
-        case ESpindleType::BESC:
-            fSpindle = &besc;
-            break;
+
         case ESpindleType::NONE:
         default:
             fSpindle = &null;
