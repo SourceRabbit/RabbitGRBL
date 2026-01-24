@@ -122,4 +122,9 @@ namespace Spindles
         set_output(pwm_value);
         return rpm;
     }
+
+    bool BESC::isReversable()
+    {
+        return (fDirectionPin != UNDEFINED_PIN);
+    }
 }

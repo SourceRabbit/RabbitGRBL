@@ -38,6 +38,7 @@ namespace Spindles
 
 		bool inLaserMode() override;
 		void get_pins_and_settings() override;
+		bool isReversable() override;
 		void Dispose() override;
 
 		virtual ~Laser() {}

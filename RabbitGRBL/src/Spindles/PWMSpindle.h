@@ -41,6 +41,7 @@ namespace Spindles
         void setState(SpindleState state, uint32_t rpm) override;
         SpindleState getState() override;
         void Stop() override;
+        bool isReversable() override;
 
         virtual ~PWM() {}
 

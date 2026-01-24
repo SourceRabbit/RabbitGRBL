@@ -41,6 +41,8 @@ namespace Spindles
 
         virtual ~Relay() {}
 
+        bool isReversable() override;
+
     protected:
         void set_output(uint32_t duty);
     };

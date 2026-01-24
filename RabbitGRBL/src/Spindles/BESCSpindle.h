@@ -50,6 +50,8 @@ namespace Spindles
 		void Initialize() override;
 		uint32_t setRPM(uint32_t rpm) override;
 
+		bool isReversable() override;
+
 		virtual ~BESC() {}
 	};
 }

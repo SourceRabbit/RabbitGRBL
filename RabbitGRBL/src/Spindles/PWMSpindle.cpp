@@ -63,13 +63,11 @@ namespace Spindles
 #ifdef SPINDLE_OUTPUT_PIN
         fOutputPin = SPINDLE_OUTPUT_PIN;
 #else
-        _output_pin = UNDEFINED_PIN;
+        fOutputPin = UNDEFINED_PIN;
 #endif
 
-        fInvertPWM = settings_spindle_output_invert->get();
-
 #ifdef SPINDLE_ENABLE_PIN
-        _enable_pin = SPINDLE_ENABLE_PIN;
+        fEnablePin = SPINDLE_ENABLE_PIN;
 #else
         fEnablePin = UNDEFINED_PIN;
 #endif
@@ -77,7 +75,7 @@ namespace Spindles
 #ifdef SPINDLE_DIR_PIN
         fDirectionPin = SPINDLE_DIR_PIN;
 #else
-        _direction_pin = UNDEFINED_PIN;
+        fDirectionPin = UNDEFINED_PIN;
 #endif
 
         if (fOutputPin == UNDEFINED_PIN)
@@ -86,8 +84,7 @@ namespace Spindles
             return; // We cannot continue without the output pin
         }
 
-        fIsReversable = (fDirectionPin != UNDEFINED_PIN);
-
+        fInvertPWM = settings_spindle_output_invert->get();
         fPWMFrequency = settings_spindle_pwm_freq->get();
         fPWMPrecision = calc_pwm_precision(fPWMFrequency); // detewrmine the best precision
         fPWMPeriod = (1 << fPWMPrecision);
@@ -113,14 +110,14 @@ namespace Spindles
 
     uint32_t PWM::setRPM(uint32_t rpm)
     {
-        //  RPM Range Check
+        // Initial RPM Range Check
+        rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
+        rpm = (rpm > 0 && rpm < fMinRPM) ? fMinRPM : rpm;
+
         if (rpm > 0)
         {
-            rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
-            rpm = (rpm < fMinRPM) ? fMinRPM : rpm;
-
             // Apply override (percent)
-            rpm = static_cast<uint32_t>((static_cast<uint64_t>(rpm) * sys.spindle_speed_ovr) / 100U);
+            rpm = rpm * sys.spindle_speed_ovr / 100; // Scale by spindle speed override value (uint8_t percent)
         }
         else
         {
@@ -197,6 +194,11 @@ namespace Spindles
         // inverts are delt with in methods
         set_enable_pin(false);
         set_output(fPWMOffValue);
+    }
+
+    bool PWM::isReversable()
+    {
+        return (fDirectionPin != UNDEFINED_PIN);
     }
 
     void PWM::set_output(uint32_t duty)
@@ -288,4 +290,5 @@ namespace Spindles
         pinMode(SPINDLE_DIR_PIN, INPUT);
 #endif
     }
+
 }

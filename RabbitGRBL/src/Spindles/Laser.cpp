@@ -36,7 +36,7 @@ namespace Spindles
                 // setup all the pins
 
 #ifdef LASER_OUTPUT_PIN
-                _output_pin = LASER_OUTPUT_PIN;
+                fOutputPin = LASER_OUTPUT_PIN;
 #else
                 fOutputPin = UNDEFINED_PIN;
 #endif
@@ -44,7 +44,7 @@ namespace Spindles
                 fInvertPWM = settings_spindle_output_invert->get();
 
 #ifdef LASER_ENABLE_PIN
-                _enable_pin = LASER_ENABLE_PIN;
+                fEnablePin = LASER_ENABLE_PIN;
 #else
                 fEnablePin = UNDEFINED_PIN;
 #endif
@@ -56,7 +56,6 @@ namespace Spindles
                 }
 
                 fDirectionPin = UNDEFINED_PIN;
-                fIsReversable = false;
 
                 fPWMFrequency = settings_spindle_pwm_freq->get();
                 fPWMPrecision = calc_pwm_precision(fPWMFrequency); // detewrmine the best precision
@@ -85,5 +84,10 @@ namespace Spindles
                 gpio_reset_pin(LASER_ENABLE_PIN);
                 pinMode(LASER_ENABLE_PIN, INPUT);
 #endif
+        }
+
+        bool Laser::isReversable()
+        {
+                return false;
         }
 }

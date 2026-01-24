@@ -520,7 +520,7 @@ Error gc_execute_line(char *line)
                     gc_block.modal.spindle = SpindleState::Cw;
                     break;
                 case 4: // Supported if SPINDLE_DIR_PIN is defined or laser mode is on.
-                    if (fSpindle->fIsReversable || fSpindle->inLaserMode())
+                    if (fSpindle->isReversable() || fSpindle->inLaserMode())
                     {
                         gc_block.modal.spindle = SpindleState::Ccw;
                     }
@@ -1587,7 +1587,7 @@ Error gc_execute_line(char *line)
     if (bit_isfalse(gc_parser_flags, GCParserLaserDisable))
     {
         pl_data->spindle_speed = gc_state.spindle_speed; // Record data for planner use.
-    }                                                    // else { pl_data->spindle_speed = 0.0; } // Initialized as zero already.
+    } // else { pl_data->spindle_speed = 0.0; } // Initialized as zero already.
     // [5. Select tool ]: NOT SUPPORTED. Only tracks tool value.
     //	gc_state.tool = gc_block.values.t;
     // [6. Change tool ]: NOT SUPPORTED
@@ -1824,7 +1824,7 @@ Error gc_execute_line(char *line)
             else if (gc_update_pos == GCUpdatePos::System)
             {
                 gc_sync_position(); // gc_state.position[] = sys_position
-            }                       // == GCUpdatePos::None
+            } // == GCUpdatePos::None
         }
     }
     // [21. Program flow ]:

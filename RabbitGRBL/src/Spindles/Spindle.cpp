@@ -38,7 +38,6 @@
 // Declares the machine's spindle
 Spindles::Spindle *fSpindle;
 
-
 namespace Spindles
 {
     // An instance of each type of spindle is created here.
@@ -93,5 +92,3 @@ namespace Spindles
 
     void Spindle::Dispose() { Stop(); }
 }
-
-

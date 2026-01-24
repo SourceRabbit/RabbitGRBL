@@ -28,7 +28,6 @@ namespace Spindles
 
     void Null::Initialize()
     {
-        fIsReversable = false;
         fUseDelays = false;
     }
 
@@ -52,5 +51,10 @@ namespace Spindles
     void Null::Stop()
     {
         // Do nothing
+    }
+
+    bool Null::isReversable()
+    {
+        return false;
     }
 }

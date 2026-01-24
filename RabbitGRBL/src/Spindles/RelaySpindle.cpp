@@ -40,12 +40,8 @@ namespace Spindles
         pinMode(fOutputPin, OUTPUT);
         pinMode(fEnablePin, OUTPUT);
         pinMode(fDirectionPin, OUTPUT);
-
-        fIsReversable = (fDirectionPin != UNDEFINED_PIN);
         fUseDelays = true;
-
     }
-
 
     uint32_t Relay::setRPM(uint32_t rpm)
     {
@@ -69,5 +65,10 @@ namespace Spindles
         duty = (duty == 0); // flip duty
 #endif
         digitalWrite(fOutputPin, duty > 0); // anything greater
+    }
+
+    bool Relay::isReversable()
+    {
+        return (fDirectionPin != UNDEFINED_PIN);
     }
 }
