@@ -35,20 +35,21 @@
 
 #include "PWMSpindle.h"
 
-namespace Spindles {
-    class BESC : public PWM {
-    public:
-        BESC() = default;
+namespace Spindles
+{
+	class BESC : public PWM
+	{
+	public:
+		BESC() = default;
 
-        BESC(const BESC&) = delete;
-        BESC(BESC&&)      = delete;
-        BESC& operator=(const BESC&) = delete;
-        BESC& operator=(BESC&&) = delete;
+		BESC(const BESC &) = delete;
+		BESC(BESC &&) = delete;
+		BESC &operator=(const BESC &) = delete;
+		BESC &operator=(BESC &&) = delete;
 
-        void     init() override;
-        void     config_message() override;
-        uint32_t set_rpm(uint32_t rpm) override;
+		void Initialize() override;
+		uint32_t setRPM(uint32_t rpm) override;
 
-        virtual ~BESC() {}
-    };
+		virtual ~BESC() {}
+	};
 }

@@ -47,9 +47,6 @@ namespace Motors
         // debug_message() displays motor-specific information that can be
         // used to assist with motor configuration.  For many motor types,
         // it is a no-op.
-        // TODO Architecture: Should this be private?  It only applies to
-        // Trinamic drivers so maybe there is a cleaner approach to solving
-        // the stallguard debugging problem.
         virtual void debug_message();
 
         // read_settings(), called from init() and motors_read_settings(),

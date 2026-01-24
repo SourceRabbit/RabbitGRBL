@@ -14,7 +14,6 @@ extern AxisSettings *axis_settings[];
 
 extern StringSetting *startup_line_0;
 extern StringSetting *startup_line_1;
-extern StringSetting *build_info;
 
 extern IntSetting *pulse_microseconds;
 extern IntSetting *stepper_idle_lock_time;
@@ -45,25 +44,23 @@ extern FloatSetting *homing_feed_rate;
 extern FloatSetting *homing_seek_rate;
 extern FloatSetting *homing_debounce;
 extern FloatSetting *homing_pulloff;
-extern FloatSetting *spindle_pwm_freq;
-extern FloatSetting *rpm_max;
-extern FloatSetting *rpm_min;
-extern FloatSetting *spindle_delay_spinup;
-extern FloatSetting *spindle_delay_spindown;
-extern FloatSetting *coolant_flood_start_delay;
-extern FloatSetting *coolant_mist_start_delay;
-extern FlagSetting *spindle_enbl_off_with_zero_speed;
-extern FlagSetting *spindle_enable_invert;
-extern FlagSetting *spindle_output_invert;
 
-extern FloatSetting *spindle_pwm_off_value;
-extern FloatSetting *spindle_pwm_min_value;
-extern FloatSetting *spindle_pwm_max_value;
-extern IntSetting *spindle_pwm_bit_precision;
+extern EnumSetting *settings_spindle_type;
+extern FloatSetting *settings_spindle_pwm_freq;
+extern FloatSetting *settings_spindle_rpm_max;
+extern FloatSetting *settings_spindle_rpm_min;
+extern FloatSetting *settings_spindle_delay_spinup;
+extern FloatSetting *settings_spindle_delay_spindown;
 
-extern EnumSetting *spindle_type;
+extern FlagSetting *settings_spindle_enable_invert;
+extern FlagSetting *settings_spindle_output_invert;
+extern FloatSetting *settings_spindle_pwm_off_value;
+extern FloatSetting *settings_spindle_pwm_min_value;
+extern FloatSetting *settings_spindle_pwm_max_value;
 
-extern AxisMaskSetting *stallguard_debug_mask;
+
+extern FloatSetting *settings_coolant_flood_start_delay;
+extern FloatSetting *settings_coolant_mist_start_delay;
 
 extern StringSetting *user_macro0;
 extern StringSetting *user_macro1;

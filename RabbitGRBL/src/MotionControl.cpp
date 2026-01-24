@@ -528,7 +528,7 @@ void mc_reset()
         sys_rt_exec_state.bit.reset = true;
 
         // Kill spindle and coolant.
-        fSpindle->stop();
+        fSpindle->Stop();
         CoolantManager::TurnAllCoolantsOff();
 
         // Turn off all User I/O immediately

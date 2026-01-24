@@ -26,37 +26,31 @@ namespace Spindles
     // ======================= Null ==============================
     // Null is just bunch of do nothing (ignore) methods to be used when you don't want a spindle
 
-    void Null::init()
+    void Null::Initialize()
     {
-        is_reversable = false;
-        use_delays = false;
-        config_message();
+        fIsReversable = false;
+        fUseDelays = false;
     }
 
-    uint32_t Null::set_rpm(uint32_t rpm)
+    uint32_t Null::setRPM(uint32_t rpm)
     {
         sys.spindle_speed = rpm;
         return rpm;
     }
 
-    void Null::set_state(SpindleState state, uint32_t rpm)
+    void Null::setState(SpindleState state, uint32_t rpm)
     {
-        _current_state = state;
+        fCurrentState = state;
         sys.spindle_speed = rpm;
     }
 
-    SpindleState Null::get_state()
+    SpindleState Null::getState()
     {
-        return _current_state;
+        return fCurrentState;
     }
 
-    void Null::stop()
+    void Null::Stop()
     {
         // Do nothing
-    }
-
-    void Null::config_message()
-    {
-        grbl_msg_sendf(MsgLevel::Info, "No spindle");
     }
 }

@@ -37,12 +37,11 @@ namespace Spindles
         Null &operator=(const Null &) = delete;
         Null &operator=(Null &&) = delete;
 
-        void init() override;
-        uint32_t set_rpm(uint32_t rpm) override;
-        void set_state(SpindleState state, uint32_t rpm) override;
-        SpindleState get_state() override;
-        void stop() override;
-        void config_message() override;
+        void Initialize() override;
+        uint32_t setRPM(uint32_t rpm) override;
+        void setState(SpindleState state, uint32_t rpm) override;
+        SpindleState getState() override;
+        void Stop() override;
 
         virtual ~Null() {}
     };

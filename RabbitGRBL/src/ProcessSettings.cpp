@@ -286,16 +286,6 @@ Error sleep_grbl(const char *value)
     return Error::Ok;
 }
 
-Error get_report_build_info(const char *value)
-{
-    if (!value)
-    {
-        report_build_info(build_info->get());
-        return Error::Ok;
-    }
-    return Error::InvalidStatement;
-}
-
 Error report_startup_lines(const char *value)
 {
     report_startup_line(0, startup_line_0->get());
@@ -506,7 +496,6 @@ void make_grbl_commands()
     new GrblCommand("HC", "Home/C", home_c, idleOrAlarm);
 #endif
     new GrblCommand("SLP", "System/Sleep", sleep_grbl, idleOrAlarm);
-    new GrblCommand("I", "Build/Info", get_report_build_info, idleOrAlarm);
     new GrblCommand("N", "GCode/StartupLines", report_startup_lines, idleOrAlarm);
     new GrblCommand("RST", "Settings/Restore", restore_settings, idleOrAlarm, WA);
 };

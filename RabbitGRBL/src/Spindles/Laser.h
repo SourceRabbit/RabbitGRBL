@@ -37,9 +37,8 @@ namespace Spindles
 		Laser &operator=(Laser &&) = delete;
 
 		bool inLaserMode() override;
-		void config_message() override;
 		void get_pins_and_settings() override;
-		void deinit() override;
+		void Dispose() override;
 
 		virtual ~Laser() {}
 	};

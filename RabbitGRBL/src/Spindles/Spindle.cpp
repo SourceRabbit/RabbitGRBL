@@ -35,6 +35,10 @@
 #include "Laser.h"
 #include "BESCSpindle.h"
 
+// Declares the machine's spindle
+Spindles::Spindle *fSpindle;
+
+
 namespace Spindles
 {
     // An instance of each type of spindle is created here.
@@ -45,29 +49,29 @@ namespace Spindles
     Laser laser;
     BESC besc;
 
-    void Spindle::select()
+    void Spindle::Select()
     {
-        switch (static_cast<SpindleType>(spindle_type->get()))
+        switch (static_cast<ESpindleType>(settings_spindle_type->get()))
         {
-        case SpindleType::PWM:
+        case ESpindleType::PWM:
             fSpindle = &pwm;
             break;
-        case SpindleType::RELAY:
+        case ESpindleType::RELAY:
             fSpindle = &relay;
             break;
-        case SpindleType::LASER:
+        case ESpindleType::LASER:
             fSpindle = &laser;
             break;
-        case SpindleType::BESC:
+        case ESpindleType::BESC:
             fSpindle = &besc;
             break;
-        case SpindleType::NONE:
+        case ESpindleType::NONE:
         default:
             fSpindle = &null;
             break;
         }
 
-        fSpindle->init();
+        fSpindle->Initialize();
     }
 
     // ========================= Spindle ==================================
@@ -77,18 +81,17 @@ namespace Spindles
         return false; // default for basic spindle is false
     }
 
-    void Spindle::sync(SpindleState state, uint32_t rpm)
+    void Spindle::Synch(SpindleState state, uint32_t rpm)
     {
         if (sys.state == State::CheckMode)
         {
             return;
         }
         protocol_buffer_synchronize(); // Empty planner buffer to ensure spindle is set when programmed.
-        set_state(state, rpm);
+        setState(state, rpm);
     }
 
-    void Spindle::deinit() { stop(); }
+    void Spindle::Dispose() { Stop(); }
 }
 
-// Declares the machine's spindle
-Spindles::Spindle *fSpindle;
+

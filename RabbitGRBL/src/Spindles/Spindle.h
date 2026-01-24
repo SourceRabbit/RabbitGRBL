@@ -1,34 +1,31 @@
 #pragma once
 
 /*
-    Spindle.h
+  Spindle.h
 
-    Header file for a Spindle Class
-    See Spindle.cpp for more details
+  Copyright (c) 2026 Nikolaos Siatras
+  Twitter: nsiatras
+  Github: https://github.com/nsiatras
+  Website: https://www.sourcerabbit.com
 
-    Part of Grbl_ESP32
+  Grbl is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    2020 -	Bart Dring This file was modified for use on the ESP32
-                    CPU. Do not use this with Grbl for atMega328P
+  Grbl is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    Grbl is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    Grbl is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-
-    See SpindleClass.cpp for more info and references
-
+  You should have received a copy of the GNU General Public License
+  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <cstdint>
+#include "../Grbl.h"
 
-enum class SpindleType : int8_t
+enum class ESpindleType : int8_t
 {
     NONE = 0,
     PWM,
@@ -37,14 +34,9 @@ enum class SpindleType : int8_t
     BESC,
 };
 
-#include "../Grbl.h"
-
-// ===============  No floats! ===========================
-// ================ NO FLOATS! ==========================
-
 namespace Spindles
 {
-    // This is the base class. Do not use this as your spindle
+
     class Spindle
     {
     public:
@@ -55,25 +47,25 @@ namespace Spindles
         Spindle &operator=(const Spindle &) = delete;
         Spindle &operator=(Spindle &&) = delete;
 
-        virtual void init() = 0; // not in constructor because this also gets called when $$ settings change
-        virtual uint32_t set_rpm(uint32_t rpm) = 0;
-        virtual void set_state(SpindleState state, uint32_t rpm) = 0;
-        virtual SpindleState get_state() = 0;
-        virtual void stop() = 0;
-        virtual void config_message() = 0;
-        virtual bool inLaserMode();
-        virtual void sync(SpindleState state, uint32_t rpm);
-        virtual void deinit();
-
         virtual ~Spindle() {}
 
-        bool is_reversable;
-        bool use_delays; // will SpinUp and SpinDown delays be used.
-        volatile SpindleState _current_state = SpindleState::Disable;
-        uint32_t _spinup_delay;
-        uint32_t _spindown_delay;
+        virtual void Initialize() = 0; 
+        virtual uint32_t setRPM(uint32_t rpm) = 0;
+        virtual void setState(SpindleState state, uint32_t rpm) = 0;
+        virtual SpindleState getState() = 0;
+        virtual void Stop() = 0;
+        virtual bool inLaserMode();
+        virtual void Synch(SpindleState state, uint32_t rpm);
+        virtual void Dispose();
 
-        static void select();
+        bool fIsReversable;
+        volatile SpindleState fCurrentState = SpindleState::Disable;
+
+        bool fUseDelays;
+        uint32_t fSpinUpDelay;
+        uint32_t fSpinDownDelay;
+
+        static void Select();
     };
 
 }

@@ -55,7 +55,7 @@ void grbl_init()
     }
 #endif
 
-    Spindles::Spindle::select();
+    Spindles::Spindle::Select();
     fSerialInputBuffer.begin();
 }
 
@@ -85,7 +85,7 @@ static void reset_variables()
     // Reset Grbl primary systems.
     client_reset_read_buffer();
     gc_init(); // Set g-code parser to default state
-    fSpindle->stop();
+    fSpindle->Stop();
     CoolantManager::Initialize();
     limits_init();
     Probe::Initialize();

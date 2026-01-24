@@ -49,7 +49,7 @@ void CoolantManager::Initialize()
         // Initialize Mist (M7)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_MIST_PIN
-        CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, INVERT_COOLANT_MIST_PIN, coolant_mist_start_delay);
+        CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, INVERT_COOLANT_MIST_PIN, settings_coolant_mist_start_delay);
         // grbl_msg_sendf(MsgLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
 #else
         CoolantManager::Mist_Coolant.Initialize(0, true);
@@ -60,7 +60,7 @@ void CoolantManager::Initialize()
         // Initialize Flood (M8)
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_FLOOD_PIN
-        CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, coolant_flood_start_delay);
+        CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, settings_coolant_flood_start_delay);
         // grbl_msg_sendf(MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
 #else
         CoolantManager::Flood_Coolant.Initialize(0, true);

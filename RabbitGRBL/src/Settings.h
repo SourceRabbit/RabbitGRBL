@@ -410,7 +410,6 @@ public:
     FloatSetting *hold_current;
     FloatSetting *home_mpos;
     IntSetting *microsteps;
-    IntSetting *stallguard;
     FloatSetting *backlash;
 
     AxisSettings(const char *axisName);

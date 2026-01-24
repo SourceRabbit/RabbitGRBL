@@ -292,7 +292,7 @@ static void stepper_pulse_func()
                 st.steps[axis] = st.exec_block->steps[axis] >> st.exec_segment->amass_level;
             }
             // Set real-time spindle output as segment is loaded, just prior to the first step.
-            fSpindle->set_rpm(st.exec_segment->spindle_rpm);
+            fSpindle->setRPM(st.exec_segment->spindle_rpm);
         }
         else
         {
@@ -303,7 +303,7 @@ static void stepper_pulse_func()
                 // Ensure pwm is set properly upon completion of rate-controlled motion.
                 if (st.exec_block != NULL && st.exec_block->is_pwm_rate_adjusted)
                 {
-                    fSpindle->set_rpm(0);
+                    fSpindle->setRPM(0);
                 }
             }
             cycle_stop = true;

@@ -520,7 +520,7 @@ Error gc_execute_line(char *line)
                     gc_block.modal.spindle = SpindleState::Cw;
                     break;
                 case 4: // Supported if SPINDLE_DIR_PIN is defined or laser mode is on.
-                    if (fSpindle->is_reversable || fSpindle->inLaserMode())
+                    if (fSpindle->fIsReversable || fSpindle->inLaserMode())
                     {
                         gc_block.modal.spindle = SpindleState::Ccw;
                     }
@@ -1573,11 +1573,11 @@ Error gc_execute_line(char *line)
             {
                 if (bit_istrue(gc_parser_flags, GCParserLaserDisable))
                 {
-                    fSpindle->sync(gc_state.modal.spindle, 0);
+                    fSpindle->Synch(gc_state.modal.spindle, 0);
                 }
                 else
                 {
-                    fSpindle->sync(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
+                    fSpindle->Synch(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
                 }
             }
         }
@@ -1603,7 +1603,7 @@ Error gc_execute_line(char *line)
         // Update spindle control and apply spindle speed when enabling it in this block.
         // NOTE: All spindle state changes are synced, even in laser mode. Also, pl_data,
         // rather than gc_state, is used to manage laser state for non-laser motions.
-        fSpindle->sync(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
+        fSpindle->Synch(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
         gc_state.modal.spindle = gc_block.modal.spindle;
     }
     pl_data->spindle = gc_state.modal.spindle;
@@ -1881,7 +1881,7 @@ Error gc_execute_line(char *line)
         {
             coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
-            fSpindle->set_state(SpindleState::Disable, 0);
+            fSpindle->setState(SpindleState::Disable, 0);
             CoolantManager::TurnAllCoolantsOff();
         }
         report_feedback_message(Message::ProgramEnd);

@@ -6,7 +6,6 @@ FakeSetting<int> *number_axis;
 
 StringSetting *startup_line_0;
 StringSetting *startup_line_1;
-StringSetting *build_info;
 
 IntSetting *pulse_microseconds;
 IntSetting *stepper_idle_lock_time;
@@ -18,7 +17,6 @@ AxisMaskSetting *dir_invert_mask;
 // TODO Settings - need to call st_generate_step_invert_masks;
 AxisMaskSetting *homing_dir_mask;
 AxisMaskSetting *homing_squared_axes;
-AxisMaskSetting *stallguard_debug_mask;
 
 FlagSetting *step_enable_invert;
 FlagSetting *limit_invert;
@@ -43,33 +41,35 @@ FloatSetting *homing_seek_rate;
 FloatSetting *homing_debounce;
 FloatSetting *homing_pulloff;
 AxisMaskSetting *homing_cycle[MAX_N_AXIS];
-FloatSetting *spindle_pwm_freq;
-FloatSetting *rpm_max;
-FloatSetting *rpm_min;
-FloatSetting *spindle_delay_spinup;
-FloatSetting *spindle_delay_spindown;
-FloatSetting *coolant_flood_start_delay;
-FloatSetting *coolant_mist_start_delay;
-FlagSetting *spindle_enbl_off_with_zero_speed;
-FlagSetting *spindle_enable_invert;
-FlagSetting *spindle_output_invert;
 
-FloatSetting *spindle_pwm_off_value;
-FloatSetting *spindle_pwm_min_value;
-FloatSetting *spindle_pwm_max_value;
-IntSetting *spindle_pwm_bit_precision;
+// Spindle Settings
+EnumSetting *settings_spindle_type;
+FloatSetting *settings_spindle_rpm_max;
+FloatSetting *settings_spindle_rpm_min;
 
-EnumSetting *spindle_type;
+FlagSetting *settings_spindle_enable_invert;
+FlagSetting *settings_spindle_output_invert;
+FloatSetting *settings_spindle_pwm_freq;
+FloatSetting *settings_spindle_pwm_off_value;
+FloatSetting *settings_spindle_pwm_min_value;
+FloatSetting *settings_spindle_pwm_max_value;
+FloatSetting *settings_spindle_delay_spinup;
+FloatSetting *settings_spindle_delay_spindown;
+
+
+// Coolant Settings
+FloatSetting *settings_coolant_flood_start_delay;
+FloatSetting *settings_coolant_mist_start_delay;
 
 EnumSetting *message_level;
 
 enum_opt_t spindleTypes = {
     // clang-format off
-    { "NONE", int8_t(SpindleType::NONE) },
-    { "PWM", int8_t(SpindleType::PWM) },
-    { "RELAY", int8_t(SpindleType::RELAY) },
-    { "LASER", int8_t(SpindleType::LASER) },
-    { "BESC", int8_t(SpindleType::BESC) },
+    { "NONE", int8_t(ESpindleType::NONE) },
+    { "PWM", int8_t(ESpindleType::PWM) },
+    { "RELAY", int8_t(ESpindleType::RELAY) },
+    { "LASER", int8_t(ESpindleType::LASER) },
+    { "BESC", int8_t(ESpindleType::BESC) },
     // clang-format on
 };
 
@@ -193,15 +193,15 @@ static bool checkSpindleChange(char *val)
         if (gc_state.modal.spindle != SpindleState::Disable)
         {
             gc_state.modal.spindle = SpindleState::Disable;
-            if (fSpindle->use_delays && spindle_delay_spindown->get() != 0)
+            if (fSpindle->fUseDelays && settings_spindle_delay_spindown->get() != 0)
             { // old spindle
-                vTaskDelay(spindle_delay_spindown->get() * 1000);
+                vTaskDelay(settings_spindle_delay_spindown->get() * 1000);
             }
             grbl_msg_sendf(MsgLevel::Info, "Spindle turned off with setting change");
         }
         gc_state.spindle_speed = 0;  // Set S value to 0
-        fSpindle->deinit();           // old spindle
-        Spindles::Spindle::select(); // get new spindle
+        fSpindle->Dispose();          // old spindle
+        Spindles::Spindle::Select(); // get new spindle
         return true;
     }
     return true;
@@ -324,29 +324,27 @@ void make_settings()
     startup_line_1 = new StringSetting(EXTENDED, WG, "N1", "GCode/Line1", "", checkStartupLine);
 
     // Coolant Settings
-    coolant_mist_start_delay = new FloatSetting(GRBL, WG, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
-    coolant_flood_start_delay = new FloatSetting(GRBL, WG, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
+    settings_coolant_flood_start_delay = new FloatSetting(GRBL, WG, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
+    settings_coolant_mist_start_delay = new FloatSetting(GRBL, WG, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
 
     // Spindle Settings
-    spindle_type = new EnumSetting(NULL, EXTENDED, WG, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
-
-    spindle_delay_spindown = new FloatSetting(GRBL, WG, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
-    spindle_delay_spinup = new FloatSetting(GRBL, WG, "37", "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
-
-    spindle_enbl_off_with_zero_speed = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/OffWithSpeed", DEFAULT_SPINDLE_ENABLE_OFF_WITH_ZERO_SPEED, checkSpindleChange);
-    spindle_enable_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
-    // IntSetting spindle_pwm_bit_precision(EXTENDED, WG, "Spindle/PWM/Precision", DEFAULT_SPINDLE_BIT_PRECISION, 1, 16);
-    spindle_output_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
-    spindle_pwm_max_value = new FloatSetting(GRBL, WG, "36", "Spindle/PWM/Max", DEFAULT_SPINDLE_MAX_VALUE, 0.0, 100.0, checkSpindleChange);
-    spindle_pwm_min_value = new FloatSetting(GRBL, WG, "35", "Spindle/PWM/Min", DEFAULT_SPINDLE_MIN_VALUE, 0.0, 100.0, checkSpindleChange);
-    spindle_pwm_off_value = new FloatSetting(GRBL, WG, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
-    spindle_pwm_freq = new FloatSetting(GRBL, WG, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
+    settings_spindle_type = new EnumSetting(NULL, EXTENDED, WG, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
+    
+    settings_spindle_delay_spindown = new FloatSetting(GRBL, WG, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
+    settings_spindle_delay_spinup = new FloatSetting(GRBL, WG, "37", "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
+    
+    settings_spindle_enable_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
+    settings_spindle_output_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
+    settings_spindle_pwm_max_value = new FloatSetting(GRBL, WG, "36", "Spindle/PWM/Max", DEFAULT_SPINDLE_MAX_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_min_value = new FloatSetting(GRBL, WG, "35", "Spindle/PWM/Min", DEFAULT_SPINDLE_MIN_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_off_value = new FloatSetting(GRBL, WG, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_freq = new FloatSetting(GRBL, WG, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
     laser_mode = new FlagSetting(GRBL, WG, "32", "GCode/LaserMode", DEFAULT_LASER_MODE);
     laser_full_power = new IntSetting(EXTENDED, WG, NULL, "Laser/FullPower", DEFAULT_LASER_FULL_POWER, 0, 10000, checkSpindleChange);
 
     // TODO Settings - also need to call my_spindle->init();
-    rpm_min = new FloatSetting(GRBL, WG, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
-    rpm_max = new FloatSetting(GRBL, WG, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
+    settings_spindle_rpm_min = new FloatSetting(GRBL, WG, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
+    settings_spindle_rpm_max = new FloatSetting(GRBL, WG, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
 
     homing_pulloff = new FloatSetting(GRBL, WG, "27", "Homing/Pulloff", DEFAULT_HOMING_PULLOFF, 0, 1000);
     homing_debounce = new FloatSetting(GRBL, WG, "26", "Homing/Debounce", DEFAULT_HOMING_DEBOUNCE_DELAY, 0, 10000);
@@ -364,7 +362,6 @@ void make_settings()
     hard_limits = new FlagSetting(GRBL, WG, "21", "Limits/Hard", DEFAULT_HARD_LIMIT_ENABLE);
     soft_limits = new FlagSetting(GRBL, WG, "20", "Limits/Soft", DEFAULT_SOFT_LIMIT_ENABLE, NULL);
 
-    build_info = new StringSetting(EXTENDED, WG, NULL, "Firmware/Build", "");
     report_inches = new FlagSetting(GRBL, WG, "13", "Report/Inches", DEFAULT_REPORT_INCHES);
 
     // TODO Settings - also need to clear, but not set, soft_limits
@@ -381,8 +378,6 @@ void make_settings()
     pulse_microseconds = new IntSetting(GRBL, WG, "0", "Stepper/Pulse", DEFAULT_STEP_PULSE_MICROSECONDS, 3, 1000);
     direction_delay_microseconds = new IntSetting(EXTENDED, WG, NULL, "Stepper/Direction/Delay", STEP_PULSE_DELAY, 0, 1000);
     enable_delay_microseconds = new IntSetting(EXTENDED, WG, NULL, "Stepper/Enable/Delay", DEFAULT_STEP_ENABLE_DELAY, 0, 1000); // microseconds
-
-    stallguard_debug_mask = new AxisMaskSetting(EXTENDED, WG, NULL, "Report/StallGuard", 0, postMotorSetting);
 
     homing_cycle[5] = new AxisMaskSetting(GRBL, WG, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
     homing_cycle[4] = new AxisMaskSetting(GRBL, WG, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);

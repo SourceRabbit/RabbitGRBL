@@ -52,57 +52,45 @@ const uint16_t BESC_MAX_PULSE_CNT = static_cast<uint16_t>(BESC_MAX_PULSE_SECS / 
 
 namespace Spindles
 {
-    void BESC::init()
+    void BESC::Initialize()
     {
         get_pins_and_settings(); // these gets the standard PWM settings, but many need to be changed for BESC
 
-        if (_output_pin == UNDEFINED_PIN)
+        if (fOutputPin == UNDEFINED_PIN)
         {
             grbl_msg_sendf(MsgLevel::Info, "Warning: BESC output pin not defined");
             return; // We cannot continue without the output pin
         }
 
         // override some settings to what is required for a BESC
-        _pwm_freq = (uint32_t)BESC_PWM_FREQ;
-        _pwm_precision = 16;
+        fPWMFrequency = (uint32_t)BESC_PWM_FREQ;
+        fPWMPrecision = 16;
 
         // override these settings
-        _pwm_off_value = BESC_MIN_PULSE_CNT;
-        _pwm_min_value = _pwm_off_value;
-        _pwm_max_value = BESC_MAX_PULSE_CNT;
+        fPWMOffValue = BESC_MIN_PULSE_CNT;
+        fPWMMinValue = fPWMOffValue;
+        fPWMMaxValue = BESC_MAX_PULSE_CNT;
 
-        ledcSetup(_pwm_chan_num, (double)_pwm_freq, _pwm_precision); // setup the channel
-        ledcAttachPin(_output_pin, _pwm_chan_num);                   // attach the PWM to the pin
+        ledcSetup(fPWMChannelNumber, (double)fPWMFrequency, fPWMPrecision); // setup the channel
+        ledcAttachPin(fOutputPin, fPWMChannelNumber);                   // attach the PWM to the pin
 
-        pinMode(_enable_pin, OUTPUT);
+        pinMode(fEnablePin, OUTPUT);
 
-        set_rpm(0);
+        setRPM(0);
 
-        use_delays = true;
-
-        config_message();
+        fUseDelays = true;
     }
 
-    // prints the startup message of the spindle config
-    void BESC::config_message()
-    {
-        grbl_msg_sendf(MsgLevel::Info,
-                       "BESC spindle on Pin:%s Min:%0.2fms Max:%0.2fms Freq:%dHz Res:%dbits",
-                       pinName(_output_pin).c_str(),
-                       BESC_MIN_PULSE_SECS * 1000.0, // convert to milliseconds
-                       BESC_MAX_PULSE_SECS * 1000.0, // convert to milliseconds
-                       _pwm_freq,
-                       _pwm_precision);
-    }
+   
 
-    uint32_t BESC::set_rpm(uint32_t rpm)
+    uint32_t BESC::setRPM(uint32_t rpm)
     {
         uint32_t pwm_value;
 
         // Max RPM security check
-        rpm = (rpm > _max_rpm) ? _max_rpm : rpm;
+        rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
 
-        if (_output_pin == UNDEFINED_PIN)
+        if (fOutputPin == UNDEFINED_PIN)
         {
             return rpm;
         }
@@ -111,24 +99,24 @@ namespace Spindles
         rpm = rpm * sys.spindle_speed_ovr / 100; // Scale by spindle speed override value (percent)
 
         // apply limits limits
-        if ((_min_rpm >= _max_rpm) || (rpm >= _max_rpm))
+        if ((fMinRPM >= fMaxRPM) || (rpm >= fMaxRPM))
         {
-            rpm = _max_rpm;
+            rpm = fMaxRPM;
         }
-        else if (rpm != 0 && rpm <= _min_rpm)
+        else if (rpm != 0 && rpm <= fMinRPM)
         {
-            rpm = _min_rpm;
+            rpm = fMinRPM;
         }
         sys.spindle_speed = rpm;
 
         // determine the pwm value
         if (rpm == 0)
         {
-            pwm_value = _pwm_off_value;
+            pwm_value = fPWMOffValue;
         }
         else
         {
-            pwm_value = map_uint32_t(rpm, _min_rpm, _max_rpm, _pwm_min_value, _pwm_max_value);
+            pwm_value = map_uint32_t(rpm, fMinRPM, fMaxRPM, fPWMMinValue, fPWMMaxValue);
         }
 
         set_output(pwm_value);

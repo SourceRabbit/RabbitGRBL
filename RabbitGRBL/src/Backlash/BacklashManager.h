@@ -1,7 +1,7 @@
 /*
   BacklashManager.h
 
-  Copyright (c) 20243 Nikolaos Siatras
+  Copyright (c) 2024 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
