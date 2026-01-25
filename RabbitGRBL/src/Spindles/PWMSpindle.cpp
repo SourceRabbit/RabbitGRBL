@@ -34,7 +34,7 @@ namespace Spindles
         fPWMPrecision = CalculatePWMPrecision(fPWMFrequency); // detewrmine the best precision
         fPWMPeriod = (1 << fPWMPrecision);
 
-        if (settings_spindle_pwm_min_value->get() > settings_spindle_pwm_min_value->get())
+        if (settings_spindle_pwm_min_value->get() > settings_spindle_pwm_max_value->get())
         {
             grbl_msg_sendf(MsgLevel::Info, "Warning: Spindle min pwm is greater than max. Check $35 and $36");
         }
@@ -64,9 +64,6 @@ namespace Spindles
         {
             pinMode(fDirectionPin, OUTPUT);
         }
-
-        grbl_msg_sendf(MsgLevel::Info, "PWM init: out=%d en=%d dir=%d freq=%lu prec=%u",
-                       fOutputPin, fEnablePin, fDirectionPin, (unsigned long)fPWMFrequency, fPWMPrecision);
     }
 
     void PWM::Stop()
@@ -79,10 +76,12 @@ namespace Spindles
     void PWM::Dispose()
     {
         Stop();
+
 #ifdef SPINDLE_OUTPUT_PIN
         gpio_reset_pin(SPINDLE_OUTPUT_PIN);
         pinMode(SPINDLE_OUTPUT_PIN, INPUT);
 #endif
+
 #ifdef SPINDLE_ENABLE_PIN
         gpio_reset_pin(SPINDLE_ENABLE_PIN);
         pinMode(SPINDLE_ENABLE_PIN, INPUT);
@@ -96,12 +95,16 @@ namespace Spindles
 
     uint32_t PWM::setRPM(uint32_t rpm)
     {
-        // Initial RPM Range Check
+        // Initial RPM range clamp
         rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
         rpm = (rpm > 0 && rpm < fMinRPM) ? fMinRPM : rpm;
 
         // Apply override (percent) while RPM > 0
-        rpm = (rpm > 0) ? rpm * sys.spindle_speed_ovr / 100 : 0; // Scale by spindle speed override value (uint8_t percent)
+        rpm = (rpm > 0) ? (uint32_t)(((uint64_t)rpm * sys.spindle_speed_ovr) / 100ULL) : 0;
+
+        // RPM range clamp after overrides applied !
+        rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
+        rpm = (rpm > 0 && rpm < fMinRPM) ? fMinRPM : rpm;
 
         if (fOutputPin == UNDEFINED_PIN)
         {
@@ -116,7 +119,7 @@ namespace Spindles
         this->setEnablePinValue(gc_state.modal.spindle != SpindleState::Disable);
         this->setPWMOutput(pwmValue);
 
-        return 0;
+        return rpm;
     }
 
     void PWM::setState(SpindleState state, uint32_t rpm)
