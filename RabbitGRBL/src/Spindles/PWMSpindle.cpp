@@ -29,6 +29,12 @@ namespace Spindles
     {
         Spindle::Initialize(); // call base
 
+        if (fOutputPin == UNDEFINED_PIN)
+        {
+            // Base initialization failed (no output pin configured).
+            return;
+        }
+
         fInvertPWM = settings_spindle_output_invert->get();
         fPWMFrequency = settings_spindle_pwm_freq->get();
         fPWMPrecision = CalculatePWMPrecision(fPWMFrequency); // detewrmine the best precision
@@ -52,8 +58,12 @@ namespace Spindles
         fCurrentState = SpindleState::Disable;
         fCurrentPWMDuty = 0;
 
-        ledcSetup(fPWMChannelNumber, (double)fPWMFrequency, fPWMPrecision); // setup the channel
-        ledcAttachPin(fOutputPin, fPWMChannelNumber);                       // attach the PWM to the pin
+        // Setup the PWM channel
+        ledcSetup(fPWMChannelNumber, (double)fPWMFrequency, fPWMPrecision);
+
+        // Attach the PWM to the fOutputPin
+        pinMode(fOutputPin, OUTPUT);
+        ledcAttachPin(fOutputPin, fPWMChannelNumber);
 
         if (fEnablePin != UNDEFINED_PIN)
         {
@@ -64,6 +74,10 @@ namespace Spindles
         {
             pinMode(fDirectionPin, OUTPUT);
         }
+
+        // Set RPM to zero !
+        setRPM(0);
+        Stop();
     }
 
     void PWM::Stop()
@@ -210,15 +224,17 @@ namespace Spindles
             duty = (1 << fPWMPrecision) - duty;
         }
 
-        // ledcWrite(_pwm_chan_num, duty);
+        // Map Arduino LEDC channel number to LEDC group/channel indices.
+        const uint8_t group = (fPWMChannelNumber >= 8) ? 1 : 0;
+        const uint8_t ch = (uint8_t)(fPWMChannelNumber & 0x07);
 
-        // This was ledcWrite, but this is called from an ISR
-        // and ledcWrite uses RTOS features not compatible with ISRs
-        LEDC.channel_group[0].channel[0].duty.duty = duty << 4;
-        bool on = !!duty;
-        LEDC.channel_group[0].channel[0].conf0.sig_out_en = on;
-        LEDC.channel_group[0].channel[0].conf1.duty_start = on;
-        LEDC.channel_group[0].channel[0].conf0.clk_en = on;
+        // Write duty in fixed-point format (duty << 4).
+        LEDC.channel_group[group].channel[ch].duty.duty = duty << 4;
+
+        const bool on = (duty != 0);
+        LEDC.channel_group[group].channel[ch].conf0.sig_out_en = on;
+        LEDC.channel_group[group].channel[ch].conf1.duty_start = 1; // trigger duty update
+        LEDC.channel_group[group].channel[ch].conf0.clk_en = on;
     }
 
     void PWM::setEnablePinValue(bool active)
@@ -247,37 +263,48 @@ namespace Spindles
     }
 
     /*
-        Calculate the maximum PWM precision (in bits) for a given frequency.
+        Calculate the maximum LEDC PWM resolution (in bits) that can be used for a given PWM frequency.
 
-        The PWM period (in timer counts) is:
-            period = 80,000,000 / freq
+        For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
+        The timer period (in clock ticks) for the requested frequency is approximately:
+            period_ticks = 80,000,000 / freq
 
-        We select the highest precision such that:
-            (1 << precision) < period
+        We choose the highest resolution "bits" (1..16) such that:
+            (1 << bits) <= period_ticks
+
+        This ensures the duty range [0 .. (2^bits - 1)] fits within a single PWM period.
 
         Notes:
-        - Precision is capped at 16 bits.
-        - freq must be non-zero.
+        - The returned resolution is clamped to the valid LEDC range: 1..16 bits.
+        - freq must be non-zero; if freq is 0, we return the minimum valid resolution (1 bit).
     */
     uint8_t PWM::CalculatePWMPrecision(uint32_t freq)
     {
         // Protect against invalid frequency.
         if (freq == 0)
         {
-            return 0;
+            return 1; // Minimum valid resolution for ledcSetup().
         }
 
-        const uint32_t period = 80000000UL / freq; // APB clock / PWM frequency
+        // For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
+        // period_ticks = timerClockHz / freq
+        const uint32_t period = 80000000UL / freq; // ESP32 APB clock ticks per PWM period
         uint8_t precision = 0;
 
-        // Find the highest precision (bits) such that (1 << precision) < period, capped at 16 bits.
+        // Find the highest precision such that (1 << precision) < period, capped at 16 bits.
         while (precision < 16 && ((1UL << precision) < period))
         {
             ++precision;
         }
 
-        // precision is now 1 past the valid value (or hit the cap), so step back if possible.
-        return (precision == 0) ? 0 : (precision - 1);
+        // Ensure we always return a valid resolution (1..16).
+        if (precision == 0)
+        {
+            return 1;
+        }
+
+        const uint8_t bits = precision - 1;
+        return (bits == 0) ? 1 : bits;
     }
 
 }
