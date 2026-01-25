@@ -1,5 +1,5 @@
 /*
-    PWMSpindle.cpp
+    Spindle_PWM.cpp
 
     Copyright (c) 2026 Nikolaos Siatras
     Twitter: nsiatras
@@ -20,7 +20,7 @@
     along with Rabbit GRBL. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PWMSpindle.h"
+#include "Spindle_PWM.h"
 #include "soc/ledc_struct.h"
 
 namespace Spindles

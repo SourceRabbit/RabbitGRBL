@@ -1,5 +1,5 @@
 /*
-    RelaySpindle.cpp
+    Spindle_Relay.cpp
 
     Copyright (c) 2026 Nikolaos Siatras
     Twitter: nsiatras
@@ -20,7 +20,7 @@
     along with Rabbit GRBL. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RelaySpindle.h"
+#include "Spindle_Relay.h"
 
 namespace Spindles
 {

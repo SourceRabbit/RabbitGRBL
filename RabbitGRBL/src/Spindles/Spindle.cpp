@@ -21,10 +21,10 @@
 */
 #include "Spindle.h"
 
-#include "NullSpindle.h"
-#include "PWMSpindle.h"
-#include "RelaySpindle.h"
-#include "Laser.h"
+#include "Spindle_Null.h"
+#include "Spindle_PWM.h"
+#include "Spindle_Relay.h"
+#include "Spindle_Laser.h"
 
 namespace Spindles
 {

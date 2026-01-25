@@ -1,5 +1,5 @@
 /*
-    RelaySpindle.h
+    Spindle_Relay.h
 
     Copyright (c) 2026 Nikolaos Siatras
     Twitter: nsiatras

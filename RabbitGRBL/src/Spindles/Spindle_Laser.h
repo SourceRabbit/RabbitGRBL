@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-  Laser.h
+  Spindle_Laser.h
 
   Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
@@ -22,7 +22,7 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PWMSpindle.h"
+#include "Spindle_PWM.h"
 
 namespace Spindles
 {

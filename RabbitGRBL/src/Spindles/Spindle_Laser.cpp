@@ -1,5 +1,5 @@
 /*
-  Laser.cpp
+  Spindle_Laser.cpp
 
   Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
@@ -20,7 +20,7 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Laser.h"
+#include "Spindle_Laser.h"
 
 namespace Spindles
 {

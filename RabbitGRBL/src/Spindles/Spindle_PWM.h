@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-    PWMSpindle.h
+    Spindle_PWM.h
 
     Copyright (c) 2026 Nikolaos Siatras
     Twitter: nsiatras

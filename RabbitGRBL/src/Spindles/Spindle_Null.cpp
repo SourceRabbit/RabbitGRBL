@@ -1,5 +1,5 @@
 /*
-    NullSpindle.cpp
+    Spindle_Null.cpp
 
     This is used when you don't want to use a spindle No I/O will be used
     and most methods don't do anything
@@ -19,7 +19,7 @@
     along with Grbl. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "NullSpindle.h"
+#include "Spindle_Null.h"
 
 namespace Spindles
 {
