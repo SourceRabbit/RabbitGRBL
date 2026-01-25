@@ -19,7 +19,7 @@
   You should have received a copy of the GNU General Public License
   along with Rabbit GRBL. If not, see <http://www.gnu.org/licenses/>.
 */
-
+#pragma once
 #include <cstdint>
 #include "ESpindleType.h"
 #include "../Grbl.h"

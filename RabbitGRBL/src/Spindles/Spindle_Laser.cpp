@@ -20,6 +20,7 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Spindle.h"
 #include "Spindle_Laser.h"
 
 namespace Spindles

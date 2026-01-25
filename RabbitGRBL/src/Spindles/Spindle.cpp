@@ -33,7 +33,7 @@ namespace Spindles
     Null null;
     PWM pwm;
     Relay relay;
-    // Laser laser;
+    Laser laser;
 
     void Spindle::Select()
     {
@@ -47,6 +47,9 @@ namespace Spindles
             break;
 
         case ESpindleType::LASER:
+            fSpindle = &laser;
+            break;
+
         case ESpindleType::NONE:
         default:
             fSpindle = &null;
