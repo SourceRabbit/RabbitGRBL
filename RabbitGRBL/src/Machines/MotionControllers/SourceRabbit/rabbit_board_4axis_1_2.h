@@ -58,13 +58,14 @@
 #define A_DIRECTION_PIN         			GPIO_NUM_13
 #define STEPPERS_DISABLE_PIN    			GPIO_NUM_15
 
-#define SPINDLE_TYPE            			ESpindleType::LASER 
+#define SPINDLE_TYPE            			ESpindleType::PWM 
 #define SPINDLE_OUTPUT_PIN      			GPIO_NUM_2
 #define SPINDLE_DIR_PIN      				GPIO_NUM_21
-#define	DEFAULT_SPINDLE_RPM_MAX 			30000
-#define DEFAULT_SPINDLE_FREQ 				5000
-#define DEFAULT_SPINDLE_DELAY_SPINUP		0.5
-#define DEFAULT_SPINDLE_DELAY_SPINDOWN		0.5
+#define	DEFAULT_SPINDLE_RPM_MIN				1000			// RPM
+#define	DEFAULT_SPINDLE_RPM_MAX 			25000			// RPM
+#define DEFAULT_SPINDLE_FREQ 				5000			// Hz
+#define DEFAULT_SPINDLE_DELAY_SPINUP		0				// Seconds
+#define DEFAULT_SPINDLE_DELAY_SPINDOWN		0				// Seconds
 
 #define X_LIMIT_PIN             			GPIO_NUM_36
 #define Y_LIMIT_PIN             			GPIO_NUM_39
