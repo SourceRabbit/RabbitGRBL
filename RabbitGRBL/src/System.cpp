@@ -20,6 +20,7 @@
 
 #include "Grbl.h"
 #include "Config.h"
+#include "MachineCommon.h"
 
 // Declare system global variable structure
 system_t sys;
@@ -356,22 +357,56 @@ int8_t sys_get_next_PWM_chan_num()
 }
 
 /*
-    Calculate the highest precision of a PWM based on the frequency in bits
+    Compute the maximum usable LEDC PWM resolution (in bits) for a given PWM frequency.
 
-    80,000,000 / freq = period
-    determine the highest precision where (1 << precision) < period
+    On ESP32, the LEDC timer is driven by the APB clock (typically 80 MHz).
+    For a requested PWM frequency, the number of timer ticks per PWM period is:
+
+        period_ticks = ESP32_TIMERS_CLOCK / freq
+
+    The PWM resolution (bits) determines how many discrete duty steps are available:
+        duty_steps = 2^bits
+
+    We select the highest resolution (1..16 bits) such that the duty range fits within one
+    PWM period:
+
+        2^bits <= period_ticks
+
+    This yields the best possible duty granularity for the given frequency without
+    exceeding the timer's capacity.
+
+    Notes:
+    - LEDC supports up to 16-bit resolution.
+    - freq must be non-zero; if freq == 0 we return 1 (minimum valid value for ledcSetup()).
 */
 uint8_t sys_calc_pwm_precision(uint32_t freq)
 {
-    uint8_t precision = 0;
-
-    // increase the precision (bits) until it exceeds allow by frequency the max or is 16
-    while ((1 << precision) < (uint32_t)(80000000 / freq) && precision <= 16)
-    { // TODO is there a named value for the 80MHz?
-        precision++;
+    // Protect against invalid frequency.
+    if (freq == 0)
+    {
+        return 1; // Minimum valid resolution for ledcSetup().
     }
 
-    return precision - 1;
+    // For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
+    // period_ticks = timerClockHz / freq
+    const uint32_t period = ESP32_TIMERS_CLOCK / freq; // ESP32 APB clock ticks per PWM period
+
+    uint8_t precision = 0;
+
+    // Find the highest precision such that (1 << precision) < period, capped at 16 bits.
+    while (precision < 16 && ((1UL << precision) < period))
+    {
+        ++precision;
+    }
+
+    // Ensure we always return a valid resolution (1..16).
+    if (precision == 0)
+    {
+        return 1;
+    }
+
+    const uint8_t bits = precision - 1;
+    return (bits == 0) ? 1 : bits;
 }
 
 void __attribute__((weak)) user_defined_macro(uint8_t index)

@@ -1059,7 +1059,7 @@ void IRAM_ATTR Stepper_Timer_WritePeriod(uint16_t timerTicks)
 void IRAM_ATTR Stepper_Timer_Init()
 {
     timer_config_t config;
-    config.divider = fTimersClock / fStepperTimer;
+    config.divider = ESP32_TIMERS_CLOCK / fStepperTimer;
     config.counter_dir = TIMER_COUNT_UP;
     config.counter_en = TIMER_PAUSE;
     config.alarm_en = TIMER_ALARM_EN;

@@ -181,3 +181,4 @@ bool sys_set_analog(uint8_t io_num, float percent);
 void sys_analog_all_off();
 
 int8_t sys_get_next_PWM_chan_num();
+uint8_t sys_calc_pwm_precision(uint32_t freq); // Calculate the highest precision of a PWM based on the frequency in bits.

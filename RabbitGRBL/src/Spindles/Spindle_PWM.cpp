@@ -22,6 +22,7 @@
 
 #include "Spindle_PWM.h"
 #include "soc/ledc_struct.h"
+#include "../System.h"
 
 namespace Spindles
 {
@@ -37,7 +38,7 @@ namespace Spindles
 
         fInvertPWM = settings_spindle_output_invert->get();
         fPWMFrequency = settings_spindle_pwm_freq->get();
-        fPWMPrecision = CalculatePWMPrecision(fPWMFrequency); // detewrmine the best precision
+        fPWMPrecision = sys_calc_pwm_precision(fPWMFrequency); // detewrmine the best precision
         fPWMPeriod = (1 << fPWMPrecision);
 
         // Pre-calculate some PWM count values
@@ -271,49 +272,6 @@ namespace Spindles
         digitalWrite(fDirectionPin, Clockwise);
     }
 
-    /*
-        Calculate the maximum LEDC PWM resolution (in bits) that can be used for a given PWM frequency.
-
-        For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
-        The timer period (in clock ticks) for the requested frequency is approximately:
-            period_ticks = 80,000,000 / freq
-
-        We choose the highest resolution "bits" (1..16) such that:
-            (1 << bits) <= period_ticks
-
-        This ensures the duty range [0 .. (2^bits - 1)] fits within a single PWM period.
-
-        Notes:
-        - The returned resolution is clamped to the valid LEDC range: 1..16 bits.
-        - freq must be non-zero; if freq is 0, we return the minimum valid resolution (1 bit).
-    */
-    uint8_t PWM::CalculatePWMPrecision(uint32_t freq)
-    {
-        // Protect against invalid frequency.
-        if (freq == 0)
-        {
-            return 1; // Minimum valid resolution for ledcSetup().
-        }
-
-        // For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
-        // period_ticks = timerClockHz / freq
-        const uint32_t period = 80000000UL / freq; // ESP32 APB clock ticks per PWM period
-        uint8_t precision = 0;
-
-        // Find the highest precision such that (1 << precision) < period, capped at 16 bits.
-        while (precision < 16 && ((1UL << precision) < period))
-        {
-            ++precision;
-        }
-
-        // Ensure we always return a valid resolution (1..16).
-        if (precision == 0)
-        {
-            return 1;
-        }
-
-        const uint8_t bits = precision - 1;
-        return (bits == 0) ? 1 : bits;
-    }
+   
 
 }

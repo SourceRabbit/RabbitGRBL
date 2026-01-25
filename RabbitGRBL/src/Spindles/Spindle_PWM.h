@@ -61,7 +61,5 @@ namespace Spindles
         virtual void setEnablePinValue(bool active);
         virtual void setDirectionPinValue(bool Clockwise);
         virtual void Dispose();
-
-        uint8_t CalculatePWMPrecision(uint32_t freq);
     };
 }
