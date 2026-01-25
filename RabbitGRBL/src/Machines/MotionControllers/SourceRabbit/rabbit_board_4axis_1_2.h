@@ -63,7 +63,7 @@
 #define SPINDLE_DIR_PIN      				GPIO_NUM_21
 #define	DEFAULT_SPINDLE_RPM_MIN				1000			// RPM
 #define	DEFAULT_SPINDLE_RPM_MAX 			25000			// RPM
-#define DEFAULT_SPINDLE_FREQ 				5000			// Hz
+#define DEFAULT_SPINDLE_FREQ 				8000			// Hz
 #define DEFAULT_SPINDLE_DELAY_SPINUP		0				// Seconds
 #define DEFAULT_SPINDLE_DELAY_SPINDOWN		0				// Seconds
 

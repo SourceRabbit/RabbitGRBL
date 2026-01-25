@@ -119,7 +119,7 @@ namespace Spindles
         sys.spindle_speed = rpm;
 
         // Notice: RPM==0 turns PWM off !
-        const uint32_t pwmValue = (rpm == 0) ? this->fPWMOffValue : map_uint32_t(rpm, fMinRPM, fMaxRPM, fPWMMinValue, fPWMMaxValue);
+        const uint32_t pwmValue = (rpm == 0) ? this->fPWMOffValue : map_uint32_t(rpm, 0, fMaxRPM, fPWMMinValue, fPWMMaxValue);
 
         this->setEnablePinValue(gc_state.modal.spindle != SpindleState::Disable);
         this->setPWMOutput(pwmValue);
