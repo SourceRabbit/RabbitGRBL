@@ -97,7 +97,7 @@ namespace Spindles
 
             if (fCurrentState != state)
             {
-                delay(fSpinDownDelay);
+                delay(fSpinDownDelayMs);
             }
         }
         else
@@ -107,7 +107,7 @@ namespace Spindles
                 // Safe reverse: stop, wait, then change direction and restart.
                 sys.spindle_speed = 0;
                 Stop();
-                delay(fSpinDownDelay);
+                delay(fSpinDownDelayMs);
             }
 
             // Apply direction first, then RPM, then enable.
@@ -117,7 +117,7 @@ namespace Spindles
 
             if (fCurrentState != state)
             {
-                delay(fSpinUpDelay);
+                delay(fSpinUpDelayMs);
             }
         }
 

@@ -37,8 +37,8 @@ namespace Spindles
         }
 
         // Lasers typically do not use spin-up/spin-down delays.
-        fSpinUpDelay = 0;
-        fSpinDownDelay = 0;
+        fSpinUpDelayMs = 0;
+        fSpinDownDelayMs = 0;
 
         // For a laser, "RPM" is used as laser power.
         // Clamp by configured full power setting.

@@ -166,7 +166,7 @@ namespace Spindles
             if (fCurrentState != state)
             {
                 // grbl_msg_sendf(MsgLevel::Info, "Spin down delay");
-                delay(fSpinDownDelay);
+                delay(fSpinDownDelayMs);
             }
         }
         else
@@ -179,7 +179,7 @@ namespace Spindles
                 Stop();
 
                 // Allow spindle to spin down !
-                delay(fSpinDownDelay);
+                delay(fSpinDownDelayMs);
             }
 
             // Apply direction first, then RPM/PWM, then enable (implementation-specific).
@@ -190,7 +190,7 @@ namespace Spindles
             if (fCurrentState != state)
             {
                 // Allow spindle to spin up.
-                delay(fSpinUpDelay);
+                delay(fSpinUpDelayMs);
             }
         }
 

@@ -93,8 +93,8 @@ namespace Spindles
         fMaxRPM = settings_spindle_rpm_max->get();
 
         // Setup delays (milliseconds)
-        fSpinUpDelay = settings_spindle_delay_spinup->get() * 1000.0;
-        fSpinDownDelay = settings_spindle_delay_spindown->get() * 1000.0;
+        fSpinUpDelayMs = settings_spindle_delay_spinup->get() * 1000.0;
+        fSpinDownDelayMs = settings_spindle_delay_spindown->get() * 1000.0;
     }
 
     void Spindle::Synch(SpindleState state, uint32_t rpm)
@@ -111,14 +111,14 @@ namespace Spindles
     /// @return Spin-up delay in milliseconds.
     uint32_t Spindle::getSpinUpDelay()
     {
-        return fSpinUpDelay;
+        return fSpinUpDelayMs;
     }
 
     /// @brief Return the configured spin-down delay (milliseconds) for this spindle instance.
     /// @return Spin-down delay in milliseconds.
     uint32_t Spindle::getSpinDownDelay()
     {
-        return fSpinDownDelay;
+        return fSpinDownDelayMs;
     }
 
     /// @brief Check whether spin-up/spin-down delays are enabled for this spindle instance.
@@ -126,7 +126,7 @@ namespace Spindles
     bool Spindle::isUsingDelays()
     {
         // Delays are considered "in use" when at least one of the delay values is non-zero.
-        return (fSpinUpDelay > 0) || (fSpinDownDelay > 0);
+        return (fSpinUpDelayMs > 0) || (fSpinDownDelayMs > 0);
     }
 
     bool Spindle::inLaserMode()

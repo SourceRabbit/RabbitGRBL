@@ -68,8 +68,8 @@ namespace Spindles
                 uint32_t fMaxRPM;
 
                 // Delays
-                uint32_t fSpinUpDelay;
-                uint32_t fSpinDownDelay;
+                uint32_t fSpinUpDelayMs;
+                uint32_t fSpinDownDelayMs;
         };
 }
 
