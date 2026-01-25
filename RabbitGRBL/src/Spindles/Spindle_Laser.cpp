@@ -52,7 +52,7 @@ namespace Spindles
     bool Laser::inLaserMode()
     {
         // Laser mode is controlled by a runtime setting.
-        return laser_mode->get();
+        return settings_spindle_laser_mode->get();
     }
 
     void Laser::Dispose()

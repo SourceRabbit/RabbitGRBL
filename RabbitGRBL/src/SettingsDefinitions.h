@@ -33,7 +33,7 @@ extern FlagSetting *report_inches;
 extern FlagSetting *soft_limits;
 extern FlagSetting *hard_limits;
 extern FlagSetting *homing_enable;
-extern FlagSetting *laser_mode;
+extern FlagSetting *settings_spindle_laser_mode;
 
 extern IntSetting *status_mask;
 extern FloatSetting *junction_deviation;
