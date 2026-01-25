@@ -379,7 +379,7 @@ int8_t sys_get_next_PWM_chan_num()
     - LEDC supports up to 16-bit resolution.
     - freq must be non-zero; if freq == 0 we return 1 (minimum valid value for ledcSetup()).
 */
-uint8_t sys_calc_pwm_precision(uint32_t freq)
+uint8_t system_calculate_pwm_precision(uint32_t freq)
 {
     // Protect against invalid frequency.
     if (freq == 0)
