@@ -116,6 +116,12 @@ namespace Spindles
             return rpm;
         }
 
+        // If the effective RPM did not change, do nothing.
+        if (rpm == sys.spindle_speed)
+        {
+            return rpm;
+        }
+
         sys.spindle_speed = rpm;
 
         // Notice: RPM==0 turns PWM off.
