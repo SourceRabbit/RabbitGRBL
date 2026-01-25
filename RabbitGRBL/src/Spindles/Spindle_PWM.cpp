@@ -100,14 +100,14 @@ namespace Spindles
 
     uint32_t PWM::setRPM(uint32_t rpm)
     {
-        // Initial RPM range clamp
+        // Clamp requested RPM to the configured range.
         rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
         rpm = (rpm > 0 && rpm < fMinRPM) ? fMinRPM : rpm;
 
-        // Apply override (percent) while RPM > 0
+        // Apply override (percent) while RPM > 0.
         rpm = (rpm > 0) ? (uint32_t)(((uint64_t)rpm * sys.spindle_speed_ovr) / 100ULL) : 0;
 
-        // RPM range clamp after overrides applied !
+        // Clamp again after overrides are applied.
         rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
         rpm = (rpm > 0 && rpm < fMinRPM) ? fMinRPM : rpm;
 
@@ -118,8 +118,20 @@ namespace Spindles
 
         sys.spindle_speed = rpm;
 
-        // Notice: RPM==0 turns PWM off !
-        const uint32_t pwmValue = (rpm == 0) ? this->fPWMOffValue : map_uint32_t(rpm, 0, fMaxRPM, fPWMMinValue, fPWMMaxValue);
+        // Notice: RPM==0 turns PWM off.
+        // For RPM > 0, map duty using the full 0..MaxRPM range, but never allow duty < MinPWM.
+        uint32_t pwmValue = fPWMOffValue;
+
+        if (rpm > 0)
+        {
+            pwmValue = map_uint32_t(rpm, 0, fMaxRPM, fPWMMinValue, fPWMMaxValue);
+
+            // Ensure non-zero RPM never produces less than the configured minimum PWM.
+            if (pwmValue < fPWMMinValue)
+            {
+                pwmValue = fPWMMinValue;
+            }
+        }
 
         this->setEnablePinValue(gc_state.modal.spindle != SpindleState::Disable);
         this->setPWMOutput(pwmValue);
