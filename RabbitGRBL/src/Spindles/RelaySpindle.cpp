@@ -1,10 +1,23 @@
 /*
-    RelaySpindle.cpp
+  RelaySpindle.cpp
 
-    Basic on/off relay spindle.
-    Any RPM (S value) above 0 turns spindle on.
+  Copyright (c) 2026 Nikolaos Siatras
+  Twitter: nsiatras
+  Github: https://github.com/nsiatras
+  Website: https://www.sourcerabbit.com
 
-    Does NOT inherit from PWM.
+  Grbl is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Grbl is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RelaySpindle.h"
@@ -13,41 +26,23 @@ namespace Spindles
 {
     void Relay::Initialize()
     {
-        // Resolve pins from compile-time configuration (same approach as PWM::Initialize).
-        fOutputPin = UNDEFINED_PIN;
-#ifdef SPINDLE_OUTPUT_PIN
-        fOutputPin = SPINDLE_OUTPUT_PIN;
-#endif
-
-        fEnablePin = UNDEFINED_PIN;
-#ifdef SPINDLE_ENABLE_PIN
-        fEnablePin = SPINDLE_ENABLE_PIN;
-#endif
-
-        fDirectionPin = UNDEFINED_PIN;
-#ifdef SPINDLE_DIR_PIN
-        fDirectionPin = SPINDLE_DIR_PIN;
-#endif
+        // Resolve pins, rpm limits and delays using the base spindle initialization.
+        Spindle::Initialize();
 
         if (fOutputPin == UNDEFINED_PIN)
         {
-            grbl_msg_sendf(MsgLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
-            return; // Cannot continue without output pin
+            // Base initialization failed (no output pin configured).
+            return;
         }
 
-        // Read RPM and delay settings (same settings objects used by PWM spindle).
-        fMinRPM = settings_spindle_rpm_min->get();
-        fMaxRPM = settings_spindle_rpm_max->get();
-
-        fSpinUpDelay = (uint32_t)(settings_spindle_delay_spinup->get() * 1000.0);
-        fSpinDownDelay = (uint32_t)(settings_spindle_delay_spindown->get() * 1000.0);
-
-        // Prepare GPIO
+        // Prepare GPIOs.
         pinMode(fOutputPin, OUTPUT);
+
         if (fEnablePin != UNDEFINED_PIN)
         {
             pinMode(fEnablePin, OUTPUT);
         }
+
         if (fDirectionPin != UNDEFINED_PIN)
         {
             pinMode(fDirectionPin, OUTPUT);
@@ -56,8 +51,9 @@ namespace Spindles
         // Ensure everything is off at start.
         fCurrentState = SpindleState::Disable;
         fOutputOn = false;
-        writeDirectionPin(true); // Default direction (CW)
-        writeEnablePin(false);
+
+        setDirectionPinValue(true); // Default direction (CW)
+        setEnablePinValue(false);
         setRelayOutput(false);
     }
 
@@ -66,21 +62,16 @@ namespace Spindles
         // Clamp to max for safety.
         rpm = (rpm > fMaxRPM) ? fMaxRPM : rpm;
 
-        if (fOutputPin == UNDEFINED_PIN)
-        {
-            return rpm;
-        }
-
-        // Apply override (percent) while RPM > 0, matching PWM behavior.
-        rpm = (rpm > 0) ? (rpm * sys.spindle_speed_ovr / 100) : 0;
+        // Apply override (percent) while RPM > 0.
+        rpm = (rpm > 0) ? (uint32_t)(((uint64_t)rpm * sys.spindle_speed_ovr) / 100ULL) : 0;
 
         sys.spindle_speed = rpm;
 
         // Relay is simply ON when rpm > 0.
         const bool on = (rpm > 0);
 
-        // Enable pin follows modal state and rpm.
-        writeEnablePin(gc_state.modal.spindle != SpindleState::Disable);
+        // Enable pin follows modal state, but will be forced OFF if rpm == 0 inside setEnablePinValue().
+        setEnablePinValue(gc_state.modal.spindle != SpindleState::Disable);
 
         setRelayOutput(on);
 
@@ -94,9 +85,10 @@ namespace Spindles
             return; // Block during abort.
         }
 
+        // Detect a CW <-> CCW direction change while spindle remains enabled.
         const bool wasEnabled = (fCurrentState != SpindleState::Disable);
         const bool willBeEnabled = (state != SpindleState::Disable);
-        const bool directionChange = this->isReversable() && wasEnabled && willBeEnabled && (fCurrentState != state);
+        const bool directionChange = isReversable() && wasEnabled && willBeEnabled && (fCurrentState != state);
 
         if (state == SpindleState::Disable)
         {
@@ -118,9 +110,10 @@ namespace Spindles
                 delay(fSpinDownDelay);
             }
 
-            writeDirectionPin(state == SpindleState::Cw);
+            // Apply direction first, then RPM, then enable.
+            setDirectionPinValue(state == SpindleState::Cw);
             setRPM(rpm);
-            writeEnablePin(true);
+            setEnablePinValue(true);
 
             if (fCurrentState != state)
             {
@@ -134,12 +127,7 @@ namespace Spindles
 
     SpindleState Relay::getState()
     {
-        if (fOutputPin == UNDEFINED_PIN)
-        {
-            return SpindleState::Disable;
-        }
-
-        if (!fOutputOn)
+        if (fOutputPin == UNDEFINED_PIN || !fOutputOn)
         {
             return SpindleState::Disable;
         }
@@ -155,26 +143,23 @@ namespace Spindles
     void Relay::Stop()
     {
         // Ensure spindle is really off.
-        writeEnablePin(false);
+        setEnablePinValue(false);
         setRelayOutput(false);
     }
 
     bool Relay::isReversable()
     {
+        // Reversing is possible only when a valid direction GPIO pin is configured.
         return (fDirectionPin != UNDEFINED_PIN);
     }
 
     void Relay::setRelayOutput(bool on)
     {
-#ifdef INVERT_SPINDLE_PWM
-        // Keep compatibility with existing invert macro (even though this is not PWM).
-        on = !on;
-#endif
         fOutputOn = on;
         digitalWrite(fOutputPin, on);
     }
 
-    void Relay::writeEnablePin(bool active)
+    void Relay::setEnablePinValue(bool enabled)
     {
         if (fEnablePin == UNDEFINED_PIN)
         {
@@ -184,18 +169,19 @@ namespace Spindles
         // If spindle speed is zero, force disable.
         if (sys.spindle_speed == 0)
         {
-            active = false;
+            enabled = false;
         }
 
+        // Apply optional enable polarity inversion from settings.
         if (settings_spindle_enable_invert->get())
         {
-            active = !active;
+            enabled = !enabled;
         }
 
-        digitalWrite(fEnablePin, active);
+        digitalWrite(fEnablePin, enabled);
     }
 
-    void Relay::writeDirectionPin(bool clockwise)
+    void Relay::setDirectionPinValue(bool clockwise)
     {
         if (fDirectionPin == UNDEFINED_PIN)
         {

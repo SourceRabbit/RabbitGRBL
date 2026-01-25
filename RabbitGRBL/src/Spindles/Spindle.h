@@ -66,6 +66,9 @@ namespace Spindles
                 uint8_t fEnablePin;
                 uint8_t fDirectionPin;
 
+                uint32_t fMinRPM;
+                uint32_t fMaxRPM;
+
                 // Delays
                 uint32_t fSpinUpDelay;
                 uint32_t fSpinDownDelay;

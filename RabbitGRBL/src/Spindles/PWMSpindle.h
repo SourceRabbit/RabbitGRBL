@@ -46,8 +46,6 @@ namespace Spindles
 
     protected:
         int32_t fCurrentPWMDuty;
-        uint32_t fMinRPM;
-        uint32_t fMaxRPM;
 
         uint8_t fPWMChannelNumber;
         bool fInvertPWM;

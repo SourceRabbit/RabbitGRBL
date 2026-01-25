@@ -40,20 +40,11 @@ namespace Spindles
         fPWMPrecision = CalculatePWMPrecision(fPWMFrequency); // detewrmine the best precision
         fPWMPeriod = (1 << fPWMPrecision);
 
-        if (settings_spindle_pwm_min_value->get() > settings_spindle_pwm_max_value->get())
-        {
-            grbl_msg_sendf(MsgLevel::Info, "Warning: Spindle min pwm is greater than max. Check $35 and $36");
-        }
-
         // Pre-calculate some PWM count values
+        fPWMChannelNumber = 0; // Channel 0 is reserved for spindle use
         fPWMOffValue = (fPWMPeriod * settings_spindle_pwm_off_value->get() / 100.0);
         fPWMMinValue = (fPWMPeriod * settings_spindle_pwm_min_value->get() / 100.0);
         fPWMMaxValue = (fPWMPeriod * settings_spindle_pwm_max_value->get() / 100.0);
-
-        fMinRPM = settings_spindle_rpm_min->get();
-        fMaxRPM = settings_spindle_rpm_max->get();
-
-        fPWMChannelNumber = 0; // Channel 0 is reserved for spindle use
 
         fCurrentState = SpindleState::Disable;
         fCurrentPWMDuty = 0;

@@ -80,6 +80,15 @@ namespace Spindles
             return; // We cannot continue without the output pin
         }
 
+        if (settings_spindle_pwm_min_value->get() > settings_spindle_pwm_max_value->get())
+        {
+            grbl_msg_sendf(MsgLevel::Info, "Warning: Spindle min PWM is greater than max. Check $35 and $36");
+        }
+
+        // Set Min and Max RPM
+        fMinRPM = settings_spindle_rpm_min->get();
+        fMaxRPM = settings_spindle_rpm_max->get();
+
         // Setup delays (milliseconds)
         fSpinUpDelay = settings_spindle_delay_spinup->get() * 1000.0;
         fSpinDownDelay = settings_spindle_delay_spindown->get() * 1000.0;
@@ -119,7 +128,7 @@ namespace Spindles
 
     bool Spindle::inLaserMode()
     {
-        return false; 
+        return false;
     }
 
     /// @brief Check whether the spindle supports direction reversing (CW/CCW).
