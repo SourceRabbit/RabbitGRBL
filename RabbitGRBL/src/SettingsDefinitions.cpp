@@ -56,7 +56,6 @@ FloatSetting *settings_spindle_pwm_max_value;
 FloatSetting *settings_spindle_delay_spinup;
 FloatSetting *settings_spindle_delay_spindown;
 
-
 // Coolant Settings
 FloatSetting *settings_coolant_flood_start_delay;
 FloatSetting *settings_coolant_mist_start_delay;
@@ -193,14 +192,14 @@ static bool checkSpindleChange(char *val)
         if (gc_state.modal.spindle != SpindleState::Disable)
         {
             gc_state.modal.spindle = SpindleState::Disable;
-            if (fSpindle->fUseDelays && settings_spindle_delay_spindown->get() != 0)
-            { // old spindle
+            if (fSpindle->isUsingDelays() && settings_spindle_delay_spindown->get() != 0)
+            {
                 vTaskDelay(settings_spindle_delay_spindown->get() * 1000);
             }
             grbl_msg_sendf(MsgLevel::Info, "Spindle turned off with setting change");
         }
         gc_state.spindle_speed = 0;  // Set S value to 0
-        fSpindle->Dispose();          // old spindle
+        fSpindle->Dispose();         // old spindle
         Spindles::Spindle::Select(); // get new spindle
         return true;
     }
@@ -329,10 +328,10 @@ void make_settings()
 
     // Spindle Settings
     settings_spindle_type = new EnumSetting(NULL, EXTENDED, WG, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
-    
-    settings_spindle_delay_spindown = new FloatSetting(GRBL, WG, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
+
+    settings_spindle_delay_spindown = new FloatSetting(GRBL, WG, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINDOWN, 0, 30, checkSpindleChange);
     settings_spindle_delay_spinup = new FloatSetting(GRBL, WG, "37", "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
-    
+
     settings_spindle_enable_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
     settings_spindle_output_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
     settings_spindle_pwm_max_value = new FloatSetting(GRBL, WG, "36", "Spindle/PWM/Max", DEFAULT_SPINDLE_MAX_VALUE, 0.0, 100.0, checkSpindleChange);

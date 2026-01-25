@@ -23,51 +23,53 @@
 */
 
 #include <cstdint>
+#include "ESpindleType.h"
 #include "../Grbl.h"
-
-enum class ESpindleType : int8_t
-{
-    NONE = 0,
-    PWM,
-    RELAY,
-    LASER,
-    BESC,
-};
 
 namespace Spindles
 {
 
-    class Spindle
-    {
-    public:
-        Spindle() = default;
+        class Spindle
+        {
+        public:
+                Spindle() = default;
 
-        Spindle(const Spindle &) = delete;
-        Spindle(Spindle &&) = delete;
-        Spindle &operator=(const Spindle &) = delete;
-        Spindle &operator=(Spindle &&) = delete;
+                Spindle(const Spindle &) = delete;
+                Spindle(Spindle &&) = delete;
+                Spindle &operator=(const Spindle &) = delete;
+                Spindle &operator=(Spindle &&) = delete;
 
-        virtual ~Spindle() {}
+                virtual ~Spindle() {}
 
-        virtual void Initialize() = 0;
-        virtual void Synch(SpindleState state, uint32_t rpm);
-        virtual void Stop() = 0;
-        virtual void Dispose();
+                virtual void Initialize();
+                virtual void Synch(SpindleState state, uint32_t rpm);
+                virtual void Stop() = 0;
+                virtual void Dispose();
 
-        virtual bool inLaserMode();
-        virtual bool isReversable();
-        virtual uint32_t setRPM(uint32_t rpm) = 0;
-        virtual void setState(SpindleState state, uint32_t rpm) = 0;
-        virtual SpindleState getState() = 0;
+                virtual bool inLaserMode();
+                virtual bool isReversable();
+                virtual uint32_t setRPM(uint32_t rpm) = 0;
+                virtual void setState(SpindleState state, uint32_t rpm) = 0;
+                virtual SpindleState getState() = 0;
 
-        volatile SpindleState fCurrentState = SpindleState::Disable;
+                // Delays
+                uint32_t getSpinUpDelay();
+                uint32_t getSpinDownDelay();
+                bool isUsingDelays();
 
-        bool fUseDelays;
-        uint32_t fSpinUpDelay;
-        uint32_t fSpinDownDelay;
+                volatile SpindleState fCurrentState = SpindleState::Disable;
 
-        static void Select();
-    };
+                static void Select();
+
+        protected:
+                uint8_t fOutputPin;
+                uint8_t fEnablePin;
+                uint8_t fDirectionPin;
+
+                // Delays
+                uint32_t fSpinUpDelay;
+                uint32_t fSpinDownDelay;
+        };
 
 }
 

@@ -1,25 +1,25 @@
 #pragma once
 
 /*
-    PWMSpindle.h
+  PWMSpindle.h
 
-    This is a full featured TTL PWM spindle This does not include speed/power
-    compensation. Use the Laser class for that.
+  Copyright (c) 2026 Nikolaos Siatras
+  Twitter: nsiatras
+  Github: https://github.com/nsiatras
+  Website: https://www.sourcerabbit.com
 
-    Part of Grbl_ESP32
-    2020 -	Bart Dring
+  Grbl is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    Grbl is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    Grbl is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  Grbl is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
+  You should have received a copy of the GNU General Public License
+  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Spindle.h"
 
@@ -41,7 +41,6 @@ namespace Spindles
         void setState(SpindleState state, uint32_t rpm) override;
         SpindleState getState() override;
         void Stop() override;
-        bool isReversable() override;
 
         virtual ~PWM() {}
 
@@ -59,16 +58,11 @@ namespace Spindles
         uint32_t fPWMPeriod; // how many counts in 1 period
         uint8_t fPWMPrecision;
 
-        uint8_t fOutputPin;
-        uint8_t fEnablePin;
-        uint8_t fDirectionPin;
-
-        virtual void set_dir_pin(bool Clockwise);
-        virtual void set_output(uint32_t duty);
-        virtual void set_enable_pin(bool enable_pin);
+        virtual void setPWMOutput(uint32_t duty);
+        virtual void setEnablePinValue(bool active);
+        virtual void setDirectionPinValue(bool Clockwise);
         virtual void Dispose();
 
-        virtual void get_pins_and_settings();
-        uint8_t calc_pwm_precision(uint32_t freq);
+        uint8_t CalculatePWMPrecision(uint32_t freq);
     };
 }

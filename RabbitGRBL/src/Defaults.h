@@ -191,16 +191,16 @@
 #define DEFAULT_SPINDLE_MAX_VALUE 100.0 // $36 Percent of full period (extended set)
 #endif
 
-#ifndef DEFAULT_SPINDLE_DELAY_SPINUP
-#define DEFAULT_SPINDLE_DELAY_SPINUP 0
-#endif
-
 #ifndef DEFAULT_COOLANT_FLOOD_DELAY_TURNON // $60 The delay in milliseconds after the turn on and turn off before more gcode will run.
 #define DEFAULT_COOLANT_FLOOD_DELAY_TURNON 0
 #endif
 
 #ifndef DEFAULT_COOLANT_MIST_DELAY_TURNON // $61 The delay in milliseconds after the turn on and turn off before more gcode will run.
 #define DEFAULT_COOLANT_MIST_DELAY_TURNON 0
+#endif
+
+#ifndef DEFAULT_SPINDLE_DELAY_SPINUP
+#define DEFAULT_SPINDLE_DELAY_SPINUP 0
 #endif
 
 #ifndef DEFAULT_SPINDLE_DELAY_SPINDOWN

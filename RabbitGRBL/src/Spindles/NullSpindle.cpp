@@ -28,7 +28,7 @@ namespace Spindles
 
     void Null::Initialize()
     {
-        fUseDelays = false;
+       
     }
 
     uint32_t Null::setRPM(uint32_t rpm)
