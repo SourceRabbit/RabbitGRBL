@@ -24,7 +24,7 @@
 #include "NullSpindle.h"
 #include "PWMSpindle.h"
 #include "RelaySpindle.h"
-// #include "Laser.h"
+#include "Laser.h"
 
 namespace Spindles
 {

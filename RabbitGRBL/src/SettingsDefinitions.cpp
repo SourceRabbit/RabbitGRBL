@@ -29,8 +29,7 @@ FlagSetting *hard_limits;
 FlagSetting *homing_enable;
 // TODO Settings - also need to clear, but not set, soft_limits
 FlagSetting *laser_mode;
-// TODO Settings - also need to call my_spindle->init;
-IntSetting *laser_full_power;
+
 
 IntSetting *status_mask;
 FloatSetting *junction_deviation;
@@ -339,7 +338,6 @@ void make_settings()
     settings_spindle_pwm_off_value = new FloatSetting(GRBL, WG, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
     settings_spindle_pwm_freq = new FloatSetting(GRBL, WG, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
     laser_mode = new FlagSetting(GRBL, WG, "32", "GCode/LaserMode", DEFAULT_LASER_MODE);
-    laser_full_power = new IntSetting(EXTENDED, WG, NULL, "Laser/FullPower", DEFAULT_LASER_FULL_POWER, 0, 10000, checkSpindleChange);
 
     // TODO Settings - also need to call my_spindle->init();
     settings_spindle_rpm_min = new FloatSetting(GRBL, WG, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
