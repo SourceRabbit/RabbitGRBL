@@ -38,7 +38,7 @@ namespace Spindles
 
         fInvertPWM = settings_spindle_output_invert->get();
         fPWMFrequency = settings_spindle_pwm_freq->get();
-        fPWMPrecision = sys_calc_pwm_precision(fPWMFrequency); // detewrmine the best precision
+        fPWMPrecision = system_calculate_pwm_precision(fPWMFrequency); // detewrmine the best precision
         fPWMPeriod = (1 << fPWMPrecision);
 
         // Pre-calculate some PWM count values
