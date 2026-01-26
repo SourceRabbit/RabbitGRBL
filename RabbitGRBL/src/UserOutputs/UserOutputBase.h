@@ -33,9 +33,6 @@ namespace UserOutput
         uint8_t getPinNumber() const { return fPinNumber; }
 
     protected:
-        // Derived classes must implement initialization.
-        virtual void Initialize() = 0;
-
         uint8_t fNumber = UNDEFINED_PIN;
         uint8_t fPinNumber = UNDEFINED_PIN;
     };

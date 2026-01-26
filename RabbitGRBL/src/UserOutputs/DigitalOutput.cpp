@@ -13,11 +13,7 @@ namespace UserOutput
             return;
         }
 
-        init();
-    }
-
-    void DigitalOutput::Initialize()
-    {
+        // Initialize
         pinMode(this->getPinNumber(), OUTPUT);
         digitalWrite(this->getPinNumber(), LOW);
     }

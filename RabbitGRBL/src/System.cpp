@@ -346,7 +346,8 @@ int8_t sys_get_next_PWM_chan_num()
 {
     static uint8_t next_PWM_chan_num = 2; // start at 2 to avoid spindle
     if (next_PWM_chan_num < 8)
-    { // 7 is the max PWM channel number
+    {
+        // 7 is the max PWM channel number
         return next_PWM_chan_num++;
     }
     else

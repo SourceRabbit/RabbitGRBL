@@ -22,11 +22,7 @@ namespace UserOutput
         // Determine the highest resolution (number of precision bits) allowed by frequency.
         _resolution_bits = system_calculate_pwm_precision((uint32_t)_pwm_frequency);
 
-        init();
-    }
-
-    void AnalogOutput::Initialize()
-    {
+        // Initialize
         _pwm_channel = sys_get_next_PWM_chan_num();
         if (_pwm_channel == -1)
         {

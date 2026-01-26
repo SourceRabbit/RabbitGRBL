@@ -12,8 +12,5 @@ namespace UserOutput
         DigitalOutput(uint8_t number, uint8_t pin);
 
         bool set_level(bool isOn);
-
-    protected:
-        void Initialize() override;
     };
 }
