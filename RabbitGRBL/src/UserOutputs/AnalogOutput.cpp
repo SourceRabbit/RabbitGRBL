@@ -17,9 +17,6 @@ namespace UserOutput
         }
 
         // Determine the highest resolution (number of precision bits) allowed by frequency.
-        const uint32_t apb_frequency = getApbFrequency();
-
-        // Determine the highest resolution (number of precision bits) allowed by frequency.
         _resolution_bits = system_calculate_pwm_precision((uint32_t)_pwm_frequency);
 
         // Initialize
