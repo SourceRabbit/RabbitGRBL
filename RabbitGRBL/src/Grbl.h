@@ -54,7 +54,7 @@ const char *const GRBL_VERSION_BUILD = "20260126";
 #include "Settings.h"
 #include "SettingsDefinitions.h"
 #include "Coolant/CoolantManager.h"
-#include "UserOutput.h"
+#include "UserOutputs/UserOutputs.h"
 #include <Wire.h>
 
 void grbl_init();
