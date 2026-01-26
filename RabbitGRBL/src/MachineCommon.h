@@ -16,7 +16,6 @@
 
 // ESP32 CPU Settings
 // const uint32_t ESP32_TIMERS_CLOCK = 80000000; // For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
-
 const uint32_t ESP32_TIMERS_CLOCK = getApbFrequency(); // For a classic ESP32, the LEDC timer clock is typically the 80 MHz APB clock.
 
 // =============== Don't change or comment these out ======================
