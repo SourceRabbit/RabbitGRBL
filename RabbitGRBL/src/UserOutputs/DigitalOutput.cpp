@@ -16,6 +16,8 @@ namespace UserOutput
         // Initialize
         pinMode(this->getPinNumber(), OUTPUT);
         digitalWrite(this->getPinNumber(), LOW);
+
+        grbl_msg_sendf(MsgLevel::Info, "User Digital Output:%d on Pin:%s", this->getNumber(), pinName(this->getPinNumber()).c_str());
     }
 
     bool DigitalOutput::set_level(bool isOn)
