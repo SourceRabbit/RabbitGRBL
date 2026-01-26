@@ -31,11 +31,6 @@ namespace UserOutput
         ledcAttachPin(this->getPinNumber(), _pwm_channel);
         ledcWrite(_pwm_channel, 0);
 
-        config_message();
-    }
-
-    void AnalogOutput::config_message()
-    {
         grbl_msg_sendf(MsgLevel::Info, "User Analog Output:%d on Pin:%s Freq:%0.0fHz", this->getNumber(), pinName(this->getPinNumber()).c_str(), _pwm_frequency);
     }
 

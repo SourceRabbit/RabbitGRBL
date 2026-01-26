@@ -15,8 +15,6 @@ namespace UserOutput
         uint32_t denominator() const { return 1UL << _resolution_bits; }
 
     protected:
-        void config_message();
-
         int8_t _pwm_channel = -1; // -1 means invalid or not setup
         float _pwm_frequency = 0.0f;
         uint8_t _resolution_bits = 0;
