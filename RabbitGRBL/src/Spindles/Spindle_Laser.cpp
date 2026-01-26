@@ -1,7 +1,7 @@
 /*
   Spindle_Laser.cpp
 
-  Copyright (c) 2023 Nikolaos Siatras
+  Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com

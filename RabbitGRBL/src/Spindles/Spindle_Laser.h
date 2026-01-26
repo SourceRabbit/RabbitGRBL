@@ -3,7 +3,7 @@
 /*
   Spindle_Laser.h
 
-  Copyright (c) 2023 Nikolaos Siatras
+  Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
