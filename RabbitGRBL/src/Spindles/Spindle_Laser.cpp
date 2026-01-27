@@ -45,8 +45,18 @@ namespace Spindles
         fMinRPM = 0;
         fMaxRPM = settings_spindle_rpm_max->get();
 
-        // Keep a deterministic state.
-        fCurrentState = SpindleState::Disable;
+        // Safe initial state
+        setRPM(0);
+        Stop();
+
+        grbl_msg_sendf(MsgLevel::Info,
+                       "Laser on Pin:%d Off:%.1f%% Min:%.1f%% Max:%.1f%% Freq:%dHz Res:%dbits",
+                       fOutputPin,
+                       settings_spindle_pwm_off_value->get(),
+                       settings_spindle_pwm_min_value->get(),
+                       settings_spindle_pwm_max_value->get(),
+                       fPWMFrequency,
+                       fPWMPrecision);
     }
 
     bool Laser::inLaserMode()
