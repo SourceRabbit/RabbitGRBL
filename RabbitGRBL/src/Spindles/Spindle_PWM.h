@@ -43,23 +43,29 @@ namespace Spindles
         SpindleState getState() override;
         void Stop() override;
 
+        virtual void Dispose();
+
         virtual ~PWM() {}
 
     protected:
         int32_t fCurrentPWMDuty;
 
         uint8_t fPWMChannelNumber;
-        bool fInvertPWM;
+
+        uint32_t fPWMFrequency;
+        uint8_t fPWMPrecision;
+        uint32_t fPWMPeriod; // how many counts in 1 period
+
         uint32_t fPWMOffValue;
         uint32_t fPWMMinValue;
         uint32_t fPWMMaxValue;
-        uint32_t fPWMFrequency;
-        uint32_t fPWMPeriod; // how many counts in 1 period
-        uint8_t fPWMPrecision;
+
+        bool fInvertPWM;
+
+        void InitializePWMOutput(uint8_t channelNumber, uint32_t frequency, uint8_t precision, uint32_t period, uint32_t offValue, uint32_t minValue, uint32_t maxValue, bool invert);
 
         virtual void setPWMOutput(uint32_t duty);
         virtual void setEnablePinValue(bool active);
         virtual void setDirectionPinValue(bool Clockwise);
-        virtual void Dispose();
     };
 }

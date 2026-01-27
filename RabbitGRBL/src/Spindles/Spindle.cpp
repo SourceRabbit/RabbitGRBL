@@ -25,6 +25,7 @@
 #include "Spindle_PWM.h"
 #include "Spindle_Relay.h"
 #include "Spindle_Laser.h"
+#include "Spindle_BESC.h"
 
 namespace Spindles
 {
@@ -34,20 +35,27 @@ namespace Spindles
     PWM pwm;
     Relay relay;
     Laser laser;
+    BESC besc;
 
     void Spindle::Select()
     {
         switch (static_cast<ESpindleType>(settings_spindle_type->get()))
         {
+
         case ESpindleType::PWM:
             fSpindle = &pwm;
             break;
+
         case ESpindleType::RELAY:
             fSpindle = &relay;
             break;
 
         case ESpindleType::LASER:
             fSpindle = &laser;
+            break;
+
+        case ESpindleType::BESC:
+            fSpindle = &besc;
             break;
 
         case ESpindleType::NONE:
