@@ -720,7 +720,7 @@ Error gc_execute_line(char *line)
                 {
                     FAIL(Error::GcodeMaxValueExceeded);
                 }
-                grbl_msg_sendf(MsgLevel::Info, "Tool No: %d", int_value);
+                //grbl_msg_sendf(MsgLevel::Info, "Tool No: %d", int_value);
                 gc_state.tool = int_value;
                 break;
 
