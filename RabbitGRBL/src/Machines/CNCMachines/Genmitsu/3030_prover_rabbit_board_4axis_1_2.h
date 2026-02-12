@@ -28,7 +28,7 @@
 // TRAVEL
 #define DEFAULT_X_MAX_TRAVEL 				312.0  	// $130 X axis Max Travel (mm) 
 #define DEFAULT_Y_MAX_TRAVEL 				308.0  	// $131 Y axis Max Travel (mm)
-#define DEFAULT_Z_MAX_TRAVEL 				72.0  	// $132 Z axis Max Travel (mm)
+#define DEFAULT_Z_MAX_TRAVEL 				80.0  	// $132 Z axis Max Travel (mm)
 #define DEFAULT_A_MAX_TRAVEL 				0  		// $133 A axis Max Travel (mm or degrees) (NOTE: We set this to zero in order to avoid Soft Limits for this Axis)
 
 // SPEEDS AND ACCELLERATIONS (x16 Microstepping)
