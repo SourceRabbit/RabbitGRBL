@@ -75,6 +75,12 @@ Error report_gcode(const char *value)
     return Error::Ok;
 }
 
+Error show_grbl_build_info(const char *value)
+{
+    report_build_info();
+    return Error::Ok;
+}
+
 void show_grbl_settings(type_t type, bool wantAxis)
 {
     for (Setting *s = Setting::List; s; s = s->next())
@@ -467,6 +473,7 @@ Error motor_disable(const char *value)
 void make_grbl_commands()
 {
     new GrblCommand("", "Help", show_grbl_help, anyState);
+    new GrblCommand("I", "BuildInfo", show_grbl_build_info, idleOrAlarm);
     new GrblCommand("T", "State", showState, anyState);
     new GrblCommand("J", "Jog", doJog, idleOrJog);
 

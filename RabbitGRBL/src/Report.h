@@ -101,7 +101,7 @@ void report_startup_line(uint8_t n, const char *line);
 void report_execute_startup_message(const char *line, Error status_code);
 
 // Prints build info and user info
-void report_build_info(const char *line);
+void report_build_info();
 
 void report_gcode_comment(char *comment);
 

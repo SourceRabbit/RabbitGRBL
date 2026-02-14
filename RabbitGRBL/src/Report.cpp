@@ -246,8 +246,10 @@ void report_feedback_message(Message message)
 // Welcome message
 void report_init_message()
 {
-    grbl_sendf("\r\nGrbl %s %s ['$' for help]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
-    // grbl_msg_sendf(MsgLevel::Info, "Compiled with ESP32 SDK:%s", ESP.getSdkVersion());
+    grbl_sendf("\r\n%s Build  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
+
+    // This is the old welcome message.
+    //grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
@@ -491,9 +493,11 @@ void report_execute_startup_message(const char *line, Error status_code)
 }
 
 // Prints build info line
-void report_build_info(const char *line)
+void report_build_info()
 {
-    grbl_sendf("[VER:%s.%s:%s]\r\n[OPT:", GRBL_VERSION, GRBL_VERSION_BUILD, line);
+    grbl_sendf("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
+    grbl_sendf("[OPT:");
+
 #ifdef COOLANT_MIST_PIN
     Serial.write("M"); // TODO Need to deal with M8...it could be disabled
 #endif
@@ -650,7 +654,7 @@ void report_realtime_status()
         {
             strcat(status, "P");
         }
-        
+
         if (lim_pin_state)
         {
             auto n_axis = number_axis->get();
