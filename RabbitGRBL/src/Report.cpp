@@ -246,7 +246,7 @@ void report_feedback_message(Message message)
 // Welcome message
 void report_init_message()
 {
-    grbl_sendf("\r\n%s Build  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
+    grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
 
     // This is the old welcome message.
     //grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);

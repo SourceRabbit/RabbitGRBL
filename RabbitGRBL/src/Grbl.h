@@ -22,8 +22,8 @@
 
 // Grbl versioning system
 const char *const FIRMWARE_NAME = "Rabbit GRBL v1.5";
+const char *const GRBL_VERSION_BUILD = "20260215";
 const char *const GRBL_VERSION = "1.1h";
-const char *const GRBL_VERSION_BUILD = "20260214";
 
 #include <Arduino.h>
 #include <EEPROM.h>
