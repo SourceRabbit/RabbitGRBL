@@ -8,18 +8,18 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
@@ -87,8 +87,8 @@ Error execute_line(char *line)
         return Error::Ok;
     }
 
-    // Grbl '$' or WebUI '[ESPxxx]' system command
-    if (line[0] == '$' || line[0] == '[')
+    // Grbl '$' system command
+    if (line[0] == '$')
     {
         return system_execute_line(line);
     }
@@ -125,7 +125,7 @@ void protocol_main_loop()
         if (limits_get_state())
         {
             sys.state = State::Alarm; // Ensure alarm state is active.
-            report_feedback_message(Message::CheckLimits);
+            MessageSender::SendFeedbackMessage(EFeedbackMessage::CheckLimits);
         }
     }
 #endif
@@ -134,7 +134,7 @@ void protocol_main_loop()
     // Re-initialize the sleep state as an ALARM mode to ensure user homes or acknowledges.
     if (sys.state == State::Alarm || sys.state == State::Sleep)
     {
-        report_feedback_message(Message::AlarmLock);
+        MessageSender::SendFeedbackMessage(EFeedbackMessage::AlarmLock);
         sys.state = State::Alarm; // Ensure alarm state is set.
     }
     else
@@ -283,7 +283,7 @@ void protocol_exec_rt_system()
         // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
         if ((alarm == ExecAlarm::HardLimit) || (alarm == ExecAlarm::SoftLimit))
         {
-            report_feedback_message(Message::CriticalEvent);
+            MessageSender::SendFeedbackMessage(EFeedbackMessage::CriticalEvent);
             sys_rt_exec_state.bit.reset = false; // Disable any existing reset
             do
             {
@@ -375,7 +375,7 @@ void protocol_exec_rt_system()
                 // devices (spindle/coolant), and blocks resuming until switch is re-engaged.
                 if (rt_exec_state.bit.safetyDoor)
                 {
-                    report_feedback_message(Message::SafetyDoorAjar);
+                    MessageSender::SendFeedbackMessage(EFeedbackMessage::SafetyDoorAjar);
                     // If jogging, block safety door methods until jog cancel is complete. Just flag that it happened.
                     if (!(sys.suspend.bit.jogCancel))
                     {
@@ -732,7 +732,7 @@ static void protocol_exec_rt_suspend()
                 {
                     if (sys.state == State::Sleep)
                     {
-                        report_feedback_message(Message::SleepMode);
+                        MessageSender::SendFeedbackMessage(EFeedbackMessage::SleepMode);
                         // Spindle and coolant should already be stopped, but do it again just to be sure.
                         fSpindle->setState(SpindleState::Disable, 0); // De-energize
                         CoolantManager::TurnAllCoolantsOff();
@@ -847,7 +847,7 @@ static void protocol_exec_rt_suspend()
                     {
                         if (gc_state.modal.spindle != SpindleState::Disable)
                         {
-                            report_feedback_message(Message::SpindleRestore);
+                            MessageSender::SendFeedbackMessage(EFeedbackMessage::SpindleRestore);
                             if (fSpindle->inLaserMode())
                             {
                                 // When in laser mode, ignore spindle spin-up delay. Set to turn on laser when cycle starts.

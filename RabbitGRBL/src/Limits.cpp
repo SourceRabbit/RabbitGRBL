@@ -12,12 +12,12 @@
                  fixing ambiguation issues with limit.h in the esp32 Arduino Framework
                  when compiling with VS-Code/PlatformIO.
 
-    Grbl is free software: you can redistribute it and/or modify
+    Rabbit GRBL is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Grbl is distributed in the hope that it will be useful,
+    Rabbit GRBL is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -61,12 +61,12 @@ void IRAM_ATTR isr_limit_switches()
             // Check limit pin state.
             if (limits_get_state())
             {
-                grbl_msg_sendf(MsgLevel::Debug, "Hard limits");
+                MessageSender::SendMessage(EMessageLevel::Debug, "Hard limits");
                 mc_reset();                               // Initiate system kill.
                 sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
             }
 #else
-            grbl_msg_sendf(MsgLevel::Debug, "Hard limits");
+            MessageSender::SendMessage(EMessageLevel::Debug, "Hard limits");
             mc_reset();                               // Initiate system kill.
             sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
 #endif
@@ -241,7 +241,7 @@ void limits_go_home(uint8_t cycle_mask)
                 if (sys_rt_exec_alarm != ExecAlarm::None)
                 {
                     motors_set_homing_mode(cycle_mask, false); // tell motors homing is done...failed
-                    grbl_msg_sendf(MsgLevel::Debug, "Homing fail");
+                    MessageSender::SendMessage(EMessageLevel::Debug, "Homing fail");
                     mc_reset(); // Stop motors, if they are running.
                     protocol_execute_realtime();
                     return;
@@ -337,7 +337,7 @@ void limits_init()
 
                 /*if (limit_sw_queue == NULL)
                 {
-                    grbl_msg_sendf(MsgLevel::Info, "%s limit switch on pin %s", reportAxisNameMsg(axis, gang_index), pinName(pin).c_str());
+                    MessageSender::SendMessage(EMessageLevel::Info, "%s limit switch on pin %s", reportAxisNameMsg(axis, gang_index), pinName(pin).c_str());
                 }*/
             }
         }
@@ -424,7 +424,7 @@ void limits_soft_check(float *target)
                 }
             } while (sys.state != State::Idle);
         }
-        grbl_msg_sendf(MsgLevel::Debug, "Soft limits");
+        MessageSender::SendMessage(EMessageLevel::Debug, "Soft limits");
         mc_reset();                               // Issue system reset and ensure spindle and coolant are shutdown.
         sys_rt_exec_alarm = ExecAlarm::SoftLimit; // Indicate soft limit critical event
         protocol_execute_realtime();              // Execute to enter critical event loop and system abort
@@ -444,7 +444,7 @@ void limitCheckTask(void *pvParameters)
         switch_state = limits_get_state();
         if (switch_state)
         {
-            grbl_msg_sendf(MsgLevel::Debug, "Limit Switch State %08d", switch_state);
+            MessageSender::SendMessage(EMessageLevel::Debug, "Limit Switch State %08d", switch_state);
             mc_reset();                               // Initiate system kill.
             sys_rt_exec_alarm = ExecAlarm::HardLimit; // Indicate hard limit critical event
         }

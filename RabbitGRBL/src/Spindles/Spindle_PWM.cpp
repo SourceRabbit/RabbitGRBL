@@ -11,7 +11,7 @@
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Rabbit GRBL is distributed in the hope that it will be useful,
+    Rabbit Rabbit GRBL is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -33,7 +33,7 @@ namespace Spindles
         if (fOutputPin == UNDEFINED_PIN)
         {
             // Base initialization failed (no output pin configured).
-            grbl_msg_sendf(MsgLevel::Info, "Warning: PWM Spindle output pin not defined");
+            MessageSender::SendMessage(EMessageLevel::Info, "Warning: PWM Spindle output pin not defined");
             return;
         }
 
@@ -69,7 +69,7 @@ namespace Spindles
         // Display config message only for pure PWM spindle (not for derived types like BESC or Laser)
         if (static_cast<ESpindleType>(settings_spindle_type->get()) == ESpindleType::PWM)
         {
-            grbl_msg_sendf(MsgLevel::Info,
+            MessageSender::SendMessage(EMessageLevel::Info,
                            "PWM spindle on Pin:%d Off:%.1f%% Min:%.1f%% Max:%.1f%% Freq:%dHz Res:%dbits",
                            fOutputPin,
                            settings_spindle_pwm_off_value->get(),
@@ -180,7 +180,7 @@ namespace Spindles
 
             if (fCurrentState != state)
             {
-                // grbl_msg_sendf(MsgLevel::Info, "Spin down delay");
+                // MessageSender::SendMessage(EMessageLevel::Info, "Spin down delay");
                 delay(this->getSpinDownDelay());
             }
         }

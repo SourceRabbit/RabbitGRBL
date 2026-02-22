@@ -1,7 +1,5 @@
 #include "Grbl.h"
 
-FlagSetting *verbose_errors;
-
 FakeSetting<int> *number_axis;
 
 StringSetting *startup_line_0;
@@ -29,7 +27,6 @@ FlagSetting *hard_limits;
 FlagSetting *homing_enable;
 // TODO Settings - also need to clear, but not set, soft_limits
 FlagSetting *settings_spindle_laser_mode;
-
 
 IntSetting *status_mask;
 FloatSetting *junction_deviation;
@@ -59,7 +56,7 @@ FloatSetting *settings_spindle_delay_spindown;
 FloatSetting *settings_coolant_flood_start_delay;
 FloatSetting *settings_coolant_mist_start_delay;
 
-EnumSetting *message_level;
+EnumSetting *settings_message_level;
 
 enum_opt_t spindleTypes = {
     // clang-format off
@@ -73,12 +70,12 @@ enum_opt_t spindleTypes = {
 
 enum_opt_t messageLevels = {
     // clang-format off
-    { "None", int8_t(MsgLevel::None) },
-    { "Error", int8_t(MsgLevel::Error) },
-    { "Warning", int8_t(MsgLevel::Warning) },
-    { "Info", int8_t(MsgLevel::Info) },
-    { "Debug", int8_t(MsgLevel::Debug) },
-    { "Verbose", int8_t(MsgLevel::Verbose) },
+    { "None", int8_t(EMessageLevel::None) },
+    { "Error", int8_t(EMessageLevel::Error) },
+    { "Warning", int8_t(EMessageLevel::Warning) },
+    { "Info", int8_t(EMessageLevel::Info) },
+    { "Debug", int8_t(EMessageLevel::Debug) },
+    { "Verbose", int8_t(EMessageLevel::Verbose) },
     // clang-format on
 };
 
@@ -195,7 +192,7 @@ static bool checkSpindleChange(char *val)
             {
                 vTaskDelay(settings_spindle_delay_spindown->get() * 1000);
             }
-            grbl_msg_sendf(MsgLevel::Info, "Spindle turned off with setting change");
+            MessageSender::SendMessage(EMessageLevel::Info, "Spindle turned off with setting change");
         }
         gc_state.spindle_speed = 0;  // Set S value to 0
         fSpindle->Dispose();         // old spindle
@@ -240,8 +237,6 @@ void make_settings()
     make_coordinate(CoordIndex::G59, "G59");
     make_coordinate(CoordIndex::G28, "G28");
     make_coordinate(CoordIndex::G30, "G30");
-
-    verbose_errors = new FlagSetting(EXTENDED, WG, NULL, "Errors/Verbose", DEFAULT_VERBOSE_ERRORS);
 
     // number_axis = new IntSetting(EXTENDED, WG, NULL, "NumberAxis", N_AXIS, 0, 6, NULL, true);
     number_axis = new FakeSetting<int>(N_AXIS);
@@ -386,5 +381,5 @@ void make_settings()
     user_macro1 = new StringSetting(EXTENDED, WG, NULL, "User/Macro1", DEFAULT_USER_MACRO1);
     user_macro0 = new StringSetting(EXTENDED, WG, NULL, "User/Macro0", DEFAULT_USER_MACRO0);
 
-    message_level = +new EnumSetting(NULL, EXTENDED, WG, NULL, "Message/Level", static_cast<int8_t>(MsgLevel::Info), &messageLevels, NULL);
+    settings_message_level = +new EnumSetting(NULL, EXTENDED, WG, NULL, "Message/Level", static_cast<int8_t>(EMessageLevel::Info), &messageLevels, NULL);
 }

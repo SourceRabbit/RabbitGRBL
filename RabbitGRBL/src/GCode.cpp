@@ -8,18 +8,18 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
@@ -193,19 +193,25 @@ Error gc_execute_line(char *line)
     {
         char_counter = 0;
     }
+
     while (line[char_counter] != 0)
-    { // Loop until no more g-code words in line.
+    {
+        // Loop until no more g-code words in line.
         // Import the next g-code word, expecting a letter followed by a value. Otherwise, error out.
         letter = line[char_counter];
+
         if ((letter < 'A') || (letter > 'Z'))
         {
             FAIL(Error::ExpectedCommandLetter); // [Expected word letter]
         }
+
         char_counter++;
+
         if (!read_float(line, &char_counter, &value))
         {
             FAIL(Error::BadNumberFormat); // [Expected word value]
         }
+
         // Convert values to smaller uint8 significand and mantissa values for parsing this word.
         // NOTE: Mantissa is multiplied by 100 to catch non-integer command values. This is more
         // accurate than the NIST gcode requirement of x10 when used for commands, but not quite
@@ -215,13 +221,15 @@ Error gc_execute_line(char *line)
         // Maybe update this later.
         int_value = trunc(value);
         mantissa = round(100 * (value - int_value)); // Compute mantissa for Gxx.x commands.
+
         // NOTE: Rounding must be used to catch small floating point errors.
         // Check if the g-code word is supported or errors due to modal group violations or has
         // been repeated in the g-code block. If ok, update the command or record its value.
         switch (letter)
         {
-        /* 'G' and 'M' Command Words: Parse commands and check for modal group violations.
-       NOTE: Modal group numbers are defined in Table 4 of NIST RS274-NGC v3, pg.20 */
+
+            // 'G' and 'M' Command Words: Parse commands and check for modal group violations.
+            // NOTE: Modal group numbers are defined in Table 4 of NIST RS274-NGC v3, pg.20
         case 'G':
             // Determine 'G' command and its modal group
             switch (int_value)
@@ -304,7 +312,7 @@ Error gc_execute_line(char *line)
                 // only allow G38 "Probe" commands if a probe pin is defined.
                 if (PROBE_PIN == UNDEFINED_PIN)
                 {
-                    grbl_msg_sendf(MsgLevel::Info, "No probe pin defined");
+                    MessageSender::SendMessage(EMessageLevel::Info, "No probe pin defined");
                     FAIL(Error::GcodeUnsupportedCommand); // [Unsupported G command]
                 }
                 // Check for G0/1/2/3/38 being called with G10/28/30/92 on same block.
@@ -340,18 +348,22 @@ Error gc_execute_line(char *line)
                 gc_block.modal.motion = Motion::None;
                 mg_word_bit = ModalGroup::MG1;
                 break;
+
             case 17:
                 gc_block.modal.plane_select = Plane::XY;
                 mg_word_bit = ModalGroup::MG2;
                 break;
+
             case 18:
                 gc_block.modal.plane_select = Plane::ZX;
                 mg_word_bit = ModalGroup::MG2;
                 break;
+
             case 19:
                 gc_block.modal.plane_select = Plane::YZ;
                 mg_word_bit = ModalGroup::MG2;
                 break;
+                
             case 90:
                 switch (mantissa)
                 {
@@ -526,7 +538,7 @@ Error gc_execute_line(char *line)
                     }
                     else
                     {
-                        grbl_msg_sendf(MsgLevel::Info, "M4 requires laser mode or a reversable spindle");
+                        MessageSender::SendMessage(EMessageLevel::Info, "M4 requires laser mode or a reversable spindle");
                         FAIL(Error::GcodeUnsupportedCommand);
                     }
                     break;
@@ -657,7 +669,7 @@ Error gc_execute_line(char *line)
             case 'E':
                 axis_word_bit = GCodeWord::E;
                 gc_block.values.e = int_value;
-                // grbl_msg_sendf(MSG_LEVEL_INFO, "E %d", gc_block.values.e);
+                // MessageSender::SendMessage(EMessageLevel::Info, "E %d", gc_block.values.e);
                 break;
 
             case 'F':
@@ -701,7 +713,7 @@ Error gc_execute_line(char *line)
             case 'Q':
                 axis_word_bit = GCodeWord::Q;
                 gc_block.values.q = value;
-                // grbl_msg_sendf(MSG_LEVEL_INFO, "Q %2.2f", value);
+                // MessageSender::SendMessage(EMessageLevel::Info, "Q %2.2f", value);
                 break;
 
             case 'R':
@@ -720,7 +732,7 @@ Error gc_execute_line(char *line)
                 {
                     FAIL(Error::GcodeMaxValueExceeded);
                 }
-                //grbl_msg_sendf(MsgLevel::Info, "Tool No: %d", int_value);
+                // MessageSender::SendMessage(EMessageLevel::Info, "Tool No: %d", int_value);
                 gc_state.tool = int_value;
                 break;
 
@@ -1884,7 +1896,7 @@ Error gc_execute_line(char *line)
             fSpindle->setState(SpindleState::Disable, 0);
             CoolantManager::TurnAllCoolantsOff();
         }
-        report_feedback_message(Message::ProgramEnd);
+        MessageSender::SendFeedbackMessage(EFeedbackMessage::ProgramEnd);
 #ifdef USE_M30
         user_m30();
 #endif

@@ -2,11 +2,11 @@
         Motors.cpp
         Part of Grbl_ESP32
         2020 -	Bart Dring
-        Grbl is free software: you can redistribute it and/or modify
+        Rabbit GRBL is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
         (at your option) any later version.
-        Grbl is distributed in the hope that it will be useful,
+        Rabbit GRBL is distributed in the hope that it will be useful,
         but WITHOUT ANY WARRANTY; without even the implied warranty of
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
         GNU General Public License for more details.
@@ -25,7 +25,7 @@
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
 void init_motors()
 {
-        // grbl_msg_sendf(MsgLevel::Info, "Init Motors");
+        // MessageSender::SendMessage(EMessageLevel::Info, "Init Motors");
 
         auto n_axis = number_axis->get();
 
@@ -173,7 +173,7 @@ void init_motors()
         if (STEPPERS_DISABLE_PIN != UNDEFINED_PIN)
         {
                 pinMode(STEPPERS_DISABLE_PIN, OUTPUT); // global motor enable pin
-                // grbl_msg_sendf(MsgLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
+                // MessageSender::SendMessage(EMessageLevel::Info, "Global stepper disable pin:%s", pinName(STEPPERS_DISABLE_PIN));
         }
 
         // Initialize motors
@@ -236,7 +236,7 @@ void motors_set_disable(bool disable, uint8_t mask)
 
 void motors_read_settings()
 {
-        // grbl_msg_sendf(MsgLevel::Info, "Read Settings");
+        // MessageSender::SendMessage(EMessageLevel::Info, "Read Settings");
         auto n_axis = number_axis->get();
         for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
         {
@@ -270,7 +270,7 @@ uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming)
 bool motors_direction(uint8_t dir_mask)
 {
         auto n_axis = number_axis->get();
-        // grbl_msg_sendf(MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
+        // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
         // Set the direction pins, but optimize for the common
         // situation where the direction bits haven't changed.
@@ -297,7 +297,7 @@ bool motors_direction(uint8_t dir_mask)
 void motors_step(uint8_t step_mask)
 {
         auto n_axis = number_axis->get();
-        // grbl_msg_sendf(MsgLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
+        // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
         // Turn on step pulses for motors that are supposed to step now
         for (uint8_t axis = X_AXIS; axis < n_axis; axis++)

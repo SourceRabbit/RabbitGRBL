@@ -8,19 +8,19 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
@@ -376,7 +376,7 @@ void stepper_init()
 {
     busy.store(false);
 
-    //grbl_msg_sendf(MsgLevel::Info, "Axis count %d", number_axis->get());
+    // MessageSender::SendMessage(EMessageLevel::Info, "Axis count %d", number_axis->get());
 
     // Other stepper use timer interrupt
     Stepper_Timer_Init();
@@ -396,7 +396,7 @@ void stepper_switch(stepper_id_t new_stepper)
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
 void st_wake_up()
 {
-    // grbl_msg_sendf(MsgLevel::Info, "st_wake_up");
+    //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
     motors_set_disable(false);
     stepper_idle = false;
@@ -633,7 +633,7 @@ void st_prep_buffer()
                 st_prep_block->is_pwm_rate_adjusted = false; // set default value
                 // prep.inv_rate is only used if is_pwm_rate_adjusted is true
                 if (fSpindle->inLaserMode())
-                { 
+                {
                     if (pl_block->spindle == SpindleState::Ccw)
                     {
                         // Pre-compute inverse programmed rate to speed up PWM updating per step segment.
@@ -904,8 +904,8 @@ void st_prep_buffer()
                 if (st_prep_block->is_pwm_rate_adjusted)
                 {
                     rpm *= (prep.current_speed * prep.inv_rate);
-                    // grbl_msg_sendf(MsgLevel::Info, "RPM %.2f", rpm);
-                    // grbl_msg_sendf(MsgLevel::Info, "Rates CV %.2f IV %.2f RPM %.2f", prep.current_speed, prep.inv_rate, rpm);
+                    //  MessageSender::SendMessage(EMessageLevel::Info, "RPM %.2f", rpm);
+                    //  MessageSender::SendMessage(EMessageLevel::Info, "Rates CV %.2f IV %.2f RPM %.2f", prep.current_speed, prep.inv_rate, rpm);
                 }
                 // If current_speed is zero, then may need to be rpm_min*(100/MAX_SPINDLE_SPEED_OVERRIDE)
                 // but this would be instantaneous only and during a motion. May not matter at all.

@@ -10,18 +10,18 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
         CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 // This file contains compile-time configurations for Grbl's internal system. For the most part,
@@ -94,23 +94,23 @@ const int MAX_N_AXIS = 6;
 
 enum class Cmd : uint8_t
 {
-    Reset = 0x18,                   // Ctrl-X
+    Reset = 0x18, // Ctrl-X
     StatusReport = '?',
     CycleStart = '~',
     FeedHold = '!',
     SafetyDoor = 0x84,
     JogCancel = 0x85,
-    FeedOvrReset = 0x90,            // Restores feed override value to 100%.
+    FeedOvrReset = 0x90, // Restores feed override value to 100%.
     FeedOvrCoarsePlus = 0x91,
     FeedOvrCoarseMinus = 0x92,
     FeedOvrFinePlus = 0x93,
     FeedOvrFineMinus = 0x94,
-    RapidOvrReset = 0x95,           // Restores rapid override value to 100%.
+    RapidOvrReset = 0x95, // Restores rapid override value to 100%.
     RapidOvrMedium = 0x96,
     RapidOvrLow = 0x97,
-    RapidOvrExtraLow = 0x98,        // *NOT SUPPORTED*
-    SpindleOvrReset = 0x99,         // Restores spindle override value to 100%.
-    SpindleOvrCoarsePlus = 0x9A,    // 154
+    RapidOvrExtraLow = 0x98,     // *NOT SUPPORTED*
+    SpindleOvrReset = 0x99,      // Restores spindle override value to 100%.
+    SpindleOvrCoarsePlus = 0x9A, // 154
     SpindleOvrCoarseMinus = 0x9B,
     SpindleOvrFinePlus = 0x9C,
     SpindleOvrFineMinus = 0x9D,
@@ -163,6 +163,8 @@ static const uint8_t NHomingLocateCycle = 1; // Integer (1-128)
 // Upon a successful probe cycle, this option provides immediately feedback of the probe coordinates
 // through an automatically generated message. If disabled, users can still access the last probe
 // coordinates through Grbl '$#' print parameters.
+// Note: Enable this setting to allow control software (e.g. Focus)
+// to perform tool length measurements.
 #define MESSAGE_PROBE_COORDINATES // Enabled by default. Comment to disable.
 
 // Enables a second coolant control pin via the mist coolant GCode command M7 on the Arduino Uno
@@ -510,4 +512,3 @@ const double PARKING_PULLOUT_INCREMENT = 5.0; // Spindle pull-out and plunge dis
 // be reenabled by disabling the spindle stop override, if needed. This is purely a safety feature
 // to ensure the laser doesn't inadvertently remain powered while at a stop and cause a fire.
 #define DISABLE_LASER_DURING_HOLD // Default enabled. Comment to disable.
-

@@ -6,12 +6,12 @@
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
-  Rabbit GRBL is free software: you can redistribute it and/or modify
+  Rabbit Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Rabbit GRBL is distributed in the hope that it will be useful,
+  Rabbit Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -45,7 +45,7 @@ namespace UserOutput
         _pwm_channel = sys_get_next_PWM_chan_num();
         if (_pwm_channel == -1)
         {
-            grbl_msg_sendf(MsgLevel::Error, "Error: out of PWM channels");
+            MessageSender::SendMessage(EMessageLevel::Error, "Error: out of PWM channels");
             return;
         }
 
@@ -53,7 +53,7 @@ namespace UserOutput
         ledcAttachPin(this->getPinNumber(), _pwm_channel);
         ledcWrite(_pwm_channel, 0);
 
-        grbl_msg_sendf(MsgLevel::Info, "User Analog Output:%d on Pin:%s Freq:%0.0fHz", this->getNumber(), pinName(this->getPinNumber()).c_str(), _pwm_frequency);
+        MessageSender::SendMessage(EMessageLevel::Info, "User Analog Output:%d on Pin:%s Freq:%0.0fHz", this->getNumber(), pinName(this->getPinNumber()).c_str(), _pwm_frequency);
     }
 
     bool AnalogOutput::set_level(uint32_t numerator)
@@ -66,7 +66,7 @@ namespace UserOutput
 
         if (_pwm_channel == -1)
         {
-            grbl_msg_sendf(MsgLevel::Info, "M67 PWM channel error");
+            MessageSender::SendMessage(EMessageLevel::Info, "M67 PWM channel error");
             return false;
         }
 

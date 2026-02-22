@@ -8,18 +8,18 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
             CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
@@ -254,7 +254,7 @@ static bool axis_is_squared(uint8_t axis_mask)
         {
             return true;
         }
-        grbl_msg_sendf(MsgLevel::Info, "Cannot multi-axis home with squared axes. Homing normally");
+        MessageSender::SendMessage(EMessageLevel::Info, "Cannot multi-axis home with squared axes. Homing normally");
         return false;
     }
 
@@ -405,7 +405,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     }
 
     // Setup and queue probing motion. Auto cycle-start should not start the cycle.
-    // grbl_msg_sendf(MsgLevel::Info, "Found");
+    // MessageSender::SendMessage(EMessageLevel::Info, "Found");
     mc_line(target, pl_data);
 
     // Activate the probing state monitor in the stepper module.
@@ -455,7 +455,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
 
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
-    report_probe_parameters();
+    Probe::ReportProbeParameters();
 #endif
 
     if (sys.probe_succeeded)
@@ -521,7 +521,7 @@ void mc_override_ctrl_update(uint8_t override_state)
 // realtime abort command and hard limits. So, keep to a minimum.
 void mc_reset()
 {
-    // grbl_msg_sendf(MsgLevel::Info, "Motion Control Reset");
+    // MessageSender::SendMessage(EMessageLevel::Info, "Motion Control Reset");
     //  Only this function can set the system reset. Helps prevent multiple kill calls.
     if (!sys_rt_exec_state.bit.reset)
     {

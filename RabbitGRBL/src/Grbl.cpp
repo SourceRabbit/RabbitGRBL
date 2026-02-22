@@ -6,26 +6,23 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
 
 void grbl_init()
 {
-    client_init(); // Setup serial baud rate and interrupts
-    display_init();
-
-    // show the map name at startup
+    client_init(); // Setup serial baud rate and interrupts   
 
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
@@ -34,6 +31,7 @@ void grbl_init()
     init_motors();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
+
     // Initialize system state.
 #ifdef FORCE_INITIALIZATION_ALARM
     // Force Grbl into an ALARM state upon a power-cycle or hard reset.
@@ -41,6 +39,7 @@ void grbl_init()
 #else
     sys.state = State::Idle;
 #endif
+
     // Check for power-up and set system alarm if homing is enabled to force homing cycle
     // by setting Grbl's alarm state. Alarm locks out all g-code commands, including the
     // startup scripts, but allows access to settings and internal commands. Only a homing
@@ -110,4 +109,4 @@ void run_once()
 
 void __attribute__((weak)) machine_init() {}
 
-void __attribute__((weak)) display_init() {}
+

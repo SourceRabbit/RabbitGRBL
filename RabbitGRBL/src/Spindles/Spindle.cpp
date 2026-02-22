@@ -6,7 +6,7 @@
     Github: https://github.com/nsiatras
     Website: https://www.sourcerabbit.com
 
-    Rabbit Grbl is free software: you can redistribute it and/or modify
+    Rabbit Rabbit GRBL is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -87,13 +87,13 @@ namespace Spindles
 
         if (fOutputPin == UNDEFINED_PIN)
         {
-            grbl_msg_sendf(MsgLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
+            MessageSender::SendMessage(EMessageLevel::Info, "Warning: SPINDLE_OUTPUT_PIN not defined");
             return; // We cannot continue without the output pin
         }
 
         if (settings_spindle_pwm_min_value->get() > settings_spindle_pwm_max_value->get())
         {
-            grbl_msg_sendf(MsgLevel::Info, "Warning: Spindle min PWM is greater than max. Check $35 and $36");
+            MessageSender::SendMessage(EMessageLevel::Info, "Warning: Spindle min PWM is greater than max. Check $35 and $36");
         }
 
         // Set Min and Max RPM

@@ -7,18 +7,18 @@
     2018 -	Bart Dring This file was modified for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
@@ -85,49 +85,14 @@ void grbl_sendf(const char *format, ...)
     }
 }
 
-// Use to send [MSG:xxxx] Type messages. The level allows messages to be easily suppressed
-void grbl_msg_sendf(MsgLevel level, const char *format, ...)
-{
-    if (message_level != NULL)
-    {
-        // might be null before messages are setup
-        if (level > static_cast<MsgLevel>(message_level->get()))
-        {
-            return;
-        }
-    }
-
-    char loc_buf[100];
-    char *temp = loc_buf;
-    va_list arg;
-    va_list copy;
-    va_start(arg, format);
-    va_copy(copy, arg);
-    size_t len = vsnprintf(NULL, 0, format, arg);
-    va_end(copy);
-    if (len >= sizeof(loc_buf))
-    {
-        temp = new char[len + 1];
-        if (temp == NULL)
-        {
-            return;
-        }
-    }
-    len = vsnprintf(temp, len + 1, format, arg);
-    grbl_sendf("[MSG:%s]\r\n", temp);
-    va_end(arg);
-    if (temp != loc_buf)
-    {
-        delete[] temp;
-    }
-}
-
 static const int coordStringLen = 20;
 static const int axesStringLen = coordStringLen * MAX_N_AXIS;
 
-// formats axis values into a string and returns that string in rpt
-// NOTE: rpt should have at least size: axesStringLen
-static void report_util_axis_values(float *axis_value, char *rpt)
+/**
+ * Formats axis values into a string and returns that string in rpt.
+ * NOTE: rpt should have at least size: axesStringLen
+ */
+void report_util_axis_values(float *axis_value, char *rpt)
 {
     uint8_t idx;
     char axisVal[coordStringLen];
@@ -151,7 +116,9 @@ static void report_util_axis_values(float *axis_value, char *rpt)
     }
 }
 
-// This version returns the axis values as a String
+/**
+ * This version returns the axis values as a String
+ */
 static String report_util_axis_values(const float *axis_value)
 {
     String rpt = "";
@@ -176,12 +143,14 @@ static String report_util_axis_values(const float *axis_value)
     return rpt;
 }
 
-// Handles the primary confirmation protocol response for streaming interfaces and human-feedback.
-// For every incoming line, this method responds with an 'ok' for a successful command or an
-// 'error:'  to indicate some error event with the line or some critical system error during
-// operation. Errors events can originate from the g-code parser, settings module, or asynchronously
-// from a critical error, such as a triggered hard limit. Interface should always monitor for these
-// responses.
+/**
+ * Handles the primary confirmation protocol response for streaming interfaces and human-feedback.
+ * For every incoming line, this method responds with an 'ok' for a successful command or an
+ * 'error:'  to indicate some error event with the line or some critical system error during
+ * operation. Errors events can originate from the g-code parser, settings module, or asynchronously
+ * from a critical error, such as a triggered hard limit. Interface should always monitor for these
+ * responses.
+ */
 void report_status_message(Error status_code)
 {
     switch (status_code)
@@ -191,56 +160,19 @@ void report_status_message(Error status_code)
         break;
     default:
 
-        // With verbose errors, the message text is displayed instead of the number.
-        // Grbl 0.9 used to display the text, while Grbl 1.1 switched to the number.
-        // Many senders support both formats.
-        if (verbose_errors->get())
-        {
-            grbl_sendf("error: %s\r\n", errorString(status_code));
-        }
-        else
-        {
-            grbl_sendf("error:%d\r\n", static_cast<int>(status_code));
-        }
+        // Grbl 0.9 reported errors as text, Grbl 1.1 switched to numeric codes.
+        // RabbitGRBL follows the Grbl 1.1 standard, so the error number is reported.
+        grbl_sendf("error:%d\r\n", static_cast<int>(status_code));
     }
 }
 
-// Prints alarm messages.
+/**
+ * Prints alarm messages.
+ */
 void report_alarm_message(ExecAlarm alarm_code)
 {
     grbl_sendf("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
     delay_ms(500);                                            // Force delay to ensure message clears serial write buffer.
-}
-
-std::map<Message, const char *> MessageText = {
-    {Message::CriticalEvent, "Reset to continue"},
-    {Message::AlarmLock, "'$H'|'$X' to unlock"},
-    {Message::AlarmUnlock, "Caution: Unlocked"},
-    {Message::Enabled, "Enabled"},
-    {Message::Disabled, "Disabled"},
-    {Message::SafetyDoorAjar, "Check door"},
-    {Message::CheckLimits, "Check limits"},
-    {Message::ProgramEnd, "Program End"},
-    {Message::RestoreDefaults, "Restoring defaults"},
-    {Message::SpindleRestore, "Restoring spindle"},
-    {Message::SleepMode, "Sleeping"},
-    // Handled separately due to numeric argument
-    // { Message::SdFileQuit, "Reset during SD file at line: %d" },
-};
-
-// Prints feedback messages. This serves as a centralized method to provide additional
-// user feedback for things that are not of the status/alarm message protocol. These are
-// messages such as setup warnings, switch toggling, and how to exit alarms.
-// NOTE: For interfaces, messages are always placed within brackets. And if silent mode
-// is installed, the message number codes are less than zero.
-void report_feedback_message(Message message)
-{
-    // ok to send to all clients
-    auto it = MessageText.find(message);
-    if (it != MessageText.end())
-    {
-        grbl_msg_sendf(MsgLevel::Info, it->second);
-    }
 }
 
 // Welcome message
@@ -249,33 +181,13 @@ void report_init_message()
     grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
 
     // This is the old welcome message.
-    //grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
+    // grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
 void report_grbl_help()
 {
     Serial.write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
-}
-
-// Prints current probe parameters. Upon a probe command, these parameters are updated upon a
-// successful probe or upon a failed probe with the G38.3 without errors command (if supported).
-// These values are retained until Grbl is power-cycled, whereby they will be re-zeroed.
-void report_probe_parameters()
-{
-    // Report in terms of machine position.
-    float print_position[MAX_N_AXIS];
-    char probe_rpt[(axesStringLen + 13 + 6 + 1)]; // the probe report we are building here
-    char temp[axesStringLen];
-    strcpy(probe_rpt, "[PRB:"); // initialize the string with the first characters
-    // get the machine position and put them into a string and append to the probe report
-    system_convert_array_steps_to_mpos(print_position, sys_probe_position);
-    report_util_axis_values(print_position, temp);
-    strcat(probe_rpt, temp);
-    // add the success indicator and add closing characters
-    sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
-    strcat(probe_rpt, temp);
-    Serial.write(probe_rpt); // send the report
 }
 
 // Prints Grbl NGC parameters (coordinate offsets, probing)
@@ -305,7 +217,7 @@ void report_ngc_parameters()
     ;
     ngc_rpt += "]\r\n";
     Serial.write(ngc_rpt.c_str());
-    report_probe_parameters();
+    Probe::ReportProbeParameters();
 }
 
 // Print current gcode parser mode state
@@ -832,7 +744,7 @@ void report_gcode_comment(char *comment)
             index++;
         }
         msg[index - offset] = 0; // null terminate
-        grbl_msg_sendf(MsgLevel::Info, "GCode Comment...%s", msg);
+        MessageSender::SendMessage(EMessageLevel::Info, "GCode Comment...%s", msg);
     }
 }
 

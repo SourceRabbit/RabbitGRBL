@@ -6,16 +6,16 @@
     2018 -	Bart Dring This file was modified for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Grbl.h"
@@ -46,42 +46,42 @@ void system_ini()
   // setup control inputs
 
 #ifdef CONTROL_SAFETY_DOOR_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Door switch on pin %s", pinName(CONTROL_SAFETY_DOOR_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Door switch on pin %s", pinName(CONTROL_SAFETY_DOOR_PIN).c_str());
     pinMode(CONTROL_SAFETY_DOOR_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(CONTROL_SAFETY_DOOR_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef CONTROL_RESET_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Reset switch on pin %s", pinName(CONTROL_RESET_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Reset switch on pin %s", pinName(CONTROL_RESET_PIN).c_str());
     pinMode(CONTROL_RESET_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(CONTROL_RESET_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef CONTROL_FEED_HOLD_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Hold switch on pin %s", pinName(CONTROL_FEED_HOLD_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Hold switch on pin %s", pinName(CONTROL_FEED_HOLD_PIN).c_str());
     pinMode(CONTROL_FEED_HOLD_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(CONTROL_FEED_HOLD_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef CONTROL_CYCLE_START_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Start switch on pin %s", pinName(CONTROL_CYCLE_START_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Start switch on pin %s", pinName(CONTROL_CYCLE_START_PIN).c_str());
     pinMode(CONTROL_CYCLE_START_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(CONTROL_CYCLE_START_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef MACRO_BUTTON_0_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Macro Pin 0 %s", pinName(MACRO_BUTTON_0_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Macro Pin 0 %s", pinName(MACRO_BUTTON_0_PIN).c_str());
     pinMode(MACRO_BUTTON_0_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(MACRO_BUTTON_0_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef MACRO_BUTTON_1_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Macro Pin 1 %s", pinName(MACRO_BUTTON_1_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Macro Pin 1 %s", pinName(MACRO_BUTTON_1_PIN).c_str());
     pinMode(MACRO_BUTTON_1_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(MACRO_BUTTON_1_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef MACRO_BUTTON_2_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Macro Pin 2 %s", pinName(MACRO_BUTTON_2_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Macro Pin 2 %s", pinName(MACRO_BUTTON_2_PIN).c_str());
     pinMode(MACRO_BUTTON_2_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(MACRO_BUTTON_2_PIN), isr_control_inputs, CHANGE);
 #endif
 #ifdef MACRO_BUTTON_3_PIN
-    grbl_msg_sendf(MsgLevel::Info, "Macro Pin 3 %s", pinName(MACRO_BUTTON_3_PIN).c_str());
+    MessageSender::SendMessage(EMessageLevel::Info, "Macro Pin 3 %s", pinName(MACRO_BUTTON_3_PIN).c_str());
     pinMode(MACRO_BUTTON_3_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(MACRO_BUTTON_3_PIN), isr_control_inputs, CHANGE);
 #endif
@@ -269,7 +269,7 @@ void system_exec_control_pin(ControlPins pins)
 {
     if (pins.bit.reset)
     {
-        grbl_msg_sendf(MsgLevel::Info, "Reset via control pin");
+        MessageSender::SendMessage(EMessageLevel::Info, "Reset via control pin");
         mc_reset();
     }
     else if (pins.bit.cycleStart)
@@ -352,7 +352,7 @@ int8_t sys_get_next_PWM_chan_num()
     }
     else
     {
-        grbl_msg_sendf(MsgLevel::Error, "Error: out of PWM channels");
+        MessageSender::SendMessage(EMessageLevel::Error, "Error: out of PWM channels");
         return -1;
     }
 }
@@ -415,7 +415,7 @@ void __attribute__((weak)) user_defined_macro(uint8_t index)
     // must be in Idle
     if (sys.state != State::Idle)
     {
-        grbl_msg_sendf(MsgLevel::Info, "Macro button only permitted in idle");
+        MessageSender::SendMessage(EMessageLevel::Info, "Macro button only permitted in idle");
         return;
     }
 
@@ -441,7 +441,7 @@ void __attribute__((weak)) user_defined_macro(uint8_t index)
 
     if (user_macro == "")
     {
-        grbl_msg_sendf(MsgLevel::Info, "Macro User/Macro%d empty", index);
+        MessageSender::SendMessage(EMessageLevel::Info, "Macro User/Macro%d empty", index);
         return;
     }
 

@@ -5,18 +5,18 @@
   Twitter: nsiatras
   Website: https://www.sourcerabbit.com
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "../Grbl.h"
@@ -38,7 +38,7 @@ void Probe::Initialize()
 #else
         pinMode(PROBE_PIN, INPUT_PULLUP); // Enable internal pull-up resistors. Normal high operation.
 #endif
-        //grbl_msg_sendf(MsgLevel::Info, "Probe on pin %s", pinName(PROBE_PIN).c_str());
+        // MessageSender::SendMessage(EMessageLevel::Info, "Probe on pin %s", pinName(PROBE_PIN).c_str());
     }
 }
 
@@ -71,6 +71,30 @@ void Probe::StateMonitor()
         memcpy(sys_probe_position, sys_position, sizeof(sys_position));
         sys_rt_exec_state.bit.motionCancel = true;
     }
+}
+
+/**
+ * Prints current probe parameters. Upon a probe command, these parameters are updated upon a
+ * successful probe or upon a failed probe with the G38.3 without errors command (if supported).
+ * These values are retained until Grbl is power-cycled, whereby they will be re-zeroed.
+ */
+void Probe::ReportProbeParameters()
+{
+    // Report in terms of machine position.
+    const int coordStringLen = 20;
+    const int axesStringLen = coordStringLen * MAX_N_AXIS;
+    float print_position[MAX_N_AXIS];
+    char probe_rpt[(axesStringLen + 13 + 6 + 1)]; // the probe report we are building here
+    char temp[axesStringLen];
+    strcpy(probe_rpt, "[PRB:"); // initialize the string with the first characters
+    // get the machine position and put them into a string and append to the probe report
+    system_convert_array_steps_to_mpos(print_position, sys_probe_position);
+    report_util_axis_values(print_position, temp);
+    strcat(probe_rpt, temp);
+    // add the success indicator and add closing characters
+    sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
+    strcat(probe_rpt, temp);
+    Serial.write(probe_rpt); // send the report
 }
 
 /**

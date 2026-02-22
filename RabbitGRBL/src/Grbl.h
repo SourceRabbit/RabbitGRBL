@@ -8,21 +8,21 @@
   2018 -	Bart Dring This file was modifed for use on the ESP32
           CPU. Do not use this with Grbl for atMega328P
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 // Grbl versioning system
 const char *const FIRMWARE_NAME = "Rabbit GRBL v1.5";
-const char *const GRBL_VERSION_BUILD = "20260215";
+const char *const GRBL_VERSION_BUILD = "20260222";
 const char *const GRBL_VERSION = "1.1h";
 
 #include <Arduino.h>
@@ -45,6 +45,7 @@ const char *const GRBL_VERSION = "1.1h";
 #include "MotionControl.h"
 #include "Protocol.h"
 #include "Serial.h"
+#include "MessageSender/MessageSender.h"
 #include "Report.h"
 #include "Pins.h"
 #include "Spindles/Spindle.h"
@@ -62,7 +63,6 @@ void grbl_init();
 void run_once();
 
 void machine_init(); // weak definition in Grbl.cpp
-void display_init(); // weak definition in Grbl.cpp
 
 bool user_defined_homing(uint8_t cycle_mask); // weak definition in Limits.cpp
 

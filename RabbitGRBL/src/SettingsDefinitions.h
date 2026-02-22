@@ -1,7 +1,5 @@
 #pragma once
 
-extern FlagSetting *verbose_errors;
-
 extern FakeSetting<int> *number_axis;
 
 extern AxisSettings *x_axis_settings;
@@ -66,4 +64,4 @@ extern StringSetting *user_macro1;
 extern StringSetting *user_macro2;
 extern StringSetting *user_macro3;
 
-extern EnumSetting *message_level;
+extern EnumSetting *settings_message_level;

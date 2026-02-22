@@ -32,7 +32,7 @@ void settings_restore(uint8_t restore_flag)
                 }
             }
         }
-        grbl_msg_sendf(MsgLevel::Info, "Settings reset done");
+        MessageSender::SendMessage(EMessageLevel::Info, "Settings reset done");
     }
     if (restore_flag & SettingsRestore::Parameters)
     {
@@ -41,7 +41,7 @@ void settings_restore(uint8_t restore_flag)
             coords[idx]->setDefault();
         }
     }
-    grbl_msg_sendf(MsgLevel::Info, "Position offsets reset done");
+    MessageSender::SendMessage(EMessageLevel::Info, "Position offsets reset done");
 }
 
 // Get settings values from non volatile storage into memory
@@ -187,7 +187,7 @@ Error toggle_check_mode(const char *value)
     if (sys.state == State::CheckMode)
     {
         mc_reset();
-        // report_feedback_message(Message::Disabled);
+        // MessageSender::SendFeedbackMessage(EFeedbackMessage::Disabled);
     }
     else
     {
@@ -196,7 +196,7 @@ Error toggle_check_mode(const char *value)
             return Error::IdleError; // Requires no alarm mode.
         }
         sys.state = State::CheckMode;
-        // report_feedback_message(Message::Enabled);
+        // MessageSender::SendFeedbackMessage(EFeedbackMessage::Enabled);
     }
     return Error::Ok;
 }
@@ -210,7 +210,7 @@ Error disable_alarm_lock(const char *value)
         {
             return Error::CheckDoor;
         }
-        report_feedback_message(Message::AlarmUnlock);
+        MessageSender::SendFeedbackMessage(EFeedbackMessage::AlarmUnlock);
         sys.state = State::Idle;
         // Don't run startup script. Prevents stored moves in startup from causing accidents.
     } // Otherwise, no effect.

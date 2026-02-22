@@ -6,12 +6,12 @@
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
-  Rabbit GRBL is free software: you can redistribute it and/or modify
+  Rabbit Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Rabbit GRBL is distributed in the hope that it will be useful,
+  Rabbit Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -30,7 +30,7 @@ namespace Spindles
 
         if (fOutputPin == UNDEFINED_PIN)
         {
-            grbl_msg_sendf(MsgLevel::Info, "Warning: BESC output pin not defined");
+            MessageSender::SendMessage(EMessageLevel::Info, "Warning: BESC output pin not defined");
             return; // Cannot continue without output pin
         }
 
@@ -51,7 +51,7 @@ namespace Spindles
         setRPM(0);
         Stop();
 
-        grbl_msg_sendf(MsgLevel::Info,
+        MessageSender::SendMessage(EMessageLevel::Info,
                        "BESC spindle on Pin:%d Min:%.2fms Max:%.2fms Freq:%dHz Res:%dbits",
                        fOutputPin,
                        BESC_MIN_PULSE_SECS * 1000.0, // Convert to milliseconds

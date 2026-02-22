@@ -6,18 +6,18 @@
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CoolantManager.h"
@@ -50,7 +50,7 @@ void CoolantManager::Initialize()
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_MIST_PIN
         CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, INVERT_COOLANT_MIST_PIN, settings_coolant_mist_start_delay);
-        // grbl_msg_sendf(MsgLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
+        //  MessageSender::SendMessage(EMessageLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
 #else
         CoolantManager::Mist_Coolant.Initialize(0, true);
 #endif
@@ -61,7 +61,7 @@ void CoolantManager::Initialize()
         /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_FLOOD_PIN
         CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, settings_coolant_flood_start_delay);
-        // grbl_msg_sendf(MsgLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
+        //  MessageSender::SendMessage(EMessageLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
 #else
         CoolantManager::Flood_Coolant.Initialize(0, true);
 #endif

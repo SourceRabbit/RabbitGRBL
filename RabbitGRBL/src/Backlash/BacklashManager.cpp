@@ -6,18 +6,18 @@
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
-  Grbl is free software: you can redistribute it and/or modify
+  Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Grbl is distributed in the hope that it will be useful,
+  Rabbit GRBL is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BacklashManager.h"
@@ -88,7 +88,7 @@ void BacklashManager::CompensateBacklash(float *target, plan_line_data_t *pl_dat
 
     if (perform_backlash_compensation_motion)
     {
-        // grbl_msg_sendf(MsgLevel::Info, "Anti backlash Motion");
+        // MessageSender::SendMessage(EMessageLevel::Info, "Anti backlash Motion");
 
         // Queue the backlash motion into planner buffer
         plan_line_data_t pl_backlash_data;

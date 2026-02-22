@@ -9,11 +9,11 @@
 
     2020 -	Bart Dring
 
-    Grbl is free software: you can redistribute it and/or modify
+    Rabbit GRBL is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    Grbl is distributed in the hope that it will be useful,
+    Rabbit GRBL is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -39,7 +39,7 @@ namespace Motors
         }
         else
         {
-            grbl_msg_sendf(MsgLevel::Error, "Error: out of RMT channels");
+            MessageSender::SendMessage(EMessageLevel::Error, "Error: out of RMT channels");
         }
         return rmt_channel_t(next_RMT_chan_num);
     }
@@ -105,7 +105,7 @@ namespace Motors
 
     void StandardStepper::config_message()
     {
-        /*grbl_msg_sendf(MsgLevel::Info,
+        /*MessageSender::SendMessage(EMessageLevel::Info,
                         "%s Standard Stepper Step:%s Dir:%s Disable:%s %s",
                         reportAxisNameMsg(_axis_index, _dual_axis_index),
                         pinName(_step_pin).c_str(),
