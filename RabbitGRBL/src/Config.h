@@ -511,4 +511,3 @@ const double PARKING_PULLOUT_INCREMENT = 5.0; // Spindle pull-out and plunge dis
 // to ensure the laser doesn't inadvertently remain powered while at a stop and cause a fire.
 #define DISABLE_LASER_DURING_HOLD // Default enabled. Comment to disable.
 
-const int N_PIECES = 3;
