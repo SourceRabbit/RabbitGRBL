@@ -49,14 +49,14 @@ Rabbit GRBL runs on **ESP32-based CNC controller boards** and remains fully comp
 
 You can use it with supported ESP32 hardware as described in the official hardware compatibility list:
 
-👉 Compatible hardware  
+👉 Compatible Hardware<br>
 https://github.com/SourceRabbit/RabbitGRBL/wiki/Compatible-Hardware  
 
 On the software side, Rabbit GRBL works with **all standard GRBL G-code senders**, without requiring proprietary tools.  
 You can find the full list of compatible software here:
 
-👉 Compatible software  
-https://github.com/SourceRabbit/RabbitGRBL/wiki/Compatible-Software  
+👉 Compatible Software/G-Code Senders<br>
+https://github.com/SourceRabbit/RabbitGRBL/wiki/Compatible-GCode-Senders
 
 Because Rabbit GRBL is **100% backward compatible with the original GRBL (AVR)** command set, it integrates seamlessly with existing GRBL-based workflows.
 
