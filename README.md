@@ -6,18 +6,15 @@ Deterministic, high-speed and stable motion control firmware,
 designed for real CNC machines and long production jobs,
 with predictable behavior, precise timing and reliable multi-axis control,
 engineered for continuous operation, low latency, accuracy, robustness, scalability, safety.
-
-
 </p>
 
 <br clear="left"/>
-
 
 [![](https://dcbadge.limes.pink/api/server/nRKETyjJ7E)](https://discord.gg/nRKETyjJ7E)
 
 ## Introduction
 
-Rabbit GRBL is a **GRBL-compatible motion control firmware for ESP32**, originally based on **Grbl_Esp32**.
+Rabbit GRBL is a **GRBL-compatible motion control firmware for ESP32**, originally developed as a fork of **Grbl_Esp32**.
 
 This repository is maintained to provide a **professional-grade**, fast and predictable firmware that remains  
 **100% backward compatible with the original GRBL (AVR)** command set and works with **all standard GRBL G-code senders**.
