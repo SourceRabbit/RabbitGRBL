@@ -73,7 +73,7 @@ static void reset_variables()
 
     sys_rt_exec_state.value = 0;
     sys_rt_exec_accessory_override.value = 0;
-    sys_rt_exec_alarm = ExecAlarm::None;
+    sys_rt_exec_alarm = EAlarm::None;
     cycle_stop = false;
 
     // Reset overrides

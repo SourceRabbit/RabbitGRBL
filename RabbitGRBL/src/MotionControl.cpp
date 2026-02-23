@@ -283,7 +283,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     if (limits_get_state())
     {
         mc_reset(); // Issue system reset and ensure spindle and coolant are shutdown.
-        sys_rt_exec_alarm = ExecAlarm::HardLimit;
+        sys_rt_exec_alarm = EAlarm::HardLimit;
         return;
     }
 #endif
@@ -345,7 +345,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
         }
         if (no_cycles_defined)
         {
-            report_status_message(Error::HomingNoCycles);
+            report_status_message(EError::HomingNoCycles);
         }
     }
     protocol_execute_realtime(); // Check for reset and set system abort.
@@ -398,7 +398,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     if (Probe::isTriggered() ^ is_probe_away)
     {
         // Check probe pin state.
-        sys_rt_exec_alarm = ExecAlarm::ProbeFailInitial;
+        sys_rt_exec_alarm = EAlarm::ProbeFailInitial;
         protocol_execute_realtime();
         RESTORE_STEPPER(save_stepper); // Switch the stepper mode to the previous mode
         return GCUpdatePos::None;      // Nothing else to do but bail.
@@ -436,7 +436,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
         }
         else
         {
-            sys_rt_exec_alarm = ExecAlarm::ProbeFailContact;
+            sys_rt_exec_alarm = EAlarm::ProbeFailContact;
         }
     }
     else
@@ -544,14 +544,14 @@ void mc_reset()
         {
             if (sys.state == State::Homing)
             {
-                if (sys_rt_exec_alarm == ExecAlarm::None)
+                if (sys_rt_exec_alarm == EAlarm::None)
                 {
-                    sys_rt_exec_alarm = ExecAlarm::HomingFailReset;
+                    sys_rt_exec_alarm = EAlarm::HomingFailReset;
                 }
             }
             else
             {
-                sys_rt_exec_alarm = ExecAlarm::AbortCycle;
+                sys_rt_exec_alarm = EAlarm::AbortCycle;
             }
             st_go_idle(); // Force kill steppers. Position has likely been lost.
         }

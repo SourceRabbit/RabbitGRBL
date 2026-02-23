@@ -65,17 +65,17 @@ Setting::Setting(
     }
 }
 
-Error Setting::check(char *s)
+EError Setting::check(char *s)
 {
     if (sys.state != State::Idle && sys.state != State::Alarm)
     {
-        return Error::IdleError;
+        return EError::IdleError;
     }
     if (!_checker)
     {
-        return Error::Ok;
+        return EError::Ok;
     }
-    return _checker(s) ? Error::Ok : Error::InvalidValue;
+    return _checker(s) ? EError::Ok : EError::InvalidValue;
 }
 
 nvs_handle Setting::_handle = 0;
@@ -136,11 +136,11 @@ void IntSetting::setDefault()
     }
 }
 
-Error IntSetting::setStringValue(char *s)
+EError IntSetting::setStringValue(char *s)
 {
     s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -148,11 +148,11 @@ Error IntSetting::setStringValue(char *s)
     int32_t convertedValue = strtol(s, &endptr, 10);
     if (endptr == s || *endptr != '\0')
     {
-        return Error::BadNumberFormat;
+        return EError::BadNumberFormat;
     }
     if (convertedValue < _minValue || convertedValue > _maxValue)
     {
-        return Error::NumberRange;
+        return EError::NumberRange;
     }
 
     // If we don't see the NVM state, we have to make this the live value:
@@ -171,13 +171,13 @@ Error IntSetting::setStringValue(char *s)
         {
             if (nvs_set_i32(_handle, _keyName, convertedValue))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = convertedValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 const char *IntSetting::getDefaultString()
@@ -244,11 +244,11 @@ void AxisMaskSetting::setDefault()
     }
 }
 
-Error AxisMaskSetting::setStringValue(char *s)
+EError AxisMaskSetting::setStringValue(char *s)
 {
     s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -271,7 +271,7 @@ Error AxisMaskSetting::setStringValue(char *s)
                 int index = axisNames.indexOf(toupper(*s++));
                 if (index < 0)
                 {
-                    return Error::BadNumberFormat;
+                    return EError::BadNumberFormat;
                 }
                 convertedValue |= bit(index);
             }
@@ -288,13 +288,13 @@ Error AxisMaskSetting::setStringValue(char *s)
         {
             if (nvs_set_i32(_handle, _keyName, _currentValue))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = _currentValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 const char *AxisMaskSetting::getCompatibleValue()
@@ -367,11 +367,11 @@ void FloatSetting::setDefault()
     }
 }
 
-Error FloatSetting::setStringValue(char *s)
+EError FloatSetting::setStringValue(char *s)
 {
     s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -381,11 +381,11 @@ Error FloatSetting::setStringValue(char *s)
     uint8_t retlen = 0;
     if (!read_float(s, &retlen, &convertedValue) || retlen != len)
     {
-        return Error::BadNumberFormat;
+        return EError::BadNumberFormat;
     }
     if (convertedValue < _minValue || convertedValue > _maxValue)
     {
-        return Error::NumberRange;
+        return EError::NumberRange;
     }
     _currentValue = convertedValue;
     if (_storedValue != _currentValue)
@@ -404,13 +404,13 @@ Error FloatSetting::setStringValue(char *s)
             v.fval = _currentValue;
             if (nvs_set_i32(_handle, _keyName, v.ival))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = _currentValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 const char *FloatSetting::getDefaultString()
@@ -486,14 +486,14 @@ void StringSetting::setDefault()
     }
 }
 
-Error StringSetting::setStringValue(char *s)
+EError StringSetting::setStringValue(char *s)
 {
     if (_minLength && _maxLength && (strlen(s) < _minLength || strlen(s) > _maxLength))
     {
-        return Error::BadNumberFormat;
+        return EError::BadNumberFormat;
     }
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -509,13 +509,13 @@ Error StringSetting::setStringValue(char *s)
         {
             if (nvs_set_str(_handle, _keyName, _currentValue.c_str()))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = _currentValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 const char *StringSetting::getDefaultString()
@@ -567,11 +567,11 @@ void EnumSetting::setDefault()
 // either with the string name or the numeric value.
 // This is necessary for WebUI, which uses the number
 // for setting.
-Error EnumSetting::setStringValue(char *s)
+EError EnumSetting::setStringValue(char *s)
 {
     s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -583,14 +583,14 @@ Error EnumSetting::setStringValue(char *s)
         // Disallow empty string
         if (!s || !*s)
         {
-            return Error::BadNumberFormat;
+            return EError::BadNumberFormat;
         }
         char *endptr;
         uint8_t num = strtol(s, &endptr, 10);
         // Disallow non-numeric characters in string
         if (*endptr)
         {
-            return Error::BadNumberFormat;
+            return EError::BadNumberFormat;
         }
         for (it = _options->begin(); it != _options->end(); it++)
         {
@@ -601,7 +601,7 @@ Error EnumSetting::setStringValue(char *s)
         }
         if (it == _options->end())
         {
-            return Error::BadNumberFormat;
+            return EError::BadNumberFormat;
         }
     }
     _currentValue = it->second;
@@ -615,13 +615,13 @@ Error EnumSetting::setStringValue(char *s)
         {
             if (nvs_set_i8(_handle, _keyName, _currentValue))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = _currentValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 const char *EnumSetting::enumToString(int8_t value)
@@ -675,11 +675,11 @@ void FlagSetting::setDefault()
     }
 }
 
-Error FlagSetting::setStringValue(char *s)
+EError FlagSetting::setStringValue(char *s)
 {
     s = trim(s);
-    Error err = check(s);
-    if (err != Error::Ok)
+    EError err = check(s);
+    if (err != EError::Ok)
     {
         return err;
     }
@@ -697,13 +697,13 @@ Error FlagSetting::setStringValue(char *s)
         {
             if (nvs_set_i8(_handle, _keyName, _currentValue))
             {
-                return Error::NvsSetFailed;
+                return EError::NvsSetFailed;
             }
             _storedValue = _currentValue;
         }
     }
     check(NULL);
-    return Error::Ok;
+    return EError::Ok;
 }
 const char *FlagSetting::getDefaultString()
 {
@@ -720,11 +720,11 @@ const char *FlagSetting::getCompatibleValue()
 
 AxisSettings::AxisSettings(const char *axisName) : name(axisName) {}
 
-Error GrblCommand::action(char *value)
+EError GrblCommand::action(char *value)
 {
     if (_cmdChecker && _cmdChecker())
     {
-        return Error::IdleError;
+        return EError::IdleError;
     }
     return _action((const char *)value);
 };

@@ -24,7 +24,7 @@
 #include "Grbl.h"
 
 // Sets up valid jog motion received from g-code parser, checks for soft-limits, and executes the jog.
-Error jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
+EError jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
 {
     // Initialize planner data struct for jogging motions.
     // NOTE: Spindle and coolant are allowed to fully function with overrides during a jog.
@@ -38,7 +38,7 @@ Error jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
     // Check if Jog motion exceeds soft limits
     if (soft_limits->get() && limitsCheckTravel(gc_block->values.xyz))
     {
-        return Error::TravelExceeded;
+        return EError::TravelExceeded;
     }
 
     // Valid jog command. Plan, set state, and execute.
@@ -54,5 +54,5 @@ Error jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
             st_wake_up(); // NOTE: Manual start. No state machine required.
         }
     }
-    return Error::Ok;
+    return EError::Ok;
 }

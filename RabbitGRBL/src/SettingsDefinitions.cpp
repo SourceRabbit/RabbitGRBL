@@ -168,7 +168,7 @@ static bool checkStartupLine(char *value)
     {
         return false;
     }
-    return gc_execute_line(value) == Error::Ok;
+    return gc_execute_line(value) == EError::Ok;
 }
 
 static bool postMotorSetting(char *value)

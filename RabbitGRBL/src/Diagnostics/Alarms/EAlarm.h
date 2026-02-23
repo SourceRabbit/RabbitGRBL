@@ -1,12 +1,10 @@
-#pragma once
-
 /*
-  Jog.h - Jogging methods
-  Part of Grbl
+  EAlarm.h
 
-  Copyright (c) 2016 Sungeun K. Jeon for Gnea Research LLC
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+  Copyright (c) 2026 Nikolaos Siatras
+  Twitter: nsiatras
+  Github: https://github.com/nsiatras
+  Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,10 +20,20 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Grbl.h"
+#pragma once
 
-// System motion line numbers must be zero.
-const int JOG_LINE_NUMBER = 0;
-
-// Sets up valid jog motion received from g-code parser, checks for soft-limits, and executes the jog.
-EError jog_execute(plan_line_data_t* pl_data, parser_block_t* gc_block);
+// Alarm codes.
+enum class EAlarm : uint8_t
+{
+  None = 0,
+  HardLimit = 1,
+  SoftLimit = 2,
+  AbortCycle = 3,
+  ProbeFailInitial = 4,
+  ProbeFailContact = 5,
+  HomingFailReset = 6,
+  HomingFailDoor = 7,
+  HomingFailPulloff = 8,
+  HomingFailApproach = 9,
+  SpindleControl = 10
+};

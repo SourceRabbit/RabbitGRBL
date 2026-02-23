@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 // System executor bit map. Used internally by realtime protocol as realtime command flags,
 // which notifies the main program to execute the specified realtime command asynchronously.
 // NOTE: The system executor uses an unsigned 8-bit volatile variable (8 flag limit.) The default
@@ -42,21 +40,3 @@ union ExecAccessory
     uint8_t value;
     ExecAccessoryBits bit;
 };
-
-// Alarm codes.
-enum class ExecAlarm : uint8_t
-{
-    None = 0,
-    HardLimit = 1,
-    SoftLimit = 2,
-    AbortCycle = 3,
-    ProbeFailInitial = 4,
-    ProbeFailContact = 5,
-    HomingFailReset = 6,
-    HomingFailDoor = 7,
-    HomingFailPulloff = 8,
-    HomingFailApproach = 9,
-    SpindleControl = 10,
-};
-
-extern std::map<ExecAlarm, const char *> AlarmNames;

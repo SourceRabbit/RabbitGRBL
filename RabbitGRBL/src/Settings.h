@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <map>
 #include <nvs.h>
 
@@ -89,7 +88,7 @@ public:
     ~Command() {}
     Command(const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*cmdChecker)());
 
-    virtual Error action(char *value) = 0;
+    virtual EError action(char *value) = 0;
 };
 
 class Setting : public Word
@@ -109,14 +108,14 @@ public:
     static Setting *List;
     Setting *next() { return link; }
 
-    Error check(char *s);
+    EError check(char *s);
 
-    static Error report_nvs_stats(const char *value)
+    static EError report_nvs_stats(const char *value)
     {
         nvs_stats_t stats;
         if (esp_err_t err = nvs_get_stats(NULL, &stats))
         {
-            return Error::NvsGetStatsFailed;
+            return EError::NvsGetStatsFailed;
         }
         grbl_sendf("[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
 #if 0 // The SDK we use does not have this yet
@@ -128,13 +127,13 @@ public:
             grbl_sendf("namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
         }
 #endif
-        return Error::Ok;
+        return EError::Ok;
     }
 
-    static Error eraseNVS(const char *value)
+    static EError eraseNVS(const char *value)
     {
         nvs_erase_all(_handle);
-        return Error::Ok;
+        return EError::Ok;
     }
 
     ~Setting() {}
@@ -146,11 +145,11 @@ public:
     // load() reads the backing store to get the current
     // value of the setting.  This could be slow so it
     // should be done infrequently, typically once at startup.
-    virtual void load(){};
-    virtual void setDefault(){};
+    virtual void load() {};
+    virtual void setDefault() {};
 
-    virtual Error setStringValue(char *value) = 0;
-    Error setStringValue(String s) { return setStringValue(s.c_str()); }
+    virtual EError setStringValue(char *value) = 0;
+    EError setStringValue(String s) { return setStringValue(s.c_str()); }
     virtual const char *getStringValue() = 0;
     virtual const char *getCompatibleValue() { return getStringValue(); }
     virtual const char *getDefaultString() = 0;
@@ -190,7 +189,7 @@ public:
 
     void load();
     void setDefault();
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
 
@@ -218,7 +217,7 @@ public:
 
     void load();
     void setDefault();
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getCompatibleValue();
     const char *getStringValue();
     const char *getDefaultString();
@@ -286,7 +285,7 @@ public:
     void setDefault();
 
     // There are no Float settings in WebUI
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
 
@@ -315,11 +314,11 @@ public:
                   bool (*checker)(char *));
 
     StringSetting(
-        type_t type, permissions_t permissions, const char *grblName, const char *name, const char *defVal, bool (*checker)(char *) = NULL) : StringSetting(NULL, type, permissions, grblName, name, defVal, 0, 0, checker){};
+        type_t type, permissions_t permissions, const char *grblName, const char *name, const char *defVal, bool (*checker)(char *) = NULL) : StringSetting(NULL, type, permissions, grblName, name, defVal, 0, 0, checker) {};
 
     void load();
     void setDefault();
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
 
@@ -360,7 +359,7 @@ public:
 
     void load();
     void setDefault();
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getStringValue();
     const char *getDefaultString();
 
@@ -386,17 +385,16 @@ public:
 
     void load();
     void setDefault();
-    
+
     // There are no Flag settings in WebUI
     // The booleans are expressed as Enums
-    Error setStringValue(char *value);
+    EError setStringValue(char *value);
     const char *getCompatibleValue();
     const char *getStringValue();
     const char *getDefaultString();
 
     bool get() { return _currentValue; }
 };
-
 
 class AxisSettings
 {
@@ -423,22 +421,22 @@ extern bool notCycleOrHold();
 class GrblCommand : public Command
 {
 private:
-    Error (*_action)(const char *);
+    EError (*_action)(const char *);
 
 public:
     GrblCommand(const char *grblName,
                 const char *name,
-                Error (*action)(const char *),
+                EError (*action)(const char *),
                 bool (*cmdChecker)(),
                 permissions_t auth) : Command(NULL, GRBLCMD, auth, grblName, name, cmdChecker),
                                       _action(action) {}
 
     GrblCommand(const char *grblName,
                 const char *name,
-                Error (*action)(const char *),
+                EError (*action)(const char *),
                 bool (*cmdChecker)()) : GrblCommand(grblName, name, action, cmdChecker, WG) {}
 
-    Error action(char *value);
+    EError action(char *value);
 };
 
 template <typename T>

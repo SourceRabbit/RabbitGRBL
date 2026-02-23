@@ -29,7 +29,7 @@ enum RtStatus
   Buffer = bit(1),
 };
 
-const char *errorString(Error errorNumber);
+const char *errorString(EError errorNumber);
 
 // Define Grbl feedback message codes. Valid values (0-255).
 enum class Message : uint8_t
@@ -52,11 +52,8 @@ enum class Message : uint8_t
 void grbl_sendf(const char *format, ...);
 
 // Prints system status messages.
-void report_status_message(Error status_code);
+void report_status_message(EError status_code);
 void report_realtime_steps();
-
-// Prints system alarm messages.
-void report_alarm_message(ExecAlarm alarm_code);
 
 // Prints welcome message
 void report_init_message();
@@ -83,7 +80,7 @@ void report_gcode_modes();
 
 // Prints startup line when requested and executed.
 void report_startup_line(uint8_t n, const char *line);
-void report_execute_startup_message(const char *line, Error status_code);
+void report_execute_startup_message(const char *line, EError status_code);
 
 // Prints build info and user info
 void report_build_info();

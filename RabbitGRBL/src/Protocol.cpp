@@ -48,7 +48,7 @@ static void empty_lines()
     cl->buffer[0] = '\0';
 }
 
-Error add_char_to_line(char c)
+EError add_char_to_line(char c)
 {
     client_line_t *cl = &client_lines;
     // Simple editing for interactive input
@@ -60,31 +60,31 @@ Error add_char_to_line(char c)
             --cl->len;
             cl->buffer[cl->len] = '\0';
         }
-        return Error::Ok;
+        return EError::Ok;
     }
     if (cl->len == (LINE_BUFFER_SIZE - 1))
     {
-        return Error::Overflow;
+        return EError::Overflow;
     }
     if (c == '\r' || c == '\n')
     {
         cl->len = 0;
         cl->line_number++;
-        return Error::Eol;
+        return EError::Eol;
     }
     cl->buffer[cl->len++] = c;
     cl->buffer[cl->len] = '\0';
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error execute_line(char *line)
+EError execute_line(char *line)
 {
-    Error result = Error::Ok;
+    EError result = EError::Ok;
 
     // Empty or comment line. For syncing purposes.
     if (line[0] == 0)
     {
-        return Error::Ok;
+        return EError::Ok;
     }
 
     // Grbl '$' system command
@@ -96,7 +96,7 @@ Error execute_line(char *line)
     // Everything else is gcode. Block if in alarm or jog mode.
     if (sys.state == State::Alarm || sys.state == State::Jog)
     {
-        return Error::SystemGcLock;
+        return EError::SystemGcLock;
     }
     return gc_execute_line(line);
 }
@@ -163,14 +163,14 @@ void protocol_main_loop()
 
         while ((c = client_read()) != -1)
         {
-            Error res = add_char_to_line(c);
+            EError res = add_char_to_line(c);
             switch (res)
             {
 
-            case Error::Ok:
+            case EError::Ok:
                 break;
 
-            case Error::Eol:
+            case EError::Eol:
                 protocol_execute_realtime(); // Runtime command check point.
                 if (sys.abort)
                 {
@@ -186,8 +186,8 @@ void protocol_main_loop()
                 empty_lines();
                 break;
 
-            case Error::Overflow:
-                report_status_message(Error::Overflow);
+            case EError::Overflow:
+                report_status_message(EError::Overflow);
                 empty_lines();
                 break;
 
@@ -272,16 +272,22 @@ void protocol_execute_realtime()
 // NOTE: Do not alter this unless you know exactly what you are doing!
 void protocol_exec_rt_system()
 {
-    ExecAlarm alarm = sys_rt_exec_alarm; // Temp variable to avoid calling volatile multiple times.
-    if (alarm != ExecAlarm::None)
-    { // Enter only if an alarm is pending
+    EAlarm alarm = sys_rt_exec_alarm; // Temp variable to avoid calling volatile multiple times.
+
+    if (alarm != EAlarm::None)
+    {
+        // Enter only if an alarm is pending
         // System alarm. Everything has shutdown by something that has gone severely wrong. Report
         // the source of the error to the user. If critical, Grbl disables by entering an infinite
         // loop until system reset/abort.
+
         sys.state = State::Alarm; // Set system alarm state
-        report_alarm_message(alarm);
+
+        AlarmsManager::ReportAlarmMessage(alarm);
+
         // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
-        if ((alarm == ExecAlarm::HardLimit) || (alarm == ExecAlarm::SoftLimit))
+
+        if ((alarm == EAlarm::HardLimit) || (alarm == EAlarm::SoftLimit))
         {
             MessageSender::SendFeedbackMessage(EFeedbackMessage::CriticalEvent);
             sys_rt_exec_state.bit.reset = false; // Disable any existing reset
@@ -294,7 +300,7 @@ void protocol_exec_rt_system()
                 // lost, continued streaming could cause a serious crash if by chance it gets executed.
             } while (!sys_rt_exec_state.bit.reset);
         }
-        sys_rt_exec_alarm = ExecAlarm::None;
+        sys_rt_exec_alarm = EAlarm::None;
     }
 
     ExecState rt_exec_state;

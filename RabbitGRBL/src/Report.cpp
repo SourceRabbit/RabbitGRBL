@@ -88,6 +88,21 @@ void grbl_sendf(const char *format, ...)
 static const int coordStringLen = 20;
 static const int axesStringLen = coordStringLen * MAX_N_AXIS;
 
+// Welcome message
+void report_init_message()
+{
+    grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
+
+    // This is the old welcome message.
+    // grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
+}
+
+// Grbl help message
+void report_grbl_help()
+{
+    Serial.write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E $A ~ ! ? ctrl-x]\r\n");
+}
+
 /**
  * Formats axis values into a string and returns that string in rpt.
  * NOTE: rpt should have at least size: axesStringLen
@@ -151,11 +166,11 @@ static String report_util_axis_values(const float *axis_value)
  * from a critical error, such as a triggered hard limit. Interface should always monitor for these
  * responses.
  */
-void report_status_message(Error status_code)
+void report_status_message(EError status_code)
 {
     switch (status_code)
     {
-    case Error::Ok: // Error::Ok
+    case EError::Ok: // EError::Ok
         Serial.write("ok\r\n");
         break;
     default:
@@ -164,30 +179,6 @@ void report_status_message(Error status_code)
         // RabbitGRBL follows the Grbl 1.1 standard, so the error number is reported.
         grbl_sendf("error:%d\r\n", static_cast<int>(status_code));
     }
-}
-
-/**
- * Prints alarm messages.
- */
-void report_alarm_message(ExecAlarm alarm_code)
-{
-    grbl_sendf("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
-    delay_ms(500);                                            // Force delay to ensure message clears serial write buffer.
-}
-
-// Welcome message
-void report_init_message()
-{
-    grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
-
-    // This is the old welcome message.
-    // grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
-}
-
-// Grbl help message
-void report_grbl_help()
-{
-    Serial.write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E=err ~ ! ? ctrl-x]\r\n");
 }
 
 // Prints Grbl NGC parameters (coordinate offsets, probing)
@@ -398,7 +389,7 @@ void report_startup_line(uint8_t n, const char *line)
     grbl_sendf("$N%d=%s\r\n", n, line); // OK to send to all
 }
 
-void report_execute_startup_message(const char *line, Error status_code)
+void report_execute_startup_message(const char *line, EError status_code)
 {
     grbl_sendf(">%s:", line); // OK to send to all
     report_status_message(status_code);

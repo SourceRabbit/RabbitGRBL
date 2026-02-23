@@ -63,22 +63,22 @@ void settings_init()
     load_settings();
 }
 
-Error show_grbl_help(const char *value)
+EError show_grbl_help(const char *value)
 {
     report_grbl_help();
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error report_gcode(const char *value)
+EError report_gcode(const char *value)
 {
     report_gcode_modes();
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error show_grbl_build_info(const char *value)
+EError show_grbl_build_info(const char *value)
 {
     report_build_info();
-    return Error::Ok;
+    return EError::Ok;
 }
 
 void show_grbl_settings(type_t type, bool wantAxis)
@@ -98,23 +98,23 @@ void show_grbl_settings(type_t type, bool wantAxis)
     }
 }
 
-Error report_normal_settings(const char *value)
+EError report_normal_settings(const char *value)
 {
     show_grbl_settings(GRBL, false); // GRBL non-axis settings
     show_grbl_settings(GRBL, true);  // GRBL axis settings
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error report_extended_settings(const char *value)
+EError report_extended_settings(const char *value)
 {
     show_grbl_settings(GRBL, false);     // GRBL non-axis settings
     show_grbl_settings(EXTENDED, false); // Extended non-axis settings
     show_grbl_settings(GRBL, true);      // GRBL axis settings
     show_grbl_settings(EXTENDED, true);  // Extended axis settings
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error list_grbl_names(const char *value)
+EError list_grbl_names(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
@@ -124,20 +124,20 @@ Error list_grbl_names(const char *value)
             grbl_sendf("$%s => $%s\r\n", gn, s->getName());
         }
     }
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error list_settings(const char *value)
+EError list_settings(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
         const char *displayValue = s->getStringValue();
         show_setting(s->getName(), displayValue, NULL);
     }
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error list_changed_settings(const char *value)
+EError list_changed_settings(const char *value)
 {
     for (Setting *s = Setting::List; s; s = s->next())
     {
@@ -152,10 +152,10 @@ Error list_changed_settings(const char *value)
         }
     }
 
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error list_commands(const char *value)
+EError list_commands(const char *value)
 {
     for (Command *cp = Command::List; cp; cp = cp->next())
     {
@@ -176,10 +176,10 @@ Error list_commands(const char *value)
         }
         grbl_sendf("\r\n");
     }
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error toggle_check_mode(const char *value)
+EError toggle_check_mode(const char *value)
 {
     // Perform reset when toggling off. Check g-code mode should only work if Grbl
     // is idle and ready, regardless of alarm locks. This is mainly to keep things
@@ -193,46 +193,46 @@ Error toggle_check_mode(const char *value)
     {
         if (sys.state != State::Idle)
         {
-            return Error::IdleError; // Requires no alarm mode.
+            return EError::IdleError; // Requires no alarm mode.
         }
         sys.state = State::CheckMode;
         // MessageSender::SendFeedbackMessage(EFeedbackMessage::Enabled);
     }
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error disable_alarm_lock(const char *value)
+EError disable_alarm_lock(const char *value)
 {
     if (sys.state == State::Alarm)
     {
         // Block if safety door is ajar.
         if (system_check_safety_door_ajar())
         {
-            return Error::CheckDoor;
+            return EError::CheckDoor;
         }
         MessageSender::SendFeedbackMessage(EFeedbackMessage::AlarmUnlock);
         sys.state = State::Idle;
         // Don't run startup script. Prevents stored moves in startup from causing accidents.
     } // Otherwise, no effect.
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error report_ngc(const char *value)
+EError report_ngc(const char *value)
 {
     report_ngc_parameters();
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error home(int cycle)
+EError home(int cycle)
 {
     if (homing_enable->get() == false)
     {
-        return Error::SettingDisabled;
+        return EError::SettingDisabled;
     }
 
     if (system_check_safety_door_ajar())
     {
-        return Error::CheckDoor; // Block if safety door is ajar.
+        return EError::CheckDoor; // Block if safety door is ajar.
     }
     sys.state = State::Homing; // Set system state variable
 
@@ -248,55 +248,55 @@ Error home(int cycle)
             system_execute_startup(line);
         }
     }
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error home_all(const char *value)
+EError home_all(const char *value)
 {
     return home(HOMING_CYCLE_ALL);
 }
 
-Error home_x(const char *value)
+EError home_x(const char *value)
 {
     return home(bit(X_AXIS));
 }
 
-Error home_y(const char *value)
+EError home_y(const char *value)
 {
     return home(bit(Y_AXIS));
 }
 
-Error home_z(const char *value)
+EError home_z(const char *value)
 {
     return home(bit(Z_AXIS));
 }
 
-Error home_a(const char *value)
+EError home_a(const char *value)
 {
     return home(bit(A_AXIS));
 }
 
-Error home_b(const char *value)
+EError home_b(const char *value)
 {
     return home(bit(B_AXIS));
 }
 
-Error home_c(const char *value)
+EError home_c(const char *value)
 {
     return home(bit(C_AXIS));
 }
 
-Error sleep_grbl(const char *value)
+EError sleep_grbl(const char *value)
 {
     sys_rt_exec_state.bit.sleep = true;
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error report_startup_lines(const char *value)
+EError report_startup_lines(const char *value)
 {
     report_startup_line(0, startup_line_0->get());
     report_startup_line(1, startup_line_1->get());
-    return Error::Ok;
+    return EError::Ok;
 }
 
 std::map<const char *, uint8_t, cmp_str> restoreCommands = {
@@ -315,27 +315,29 @@ std::map<const char *, uint8_t, cmp_str> restoreCommands = {
     {"@", SettingsRestore::Wifi},
     {"wifi", SettingsRestore::Wifi},
 };
-Error restore_settings(const char *value)
+
+EError restore_settings(const char *value)
 {
     if (!value)
     {
-        return Error::InvalidStatement;
+        return EError::InvalidStatement;
     }
     auto it = restoreCommands.find(value);
     if (it == restoreCommands.end())
     {
-        return Error::InvalidStatement;
+        return EError::InvalidStatement;
     }
     settings_restore(it->second);
-    return Error::Ok;
+    return EError::Ok;
 }
 
-Error showState(const char *value)
+EError showState(const char *value)
 {
     grbl_sendf("State 0x%x\r\n", sys.state);
-    return Error::Ok;
+    return EError::Ok;
 }
-Error doJog(const char *value)
+
+EError doJog(const char *value)
 {
     // For jogging, you must give gc_execute_line() a line that
     // begins with $J=.  There are several ways we can get here,
@@ -343,7 +345,7 @@ Error doJog(const char *value)
     // $J without =, we reconstruct a $J= line for gc_execute_line().
     if (!value)
     {
-        return Error::InvalidStatement;
+        return EError::InvalidStatement;
     }
     char jogLine[LINE_BUFFER_SIZE];
     strcpy(jogLine, "$J=");
@@ -351,81 +353,7 @@ Error doJog(const char *value)
     return gc_execute_line(jogLine);
 }
 
-const char *alarmString(ExecAlarm alarmNumber)
-{
-    auto it = AlarmNames.find(alarmNumber);
-    return it == AlarmNames.end() ? NULL : it->second;
-}
-
-Error listAlarms(const char *value)
-{
-    if (value)
-    {
-        char *endptr = NULL;
-        uint8_t alarmNumber = strtol(value, &endptr, 10);
-        if (*endptr)
-        {
-            grbl_sendf("Malformed alarm number: %s\r\n", value);
-            return Error::InvalidValue;
-        }
-        const char *alarmName = alarmString(static_cast<ExecAlarm>(alarmNumber));
-        if (alarmName)
-        {
-            grbl_sendf("%d: %s\r\n", alarmNumber, alarmName);
-            return Error::Ok;
-        }
-        else
-        {
-            grbl_sendf("Unknown alarm number: %d\r\n", alarmNumber);
-            return Error::InvalidValue;
-        }
-    }
-
-    for (auto it = AlarmNames.begin(); it != AlarmNames.end(); it++)
-    {
-        grbl_sendf("%d: %s\r\n", it->first, it->second);
-    }
-    return Error::Ok;
-}
-
-const char *errorString(Error errorNumber)
-{
-    auto it = ErrorNames.find(errorNumber);
-    return it == ErrorNames.end() ? NULL : it->second;
-}
-
-Error listErrors(const char *value)
-{
-    if (value)
-    {
-        char *endptr = NULL;
-        uint8_t errorNumber = strtol(value, &endptr, 10);
-        if (*endptr)
-        {
-            grbl_sendf("Malformed error number: %s\r\n", value);
-            return Error::InvalidValue;
-        }
-        const char *errorName = errorString(static_cast<Error>(errorNumber));
-        if (errorName)
-        {
-            grbl_sendf("%d: %s\r\n", errorNumber, errorName);
-            return Error::Ok;
-        }
-        else
-        {
-            grbl_sendf("Unknown error number: %d\r\n", errorNumber);
-            return Error::InvalidValue;
-        }
-    }
-
-    for (auto it = ErrorNames.begin(); it != ErrorNames.end(); it++)
-    {
-        grbl_sendf("%d: %s\r\n", it->first, it->second);
-    }
-    return Error::Ok;
-}
-
-Error motor_disable(const char *value)
+EError motor_disable(const char *value)
 {
     char *s;
     if (value == NULL)
@@ -455,14 +383,14 @@ Error motor_disable(const char *value)
                 int index = axisNames.indexOf(toupper(*s++));
                 if (index < 0)
                 {
-                    return Error::BadNumberFormat;
+                    return EError::BadNumberFormat;
                 }
                 convertedValue |= bit(index);
             }
         }
     }
     motors_set_disable(true, convertedValue);
-    return Error::Ok;
+    return EError::Ok;
 }
 
 // Commands use the same syntax as Settings, but instead of setting or
@@ -483,8 +411,10 @@ void make_grbl_commands()
     new GrblCommand("S", "Settings/List", list_settings, notCycleOrHold);
     new GrblCommand("SC", "Settings/ListChanged", list_changed_settings, notCycleOrHold);
     new GrblCommand("CMD", "Commands/List", list_commands, notCycleOrHold);
-    new GrblCommand("A", "Alarms/List", listAlarms, anyState);
-    new GrblCommand("E", "Errors/List", listErrors, anyState);
+
+    new GrblCommand("A", "Alarms/List", AlarmsManager::ListAlarms, anyState);
+    new GrblCommand("E", "Errors/List", ErrorsManager::ListErrors, anyState);
+
     new GrblCommand("G", "GCode/Modes", report_gcode, anyState);
     new GrblCommand("C", "GCode/Check", toggle_check_mode, anyState);
     new GrblCommand("X", "Alarm/Disable", disable_alarm_lock, anyState);
@@ -546,7 +476,7 @@ char *normalize_key(char *start)
 
 // This is the handler for all forms of settings commands,
 // $..= and [..], with and without a value.
-Error do_command_or_setting(const char *key, char *value)
+EError do_command_or_setting(const char *key, char *value)
 {
     // If value is NULL, it means that there was no value string, i.e.
     // $key without =, or [key] with nothing following.
@@ -567,7 +497,7 @@ Error do_command_or_setting(const char *key, char *value)
             else
             {
                 show_setting(s->getName(), s->getStringValue(), NULL);
-                return Error::Ok;
+                return EError::Ok;
             }
         }
     }
@@ -585,7 +515,7 @@ Error do_command_or_setting(const char *key, char *value)
             else
             {
                 show_setting(s->getGrblName(), s->getCompatibleValue(), NULL);
-                return Error::Ok;
+                return EError::Ok;
             }
         }
     }
@@ -604,7 +534,7 @@ Error do_command_or_setting(const char *key, char *value)
     // indicating a display operation, we allow partial matches
     // and display every possibility.  This only applies to the
     // text form of the name, not to the nnn and ESPnnn forms.
-    Error retval = Error::InvalidStatement;
+    EError retval = EError::InvalidStatement;
     if (!value)
     {
         auto lcKey = String(key);
@@ -624,13 +554,13 @@ Error do_command_or_setting(const char *key, char *value)
         }
         if (found)
         {
-            return Error::Ok;
+            return EError::Ok;
         }
     }
-    return Error::InvalidStatement;
+    return EError::InvalidStatement;
 }
 
-Error system_execute_line(char *line)
+EError system_execute_line(char *line)
 {
     char *value;
     if (*line++ == '[')
@@ -639,7 +569,7 @@ Error system_execute_line(char *line)
         if (!value)
         {
             // Missing ] is an error in this form
-            return Error::InvalidStatement;
+            return EError::InvalidStatement;
         }
         // ']' was found; replace it with null and set value to the rest of the line.
         *value++ = '\0';
@@ -672,7 +602,7 @@ Error system_execute_line(char *line)
 
 void system_execute_startup(char *line)
 {
-    Error status_code;
+    EError status_code;
     char gcline[256];
     strncpy(gcline, startup_line_0->get(), 255);
     if (*gcline)

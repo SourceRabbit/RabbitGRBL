@@ -22,6 +22,8 @@
 
 // Execution states and alarm
 #include "Exec.h"
+#include "Diagnostics/Alarms/EAlarm.h"
+#include "Diagnostics/Errors/EError.h"
 
 // System states. The state variable primarily tracks the individual functions
 // of Grbl to manage each without overlapping. It is also used as a messaging flag for
@@ -141,7 +143,7 @@ extern int32_t sys_position[MAX_N_AXIS];       // Real-time machine (aka home) p
 extern int32_t sys_probe_position[MAX_N_AXIS]; // Last probe position in machine coordinates and steps.
 
 extern volatile ExecState sys_rt_exec_state;                  // Global realtime executor bitflag variable for state management. See EXEC bitmasks.
-extern volatile ExecAlarm sys_rt_exec_alarm;                  // Global realtime executor bitflag variable for setting various alarms.
+extern volatile EAlarm sys_rt_exec_alarm;                     // Global realtime executor bitflag variable for setting various alarms.
 extern volatile ExecAccessory sys_rt_exec_accessory_override; // Global realtime executor bitflag variable for spindle/coolant overrides.
 extern volatile Percent sys_rt_f_override;                    // Feed override value in percent
 extern volatile Percent sys_rt_r_override;                    // Rapid feed override value in percent
@@ -160,9 +162,9 @@ void isr_control_inputs();
 
 // Execute the startup script lines stored in non-volatile storage upon initialization
 void system_execute_startup(char *line);
-Error execute_line(char *line);
-Error system_execute_line(char *line);
-Error do_command_or_setting(const char *key, char *value);
+EError execute_line(char *line);
+EError system_execute_line(char *line);
+EError do_command_or_setting(const char *key, char *value);
 void system_flag_wco_change();
 
 // Returns machine position of axis 'idx'. Must be sent a 'step' array.
