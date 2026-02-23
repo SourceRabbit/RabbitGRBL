@@ -63,6 +63,12 @@
 
 const int MAX_N_AXIS = 6;
 
+// Maximum string length required to represent a single coordinate value (e.g. "-1234.567")
+const int MAX_COORD_STRING_LENGTH = 20;
+
+// Maximum string length required to represent all axis values as a string
+const int MAX_AXES_STRING_LENGTH = MAX_COORD_STRING_LENGTH * MAX_N_AXIS;
+
 // Number of axes defined (steppers, servos, etc) (valid range: 3 to 6)
 // Even if your machine only uses less than the minimum of 3, you should select 3
 #ifndef N_AXIS

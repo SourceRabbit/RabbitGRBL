@@ -85,9 +85,6 @@ void grbl_sendf(const char *format, ...)
     }
 }
 
-static const int coordStringLen = 20;
-static const int axesStringLen = coordStringLen * MAX_N_AXIS;
-
 // Welcome message
 void report_init_message()
 {
@@ -110,7 +107,7 @@ void report_grbl_help()
 void report_util_axis_values(float *axis_value, char *rpt)
 {
     uint8_t idx;
-    char axisVal[coordStringLen];
+    char axisVal[MAX_COORD_STRING_LENGTH];
     float unit_conv = 1.0;        // unit conversion multiplier..default is mm
     const char *format = "%4.3f"; // Default - report mm to 3 decimal places
     rpt[0] = '\0';
@@ -122,7 +119,7 @@ void report_util_axis_values(float *axis_value, char *rpt)
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
     {
-        snprintf(axisVal, coordStringLen - 1, format, axis_value[idx] * unit_conv);
+        snprintf(axisVal, MAX_COORD_STRING_LENGTH - 1, format, axis_value[idx] * unit_conv);
         strcat(rpt, axisVal);
         if (idx < (number_axis->get() - 1))
         {
@@ -138,7 +135,7 @@ static String report_util_axis_values(const float *axis_value)
 {
     String rpt = "";
     uint8_t idx;
-    char axisVal[coordStringLen];
+    char axisVal[MAX_COORD_STRING_LENGTH];
     float unit_conv = 1.0; // unit conversion multiplier..default is mm
     int decimals = 3;      // Default - report mm to 3 decimal places
     if (report_inches->get())
@@ -486,8 +483,8 @@ void report_calc_status_position(float *print_position, float *wco, bool wpos)
 void report_realtime_status()
 {
     float print_position[MAX_N_AXIS];
-    char status[200];
-    char temp[MAX_N_AXIS * 20];
+    char status[256];
+    char temp[MAX_AXES_STRING_LENGTH];
 
     strcpy(status, "<");
     strcat(status, report_state_text());

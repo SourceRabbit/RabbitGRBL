@@ -81,11 +81,9 @@ void Probe::StateMonitor()
 void Probe::ReportProbeParameters()
 {
     // Report in terms of machine position.
-    const int coordStringLen = 20;
-    const int axesStringLen = coordStringLen * MAX_N_AXIS;
     float print_position[MAX_N_AXIS];
-    char probe_rpt[(axesStringLen + 13 + 6 + 1)]; // the probe report we are building here
-    char temp[axesStringLen];
+    char probe_rpt[(MAX_AXES_STRING_LENGTH + 13 + 6 + 1)]; // the probe report we are building here
+    char temp[MAX_AXES_STRING_LENGTH];
     strcpy(probe_rpt, "[PRB:"); // initialize the string with the first characters
     // get the machine position and put them into a string and append to the probe report
     system_convert_array_steps_to_mpos(print_position, sys_probe_position);
