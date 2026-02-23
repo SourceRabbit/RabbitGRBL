@@ -248,8 +248,11 @@ void report_gcode_modes()
     case Motion::Drill:
         mode = "G81";
         break;
-    case Motion::PeckDrill:
+    case Motion::PeckDrill_ChipRemoving:
         mode = "G83";
+        break;
+    case Motion::PeckDrill_ChipBreaking:
+        mode = "G73";
         break;
     }
     strcat(modes_rpt, mode);

@@ -78,17 +78,18 @@ enum class NonModal : uint8_t
 // Modal Group G1: Motion modes
 enum class Motion : uint8_t
 {
-    Seek = 0,                 // G0 (Default: Must be zero)
-    Linear = 1,               // G1 (Do not alter value)
-    CwArc = 2,                // G2 (Do not alter value)
-    CcwArc = 3,               // G3 (Do not alter value)
-    Drill = 81,               // G81 - drilling canned cycle
-    PeckDrill = 83,           // G83 - peck drilling canned cycle
-    ProbeToward = 140,        // G38.2 (Do not alter value)
-    ProbeTowardNoError = 141, // G38.3 (Do not alter value)
-    ProbeAway = 142,          // G38.4 (Do not alter value)
-    ProbeAwayNoError = 143,   // G38.5 (Do not alter value)
-    None = 80,                // G80 (Do not alter value)
+    Seek = 0,                     // G0 (Default: Must be zero)
+    Linear = 1,                   // G1 (Do not alter value)
+    CwArc = 2,                    // G2 (Do not alter value)
+    CcwArc = 3,                   // G3 (Do not alter value)
+    PeckDrill_ChipBreaking = 73,  // G73 - peck drilling canned cycle (Chip Breaking)
+    Drill = 81,                   // G81 - drilling canned cycle
+    PeckDrill_ChipRemoving = 83,  // G83 - peck drilling canned cycle (Chip Removing)
+    ProbeToward = 140,            // G38.2 (Do not alter value)
+    ProbeTowardNoError = 141,     // G38.3 (Do not alter value)
+    ProbeAway = 142,              // G38.4 (Do not alter value)
+    ProbeAwayNoError = 143,       // G38.5 (Do not alter value)
+    None = 80,                    // G80 (Do not alter value)
 };
 
 // Modal Group G2: Plane select
@@ -284,19 +285,20 @@ CoordIndex &operator++(CoordIndex &i);
 // Canned cycle type — which G-code cycle is currently active.
 enum class CannedCycleType : uint8_t
 {
-    None    = 0, // No active canned cycle
-    G81     = 1, // Simple drilling cycle
-    G83     = 2, // Peck drilling cycle
+    None = 0, // No active canned cycle
+    G81 = 1,  // Simple drilling cycle
+    G83 = 2,  // Peck drilling cycle (full retract)
+    G73 = 3,  // Peck drilling cycle (chip breaking / partial retract)
 };
 
-// Canned cycle state shared by G81 and G83.
+// Canned cycle state shared by G81, G83, and G73.
 // Stores the parameters that persist across successive modal calls.
 typedef struct
 {
-    float           z;    // Drilling depth in machine coordinates (mm)
-    float           r;    // Retract plane in machine coordinates (mm)
-    float           q;    // Peck depth (mm, G83 only; > 0)
-    float           p;    // Optional dwell at final depth (ms, G83 only; 0 = no dwell)
+    float z;              // Drilling depth in machine coordinates (mm)
+    float r;              // Retract plane in machine coordinates (mm)
+    float q;              // Peck depth (mm, G83/G73 only; > 0)
+    float p;              // Optional dwell at final depth (ms, G83/G73 only; 0 = no dwell)
     CannedCycleType type; // Which cycle is active
 } gc_canned_cycle_t;
 extern gc_canned_cycle_t gc_canned_cycle;
