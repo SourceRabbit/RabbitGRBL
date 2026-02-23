@@ -245,6 +245,12 @@ void report_gcode_modes()
     case Motion::ProbeAwayNoError:
         mode = "G38.4";
         break;
+    case Motion::Drill:
+        mode = "G81";
+        break;
+    case Motion::PeckDrill:
+        mode = "G83";
+        break;
     }
     strcat(modes_rpt, mode);
 

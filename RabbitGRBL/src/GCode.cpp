@@ -40,6 +40,7 @@ static const uint8_t MaxToolNumber = 255; // Limited by max unsigned 8-bit value
 // Declare gc extern struct
 parser_state_t gc_state;
 parser_block_t gc_block;
+gc_canned_cycle_t gc_canned_cycle;
 
 #define FAIL(status) return (status);
 
@@ -47,6 +48,8 @@ void gc_init()
 {
     // Reset parser state:
     memset(&gc_state, 0, sizeof(parser_state_t));
+    // Reset canned cycle state:
+    memset(&gc_canned_cycle, 0, sizeof(gc_canned_cycle_t));
     // Load default G54 coordinate system.
     gc_state.modal.coord_select = CoordIndex::G54;
     coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
@@ -123,6 +126,158 @@ void collapseGCode(char *line)
         report_gcode_comment(parenPtr);
     }
     *outPtr = '\0';
+}
+
+// Execute a G81 drilling canned cycle at the given target position.
+// Expands G81 into standard rapid and linear planner moves:
+//   1) Rapid to target XY (preserving current Z).
+//   2) Rapid to the retract plane R (only when tool is currently below R).
+//   3) Feed move from current height down to drilling depth Z.
+//   4) Rapid retract back to R plane.
+// pl_data must have feed_rate and spindle/coolant fields pre-populated.
+// target[] contains the target XY and drilling-depth Z in machine coordinates.
+// r_plane is the retract plane in machine coordinates.
+static void execute_g81_cycle(float *target, float r_plane, plan_line_data_t *pl_data)
+{
+    float pos[MAX_N_AXIS];
+    memcpy(pos, gc_state.position, sizeof(pos));
+
+    // Build the first waypoint: target XY at current Z.
+    float move[MAX_N_AXIS];
+    memcpy(move, pos, sizeof(move));
+    move[X_AXIS] = target[X_AXIS];
+    move[Y_AXIS] = target[Y_AXIS];
+
+    // 1) Rapid to target XY, keeping current Z.
+    pl_data->motion = {};
+    pl_data->motion.rapidMotion = 1;
+    mc_line(move, pl_data);
+
+    // 2) Rapid to R plane
+    if (pos[Z_AXIS] != r_plane)
+    {
+        move[Z_AXIS] = r_plane;
+        pl_data->motion = {};
+        pl_data->motion.rapidMotion = 1;
+        mc_line(move, pl_data);
+    }
+
+    // 3) Feed move to drilling depth.
+    move[Z_AXIS] = target[Z_AXIS];
+    pl_data->motion = {}; // clear rapid flag; uses pl_data->feed_rate
+    mc_line(move, pl_data);
+
+    // 4) Rapid retract to R plane.
+    move[Z_AXIS] = r_plane;
+    pl_data->motion = {};
+    pl_data->motion.rapidMotion = 1;
+    mc_line(move, pl_data);
+}
+
+// Execute a G83 peck drilling canned cycle at the given target position.
+//
+// G83 differs from G81 in that the full drilling depth is reached through a series of
+// incremental "pecks".  After each peck the tool rapids back to the R plane so that
+// chips are cleared before the next peck starts.
+//
+// Expansion sequence (all moves are standard rapid/linear mc_line calls):
+//   1) Rapid to target XY (preserving current Z) – same as G81.
+//   2) Rapid to the R plane (if not already there).
+//   3) Peck loop until final depth Z is reached:
+//        a) Feed from current peck-start depth to next peck depth (or Z on last peck).
+//        b) Rapid back to R plane.
+//   4) On the last peck only: if P > 0, issue a dwell at final depth before retracting.
+//
+// Limitations:
+//   - Dwell (P) is applied only at the very bottom of the final peck, not per peck.
+//   - Pecks are generated incrementally so RAM usage is bounded by the planner buffer.
+//
+// pl_data must have feed_rate and spindle/coolant fields pre-populated.
+// target[] contains the target XY and drilling-depth Z in machine coordinates.
+// r_plane is the retract plane in machine coordinates.
+// q_depth is the peck increment (positive, mm).
+// p_dwell_ms is the dwell time at final depth in milliseconds (0 = no dwell).
+static void execute_g83_peck_cycle(float *target, float r_plane, float q_depth, int32_t p_dwell_ms, plan_line_data_t *pl_data)
+{
+    float pos[MAX_N_AXIS];
+    memcpy(pos, gc_state.position, sizeof(pos));
+
+    // Build the first waypoint: target XY at current Z.
+    float move[MAX_N_AXIS];
+    memcpy(move, pos, sizeof(move));
+    move[X_AXIS] = target[X_AXIS];
+    move[Y_AXIS] = target[Y_AXIS];
+
+    // 1) Rapid to target XY, keeping current Z.
+    pl_data->motion = {};
+    pl_data->motion.rapidMotion = 1;
+    mc_line(move, pl_data);
+
+    // 2) Rapid to R plane
+    if (pos[Z_AXIS] != r_plane)
+    {
+        move[Z_AXIS] = r_plane;
+        pl_data->motion = {};
+        pl_data->motion.rapidMotion = 1;
+        mc_line(move, pl_data);
+    }
+
+    // 3) Peck loop
+    float current_depth = r_plane;
+    float final_depth = target[Z_AXIS];
+    float q = fabsf(q_depth);
+
+    while (current_depth > final_depth)
+    {
+        current_depth -= q;
+
+        if (current_depth < final_depth)
+        {
+            current_depth = final_depth;
+        }
+
+        // Peck (feed)
+        move[Z_AXIS] = current_depth;
+        pl_data->motion = {};
+        mc_line(move, pl_data);
+
+        if (current_depth <= final_depth)
+        {
+            if (p_dwell_ms > 0)
+            {
+                // Pause
+                mc_dwell(p_dwell_ms);
+            }
+
+            // Retract to R
+            move[Z_AXIS] = r_plane;
+            pl_data->motion = {};
+            pl_data->motion.rapidMotion = 1;
+            mc_line(move, pl_data);
+
+            return;
+        }
+        else
+        {
+            // Retract to R
+            move[Z_AXIS] = r_plane;
+            pl_data->motion = {};
+            pl_data->motion.rapidMotion = 1;
+            mc_line(move, pl_data);
+        }
+
+        delay_ms(2);
+    }
+
+    // 4) Rapid retract to R plane.
+    if (pos[Z_AXIS] != r_plane)
+    {
+        // For safety reasons !
+        move[Z_AXIS] = r_plane;
+        pl_data->motion = {};
+        pl_data->motion.rapidMotion = 1;
+        mc_line(move, pl_data);
+    }
 }
 
 // Executes one line of NUL-terminated G-Code.
@@ -347,6 +502,28 @@ EError gc_execute_line(char *line)
 
             case 80: // G80 - cancel canned cycle
                 gc_block.modal.motion = Motion::None;
+                mg_word_bit = ModalGroup::MG1;
+                break;
+
+            case 81: // G81 - drilling canned cycle
+                // Check for G0/1/2/3/38 being called with G10/28/30/92 on same block.
+                if (axis_command != AxisCommand::None)
+                {
+                    FAIL(EError::GcodeAxisCommandConflict); // [Axis word/command conflict]
+                }
+                axis_command = AxisCommand::MotionMode;
+                gc_block.modal.motion = Motion::Drill;
+                mg_word_bit = ModalGroup::MG1;
+                break;
+
+            case 83: // G83 - peck drilling canned cycle
+                     // Check for G0/1/2/3/38 being called with G10/28/30/92 on same block.
+                if (axis_command != AxisCommand::None)
+                {
+                    FAIL(EError::GcodeAxisCommandConflict); // [Axis word/command conflict]
+                }
+                axis_command = AxisCommand::MotionMode;
+                gc_block.modal.motion = Motion::PeckDrill;
                 mg_word_bit = ModalGroup::MG1;
                 break;
 
@@ -1437,6 +1614,159 @@ EError gc_execute_line(char *line)
                     }
                 }
                 break;
+            case Motion::Drill:
+                // [G81 Errors]: Z missing on first call. R missing on first call. Feed rate undefined.
+                {
+                    // Detect if G81 was explicitly commanded in this block (first call)
+                    // vs. inherited from the active modal state (subsequent X/Y-only call).
+                    bool is_first_call = bit_istrue(command_words, bit(ModalGroup::MG1));
+
+                    // Handle R word (retract plane). Required on the first G81 call.
+                    if (bit_istrue(value_words, bit(GCodeWord::R)))
+                    {
+                        // Transform R from work coordinates to machine coordinates,
+                        // the same way Z-axis words are converted (see axis transformation above).
+                        float r_machine = gc_block.values.r;
+                        if (gc_block.modal.distance == Distance::Absolute)
+                        {
+                            r_machine += block_coord_system[Z_AXIS] + gc_state.coord_offset[Z_AXIS];
+                            if (TOOL_LENGTH_OFFSET_AXIS == Z_AXIS)
+                            {
+                                r_machine += gc_state.tool_length_offset;
+                            }
+                        }
+                        else
+                        { // Incremental mode
+                            r_machine += gc_state.position[Z_AXIS];
+                        }
+                        gc_canned_cycle.r = r_machine;
+                        bit_false(value_words, bit(GCodeWord::R)); // consume R word
+                    }
+                    else if (is_first_call)
+                    {
+                        FAIL(EError::GcodeValueWordMissing); // [R word missing on first G81]
+                    }
+
+                    // Handle Z word (drilling depth). Required on the first G81 call.
+                    // On subsequent modal calls the stored depth is used.
+                    if (bit_istrue(axis_words, bit(Z_AXIS)))
+                    {
+                        // Z has already been transformed to machine coords by the axis processing above.
+                        gc_canned_cycle.z = gc_block.values.xyz[Z_AXIS];
+                    }
+                    else if (is_first_call)
+                    {
+                        FAIL(EError::GcodeNoAxisWords); // [Z word missing on first G81]
+                    }
+                    else
+                    {
+                        // Use stored drilling depth from previous G81 call.
+                        gc_block.values.xyz[Z_AXIS] = gc_canned_cycle.z;
+                    }
+
+                    // Retract plane must be strictly above the drilling depth.
+                    // If R == Z there is no drilling motion (no-op), which is a user error.
+                    if (gc_canned_cycle.r <= gc_canned_cycle.z)
+                    {
+                        FAIL(EError::GcodeInvalidTarget); // [R must be above Z]
+                    }
+
+                    // Update the cycle type so the execution step knows which helper to call.
+                    gc_canned_cycle.type = CannedCycleType::G81;
+                }
+                break;
+            case Motion::PeckDrill:
+                // [G83 Errors]: Z/R/Q missing on first call. Q <= 0. R must be above Z. Feed rate undefined.
+                {
+                    // Detect if G83 was explicitly commanded in this block (first call)
+                    // vs. inherited from the active modal state (subsequent X/Y-only call).
+                    bool is_first_call = bit_istrue(command_words, bit(ModalGroup::MG1));
+
+                    // Handle R word (retract plane). Required on the first G83 call.
+                    if (bit_istrue(value_words, bit(GCodeWord::R)))
+                    {
+                        float r_machine = gc_block.values.r;
+                        if (gc_block.modal.distance == Distance::Absolute)
+                        {
+                            r_machine += block_coord_system[Z_AXIS] + gc_state.coord_offset[Z_AXIS];
+                            if (TOOL_LENGTH_OFFSET_AXIS == Z_AXIS)
+                            {
+                                r_machine += gc_state.tool_length_offset;
+                            }
+                        }
+                        else
+                        { // Incremental mode
+                            r_machine += gc_state.position[Z_AXIS];
+                        }
+                        gc_canned_cycle.r = r_machine;
+                        bit_false(value_words, bit(GCodeWord::R)); // consume R word
+                    }
+                    else if (is_first_call)
+                    {
+                        FAIL(EError::GcodeValueWordMissing); // [R word missing on first G83]
+                    }
+
+                    // Handle Z word (final drilling depth). Required on the first G83 call.
+                    if (bit_istrue(axis_words, bit(Z_AXIS)))
+                    {
+                        gc_canned_cycle.z = gc_block.values.xyz[Z_AXIS];
+                    }
+                    else if (is_first_call)
+                    {
+                        FAIL(EError::GcodeNoAxisWords); // [Z word missing on first G83]
+                    }
+                    else
+                    {
+                        // Use stored drilling depth from previous G83 call.
+                        gc_block.values.xyz[Z_AXIS] = gc_canned_cycle.z;
+                    }
+
+                    // Handle Q word (peck depth). Required on the first G83 call.
+                    if (bit_istrue(value_words, bit(GCodeWord::Q)))
+                    {
+                        if (gc_block.values.q <= 0.0)
+                        {
+                            FAIL(EError::GcodeInvalidTarget); // [Q must be > 0]
+                        }
+                        // Convert Q from inches to mm if necessary.
+                        float q_mm = gc_block.values.q;
+                        if (gc_block.modal.units == Units::Inches)
+                        {
+                            q_mm *= MM_PER_INCH;
+                        }
+                        gc_canned_cycle.q = q_mm;
+                        bit_false(value_words, bit(GCodeWord::Q)); // consume Q word
+                    }
+                    else if (is_first_call)
+                    {
+                        FAIL(EError::GcodeValueWordMissing); // [Q word missing on first G83]
+                    }
+
+                    // Handle optional P word (dwell at final depth, in seconds).
+                    // P persists across subsequent modal G83 calls; only reset to 0 on the first
+                    // call when P is absent.
+                    if (bit_istrue(value_words, bit(GCodeWord::P)))
+                    {
+                        // P is in seconds; convert to milliseconds for mc_dwell.
+                        gc_canned_cycle.p = gc_block.values.p * 1000.0f;
+                        bit_false(value_words, bit(GCodeWord::P)); // consume P word
+                    }
+                    else if (is_first_call)
+                    {
+                        gc_canned_cycle.p = 0.0f; // no dwell on first call unless specified
+                    }
+                    // else: retain stored dwell from previous G83 call
+
+                    // Retract plane must be strictly above the drilling depth.
+                    if (gc_canned_cycle.r <= gc_canned_cycle.z)
+                    {
+                        FAIL(EError::GcodeInvalidTarget); // [R must be above Z]
+                    }
+
+                    // Update the cycle type so the execution step knows which helper to call.
+                    gc_canned_cycle.type = CannedCycleType::G83;
+                }
+                break;
             case Motion::ProbeTowardNoError:
             case Motion::ProbeAwayNoError:
                 gc_parser_flags |= GCParserProbeIsNoError; // No break intentional.
@@ -1792,6 +2122,11 @@ EError gc_execute_line(char *line)
     // NOTE: Commands G10,G28,G30,G92 lock out and prevent axis words from use in motion modes.
     // Enter motion modes only if there are axis words or a motion mode command word in the block.
     gc_state.modal.motion = gc_block.modal.motion;
+    // G80: cancel any active canned cycle and clear its stored parameters.
+    if (gc_state.modal.motion == Motion::None)
+    {
+        memset(&gc_canned_cycle, 0, sizeof(gc_canned_cycle_t));
+    }
     if (gc_state.modal.motion != Motion::None)
     {
         if (axis_command == AxisCommand::MotionMode)
@@ -1817,6 +2152,27 @@ EError gc_execute_line(char *line)
                        axis_1,
                        axis_linear,
                        bit_istrue(gc_parser_flags, GCParserArcIsClockwise));
+            }
+            else if (gc_state.modal.motion == Motion::Drill)
+            {
+                // Expand G81 into primitive rapid/linear planner moves.
+                // Feed rate (pl_data->feed_rate) is already set from gc_state.feed_rate.
+                execute_g81_cycle(gc_block.values.xyz, gc_canned_cycle.r, pl_data);
+                // Final parser position is at the retract plane above the target hole.
+                gc_block.values.xyz[Z_AXIS] = gc_canned_cycle.r;
+            }
+            else if (gc_state.modal.motion == Motion::PeckDrill)
+            {
+                // Expand G83 into primitive rapid/linear planner moves (peck drilling).
+                // Feed rate (pl_data->feed_rate) is already set from gc_state.feed_rate.
+                execute_g83_peck_cycle(gc_block.values.xyz,
+                                       gc_canned_cycle.r,
+                                       gc_canned_cycle.q,
+                                       (int32_t)gc_canned_cycle.p,
+                                       pl_data);
+
+                // Final parser position is at the retract plane above the target hole.
+                gc_block.values.xyz[Z_AXIS] = gc_canned_cycle.r;
             }
             else
             {

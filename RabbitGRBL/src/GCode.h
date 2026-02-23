@@ -82,6 +82,8 @@ enum class Motion : uint8_t
     Linear = 1,               // G1 (Do not alter value)
     CwArc = 2,                // G2 (Do not alter value)
     CcwArc = 3,               // G3 (Do not alter value)
+    Drill = 81,               // G81 - drilling canned cycle
+    PeckDrill = 83,           // G83 - peck drilling canned cycle
     ProbeToward = 140,        // G38.2 (Do not alter value)
     ProbeTowardNoError = 141, // G38.3 (Do not alter value)
     ProbeAway = 142,          // G38.4 (Do not alter value)
@@ -278,6 +280,26 @@ enum CoordIndex : uint8_t
 
 // Allow iteration over CoordIndex values
 CoordIndex &operator++(CoordIndex &i);
+
+// Canned cycle type — which G-code cycle is currently active.
+enum class CannedCycleType : uint8_t
+{
+    None    = 0, // No active canned cycle
+    G81     = 1, // Simple drilling cycle
+    G83     = 2, // Peck drilling cycle
+};
+
+// Canned cycle state shared by G81 and G83.
+// Stores the parameters that persist across successive modal calls.
+typedef struct
+{
+    float           z;    // Drilling depth in machine coordinates (mm)
+    float           r;    // Retract plane in machine coordinates (mm)
+    float           q;    // Peck depth (mm, G83 only; > 0)
+    float           p;    // Optional dwell at final depth (ms, G83 only; 0 = no dwell)
+    CannedCycleType type; // Which cycle is active
+} gc_canned_cycle_t;
+extern gc_canned_cycle_t gc_canned_cycle;
 
 // NOTE: When this struct is zeroed, the 0 values in the above types set the system defaults.
 typedef struct
