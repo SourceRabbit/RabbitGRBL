@@ -24,18 +24,6 @@
 
 #include "stdint.h"
 
-#ifndef RX_BUFFER_SIZE
-#define RX_BUFFER_SIZE 256
-#endif
-
-#ifndef TX_BUFFER_SIZE
-#ifdef USE_LINE_NUMBERS
-#define TX_BUFFER_SIZE 112
-#else
-#define TX_BUFFER_SIZE 104
-#endif
-#endif
-
 void client_init();
 void client_reset_read_buffer();
 
