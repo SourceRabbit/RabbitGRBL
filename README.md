@@ -38,6 +38,7 @@ making it suitable for real CNC machines — not experimental setups.
 - Step rates up to **120,000 steps/sec**
 - **Jitter-free** pulse generation
 - **Backlash compensation**
+- **Canned Cycles** G81, G83, G73 
 - **User-defined homing sequences**
 - **USB / Serial connectivity**
 - Optimized for **ESP32 dual-core architecture**
