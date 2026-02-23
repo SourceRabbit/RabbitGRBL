@@ -45,14 +45,20 @@ making it suitable for real CNC machines — not experimental setups.
 
 ## Compatible Hardware & Software
 
-The following products are **100% compatible** with Rabbit GRBL:
+Rabbit GRBL runs on **ESP32-based CNC controller boards** and remains fully compatible with the standard GRBL ecosystem.
 
-| 4-Axis CNC Motherboard | 4-Axis CNC Motherboard Compact | Focus – PC-Based CNC Control |
-|-----------------------|--------------------------------|------------------------------|
-| <a href="https://www.sourcerabbit.com/Shop/pr-i-86-t-4-axis-cnc-motherboard.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/SourceRabbit-4Axis-CNC-Motherboard.png" alt="4-Axis CNC Motherboard"></a> | <a href="https://www.sourcerabbit.com/Shop/pr-i-97-t-4-axis-cnc-motherboard-compact.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/SourceRabbit-4Axis-CNC-Motherboard-Compact.jpg" alt="4-Axis CNC Motherboard Compact"></a> | <a href="https://www.sourcerabbit.com/Shop/pr-i-91-t-focus-cnc-control-software.htm"><img src="https://github.com/SourceRabbit/GRBL_ESP32/blob/main/Images/FocusGitHub.png" alt="Focus CNC Control Software"></a> |
+You can use it with supported ESP32 hardware as described in the official hardware compatibility list:
 
-> Rabbit GRBL is not tied to proprietary hardware and can be adapted to custom ESP32-based CNC controller designs.
+👉 Compatible hardware  
+https://github.com/SourceRabbit/RabbitGRBL/wiki/Compatible-Hardware  
 
+On the software side, Rabbit GRBL works with **all standard GRBL G-code senders**, without requiring proprietary tools.  
+You can find the full list of compatible software here:
+
+👉 Compatible software  
+https://github.com/SourceRabbit/RabbitGRBL/wiki/Compatible-Software  
+
+Because Rabbit GRBL is **100% backward compatible with the original GRBL (AVR)** command set, it integrates seamlessly with existing GRBL-based workflows.
 
 ## Build & Usage
 
