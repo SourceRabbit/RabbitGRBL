@@ -7,8 +7,8 @@
   Copyright (c) 2011-2016 Sungeun K. Jeon for Gnea Research LLC
   Copyright (c) 2009-2011 Simen Svale Skogsrud
 
-	2018 -	Bart Dring This file was modifed for use on the ESP32
-					CPU. Do not use this with Grbl for atMega328P
+  2018 -	Bart Dring This file was modifed for use on the ESP32
+          CPU. Do not use this with Grbl for atMega328P
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,16 +23,6 @@
   You should have received a copy of the GNU General Public License
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-// Line buffer size from the serial input stream to be executed.
-// NOTE: Not a problem except for extreme cases, but the line buffer size can be too small
-// and g-code blocks can get truncated. Officially, the g-code standards support up to 256
-// characters. In future versions, this will be increased, when we know how much extra
-// memory space we can invest into here or we re-write the g-code parser not to have this
-// buffer.
-#ifndef LINE_BUFFER_SIZE
-#    define LINE_BUFFER_SIZE 256
-#endif
 
 // Starts Grbl main loop. It handles all incoming characters from the serial port and executes
 // them as they complete. It is also responsible for finishing the initialization procedures.

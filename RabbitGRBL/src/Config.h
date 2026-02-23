@@ -52,8 +52,6 @@
 // #define ENABLE_CONTROL_SW_DEBOUNCE     // Default disabled. Uncomment to enable.
 #define CONTROL_SW_DEBOUNCE_PERIOD 32 // in milliseconds default 32 microseconds
 
-#define USE_RMT_STEPS
-
 // Include the file that loads the machine-specific config file.
 // machine.h must be edited to choose the desired file.
 #include "Machine.h"
@@ -376,7 +374,7 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // Dir Pin  ____|--------------------
 // Step Pin _______|--|____________
 // While this is experimental, it is intended to be the future default method after testing
-// #define USE_RMT_STEPS
+#define USE_RMT_STEPS
 
 // STEP_PULSE_DELAY is now a setting...$Stepper/Direction/Delay
 
@@ -397,10 +395,17 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 
 // Line buffer size from the serial input stream to be executed. Also, governs the size of
 // each of the startup blocks, as they are each stored as a string of this size.
-// NOTE: 80 characters is not a problem except for extreme cases, but the line buffer size
+//
+// NOTE: 256 characters is not a problem except for extreme cases, but the line buffer size
 // can be too small and GCode blocks can get truncated. Officially, the GCode standards
 // support up to 256 characters.
-// #define LINE_BUFFER_SIZE 80  // Uncomment to override default in protocol.h
+//
+// NOTE: Not a problem except for extreme cases, but the line buffer size can be too small
+// and g-code blocks can get truncated. Officially, the g-code standards support up to 256
+// characters. In future versions, this will be increased, when we know how much extra
+// memory space we can invest into here or we re-write the g-code parser not to have this
+// buffer.
+#define LINE_BUFFER_SIZE 256
 
 // Serial send and receive buffer size. The receive buffer is often used as another streaming
 // buffer to store incoming blocks to be processed by Grbl when its ready. Most streaming
