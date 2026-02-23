@@ -163,7 +163,8 @@ EError gc_execute_line(char *line)
 
     // Determine if the line is a jogging motion or a normal g-code block.
     if (line[0] == '$')
-    { // NOTE: `$J=` already parsed when passed to this function.
+    {
+        // NOTE: `$J=` already parsed when passed to this function.
         // Set G1 and G94 enforced modes to ensure accurate error checks.
         gc_parser_flags |= GCParserJogMotion;
         gc_block.modal.motion = Motion::Linear;
@@ -363,7 +364,7 @@ EError gc_execute_line(char *line)
                 gc_block.modal.plane_select = Plane::YZ;
                 mg_word_bit = ModalGroup::MG2;
                 break;
-                
+
             case 90:
                 switch (mantissa)
                 {

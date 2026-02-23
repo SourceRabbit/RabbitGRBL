@@ -55,7 +55,6 @@ extern FloatSetting *settings_spindle_pwm_off_value;
 extern FloatSetting *settings_spindle_pwm_min_value;
 extern FloatSetting *settings_spindle_pwm_max_value;
 
-
 extern FloatSetting *settings_coolant_flood_start_delay;
 extern FloatSetting *settings_coolant_mist_start_delay;
 
