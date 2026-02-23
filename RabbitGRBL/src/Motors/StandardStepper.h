@@ -26,7 +26,13 @@ namespace Motors
 
 #ifdef USE_RMT_STEPS
         rmt_channel_t _rmt_chan_num;
+
+        // FIX #2: Per-instance RMT config and items (previously static — shared across all axes).
+        // Each stepper axis must have its own independent RMT configuration.
+        rmt_item32_t _rmtItem[2];
+        rmt_config_t _rmtConfig;
 #endif
+
         bool _invert_step_pin;
         bool _invert_dir_pin;
         uint8_t _step_pin;
@@ -34,8 +40,7 @@ namespace Motors
         uint8_t _disable_pin;
 
     private:
+        // Returns the next available RMT channel, or RMT_CHANNEL_MAX if none available
         static rmt_channel_t get_next_RMT_chan_num();
-        static rmt_item32_t rmtItem[2];
-        static rmt_config_t rmtConfig;
     };
 }

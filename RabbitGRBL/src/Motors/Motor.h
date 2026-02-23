@@ -7,7 +7,6 @@
         Motor
             Nullmotor
             StandardStepper
-                TrinamicDriver
             Unipolar
             RC Servo
 
