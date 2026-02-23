@@ -171,13 +171,6 @@ static const uint8_t NHomingLocateCycle = 1; // Integer (1-128)
 // to perform tool length measurements.
 #define MESSAGE_PROBE_COORDINATES // Enabled by default. Comment to disable.
 
-// Enables a second coolant control pin via the mist coolant GCode command M7 on the Arduino Uno
-// analog pin 4. Only use this option if you require a second coolant control pin.
-// NOTE: The M8 flood coolant control pin on analog pin 3 will still be functional regardless.
-// ESP32 NOTE! This is here for reference only. You enable both M7 and M8 by assigning them a GPIO Pin
-// in the machine definition file.
-// #define ENABLE_M7 // Don't uncomment...see above!
-
 // This option causes the feed hold input to act as a safety door switch. A safety door, when triggered,
 // immediately forces a feed hold and then safely de-energizes the machine. Resuming is blocked until
 // the safety door is re-engaged. When it is, Grbl will re-energize the machine and then resume on the
