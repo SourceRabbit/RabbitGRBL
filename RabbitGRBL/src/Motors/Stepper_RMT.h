@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "../Grbl.h"
 #include "Motor.h"
 
 class Stepper_RMT : public Motor
