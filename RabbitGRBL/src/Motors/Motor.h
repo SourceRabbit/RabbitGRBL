@@ -1,4 +1,4 @@
-#pragma once
+
 
 /*
     Motor.h
@@ -27,8 +27,9 @@
     along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Motors.h"
+#pragma once
 
+#include "MotorsManager.h"
 #include <cstdint>
 
 class Motor
@@ -39,7 +40,6 @@ public:
     // Initialize() establishes configured motor parameters.  It is called after
     // all motor objects have been constructed.
     virtual void Initialize() {}
-
 
     // setHomingMode() is called from MotorsManager::SetHomingMode(),
     // which in turn is called at the beginning of a homing cycle
@@ -85,6 +85,6 @@ protected:
     //   tables can be indexed by these variables.
     // TODO Architecture: It might be useful to cache a
     // reference to the axis settings entry.
-    uint8_t fAxisIndex;      // X_AXIS, etc
+    uint8_t fAxisIndex;     // X_AXIS, etc
     uint8_t fDualAxisIndex; // 0 = primary 1=ganged
 };

@@ -23,9 +23,11 @@
 #pragma once
 #include "../Grbl.h"
 
-// Forward declaration to break the circular include:
-// Motor.h includes Motors.h which includes MotorsManager.h
-class Motor;
+// Include Motors
+#include "Motor.h"
+#include "NullMotor.h"
+#include "Stepper_RMT.h"
+#include "Stepper_Software.h"
 
 class MotorsManager
 {
