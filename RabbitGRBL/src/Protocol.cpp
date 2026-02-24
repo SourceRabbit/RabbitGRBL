@@ -26,8 +26,6 @@
 
 static void protocol_exec_rt_suspend();
 
-static char line[LINE_BUFFER_SIZE]; // Line to be executed. Zero-terminated.
-
 typedef struct
 {
     char buffer[LINE_BUFFER_SIZE];
@@ -142,8 +140,10 @@ void protocol_main_loop()
             sys_rt_exec_state.bit.safetyDoor = true;
             protocol_execute_realtime(); // Enter safety door mode. Should return as IDLE state.
         }
+
         // All systems go!
-        system_execute_startup(line); // Execute startup script.
+        char startup_line[LINE_BUFFER_SIZE];
+        system_execute_startup(startup_line); // Execute startup script.
     }
     // ---------------------------------------------------------------------------------
     // Primary loop! Upon a system abort, this exits back to main() to reset the system.
