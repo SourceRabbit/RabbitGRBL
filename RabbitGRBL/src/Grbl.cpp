@@ -27,8 +27,7 @@ void grbl_init()
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
     system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
-    CNCMachine::fBacklashManager.Initialize();
-    CNCMachine::fMotorsManager.Initialize();
+    CNCMachine::Initialize();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
 
@@ -85,9 +84,7 @@ static void reset_variables()
     client_reset_read_buffer();
     gc_init(); // Set g-code parser to default state
     fSpindle->Stop();
-    CNCMachine::fCoolantManager.Initialize();
     limits_init();
-    CNCMachine::fProbe.Initialize();
     plan_reset(); // Clear block buffer and planner variables
     st_reset();   // Clear stepper subsystem variables
 

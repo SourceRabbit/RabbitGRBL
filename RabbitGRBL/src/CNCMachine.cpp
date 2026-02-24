@@ -28,6 +28,9 @@ MotorsManager CNCMachine::fMotorsManager;
 CoolantManager CNCMachine::fCoolantManager;
 Probe CNCMachine::fProbe;
 
+/**
+ * Initialize the CNC Machine
+ */
 void CNCMachine::Initialize()
 {
     CNCMachine::fBacklashManager.Initialize();
@@ -36,6 +39,10 @@ void CNCMachine::Initialize()
     CNCMachine::fProbe.Initialize();
 }
 
+/**
+ * Reset the CNC Machine.
+ * (Re-Initialize managers etc.)
+ */
 void CNCMachine::Reset()
 {
     CNCMachine::fBacklashManager.ResetTargets();
