@@ -28,7 +28,7 @@ void grbl_init()
     stepper_init();  // Configure stepper pins and interrupt timers
     system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
     BacklashManager::Initialize();
-    init_motors();
+    MotorsManager::Initialize();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
 

@@ -224,7 +224,7 @@ static void stepper_pulse_func()
 {
     auto n_axis = number_axis->get();
 
-    if (motors_direction(st.dir_outbits))
+    if (MotorsManager::Direction(st.dir_outbits))
     {
         auto wait_direction = direction_delay_microseconds->get();
         if (wait_direction > 0)
@@ -260,7 +260,7 @@ static void stepper_pulse_func()
     //
     // NOTE: We could use direction_pulse_start_time + wait_direction, but let's play it safe
     uint64_t step_pulse_start_time = esp_timer_get_time();
-    motors_step(st.step_outbits);
+    MotorsManager::Step(st.step_outbits);
 
     // If there is no step segment, attempt to pop one from the stepper buffer
     if (st.exec_segment == NULL)
@@ -365,7 +365,7 @@ static void stepper_pulse_func()
         {
             NOP(); // spin here until time to turn off step
         }
-        motors_unstep();
+        MotorsManager::Unstep();
         break;
     case ST_RMT:
         break;
@@ -398,7 +398,7 @@ void st_wake_up()
 {
     //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
-    motors_set_disable(false);
+    MotorsManager::SetDisable(false);
     stepper_idle = false;
 
     // Initialize step pulse timing from settings. Here to ensure updating after re-writing.
@@ -454,7 +454,7 @@ void st_go_idle()
 
         if (sys.state == State::Sleep || sys_rt_exec_alarm != EAlarm::None)
         {
-            motors_set_disable(true);
+            MotorsManager::SetDisable(true);
         }
         else
         {
@@ -465,10 +465,10 @@ void st_go_idle()
     }
     else
     {
-        motors_set_disable(false);
+        MotorsManager::SetDisable(false);
     }
 
-    motors_unstep();
+    MotorsManager::Unstep();
     st.step_outbits = 0;
 }
 
