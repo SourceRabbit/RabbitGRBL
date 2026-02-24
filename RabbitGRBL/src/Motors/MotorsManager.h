@@ -20,7 +20,10 @@
 */
 
 #include "../Grbl.h"
-#include "Motor.h"
+
+// Forward declaration to break the circular include:
+// Motor.h includes Motors.h which includes MotorsManager.h
+namespace Motors { class Motor; }
 
 class MotorsManager
 {
