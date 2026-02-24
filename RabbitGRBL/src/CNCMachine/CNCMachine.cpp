@@ -1,5 +1,5 @@
 /*
-  CNCMachine.h
+  CNCMachine.cpp
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
@@ -20,22 +20,32 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "../Grbl.h"
+#include "CNCMachine.h"
 
-#include "Grbl.h"
-#include "Backlash/BacklashManager.h"
-#include "Motors/MotorsManager.h"
-#include "Coolant/CoolantManager.h"
-#include "Probe/Probe.h"
+BacklashManager CNCMachine::fBacklashManager;
+MotorsManager CNCMachine::fMotorsManager;
+CoolantManager CNCMachine::fCoolantManager;
+Probe CNCMachine::fProbe;
 
-class CNCMachine
+/**
+ * Initialize the CNC Machine
+ */
+void CNCMachine::Initialize()
 {
-public:
-  static BacklashManager fBacklashManager;
-  static MotorsManager fMotorsManager;
-  static CoolantManager fCoolantManager;
-  static Probe fProbe;
+    CNCMachine::fBacklashManager.Initialize();
+    CNCMachine::fMotorsManager.Initialize();
+    CNCMachine::fCoolantManager.Initialize();
+    CNCMachine::fProbe.Initialize();
+}
 
-  static void Initialize();
-  static void Reset();
-};
+/**
+ * Reset the CNC Machine.
+ * (Re-Initialize managers etc.)
+ */
+void CNCMachine::Reset()
+{
+    CNCMachine::fBacklashManager.ResetTargets();
+    CNCMachine::fCoolantManager.Initialize();
+    CNCMachine::fProbe.Initialize();
+}

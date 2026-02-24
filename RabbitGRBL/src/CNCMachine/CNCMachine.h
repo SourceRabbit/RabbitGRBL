@@ -1,7 +1,7 @@
 /*
-  CoolantManager.h
+  CNCMachine.h
 
-  Copyright (c) 2023 Nikolaos Siatras
+  Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
@@ -23,22 +23,19 @@
 #pragma once
 
 #include "../Grbl.h"
-#include <cstdint>
-#include "Coolant.h"
+#include "Backlash/BacklashManager.h"
+#include "Peripherals/Motors/MotorsManager.h"
+#include "Peripherals/Coolant/CoolantManager.h"
+#include "Peripherals/Probe/Probe.h"
 
-class CoolantManager
+class CNCMachine
 {
 public:
-    Coolant Mist_Coolant;
-    Coolant Flood_Coolant;
+  static BacklashManager fBacklashManager;
+  static MotorsManager fMotorsManager;
+  static CoolantManager fCoolantManager;
+  static Probe fProbe;
 
-    void Initialize();
-    void TurnAllCoolantsOff();
-    void setCoolantState(CoolantState state);
-
-    bool AreAllCoolantsOff();
-
-private:
-    bool fInitialized;
-    Coolant *fCoolants[2];
+  static void Initialize();
+  static void Reset();
 };

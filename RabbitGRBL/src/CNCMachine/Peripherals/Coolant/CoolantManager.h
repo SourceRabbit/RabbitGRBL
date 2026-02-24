@@ -1,7 +1,7 @@
 /*
-  BacklashManager.h
+  CoolantManager.h
 
-  Copyright (c) 2024 Nikolaos Siatras
+  Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
@@ -22,18 +22,23 @@
 
 #pragma once
 
-#include "../Grbl.h"
+#include "../../../Grbl.h"
+#include <cstdint>
+#include "Coolant.h"
 
-class BacklashManager
+class CoolantManager
 {
 public:
-    void Initialize();
-    void CompensateBacklash(float *target, plan_line_data_t *pl_data);
+    Coolant Mist_Coolant;
+    Coolant Flood_Coolant;
 
-    void ResetTargets();
-    void SynchPositionWhileUsingProbe();
+    void Initialize();
+    void TurnAllCoolantsOff();
+    void setCoolantState(CoolantState state);
+
+    bool AreAllCoolantsOff();
 
 private:
-    float fPreviousTargets[MAX_N_AXIS];
-    uint8_t fAxisDirections[MAX_N_AXIS];
+    bool fInitialized;
+    Coolant *fCoolants[2];
 };

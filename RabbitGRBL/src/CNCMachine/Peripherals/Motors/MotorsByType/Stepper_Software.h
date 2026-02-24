@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../../Grbl.h"
+#include "../../../../Grbl.h"
 #include "../Motor.h"
 
 class Stepper_Software : public Motor

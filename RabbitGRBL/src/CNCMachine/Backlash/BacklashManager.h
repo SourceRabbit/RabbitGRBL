@@ -1,7 +1,7 @@
 /*
-  CNCMachine.cpp
+  BacklashManager.h
 
-  Copyright (c) 2026 Nikolaos Siatras
+  Copyright (c) 2024 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
@@ -20,32 +20,20 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Grbl.h"
-#include "CNCMachine.h"
+#pragma once
 
-BacklashManager CNCMachine::fBacklashManager;
-MotorsManager CNCMachine::fMotorsManager;
-CoolantManager CNCMachine::fCoolantManager;
-Probe CNCMachine::fProbe;
+#include "../../Grbl.h"
 
-/**
- * Initialize the CNC Machine
- */
-void CNCMachine::Initialize()
+class BacklashManager
 {
-    CNCMachine::fBacklashManager.Initialize();
-    CNCMachine::fMotorsManager.Initialize();
-    CNCMachine::fCoolantManager.Initialize();
-    CNCMachine::fProbe.Initialize();
-}
+public:
+    void Initialize();
+    void CompensateBacklash(float *target, plan_line_data_t *pl_data);
 
-/**
- * Reset the CNC Machine.
- * (Re-Initialize managers etc.)
- */
-void CNCMachine::Reset()
-{
-    CNCMachine::fBacklashManager.ResetTargets();
-    CNCMachine::fCoolantManager.Initialize();
-    CNCMachine::fProbe.Initialize();
-}
+    void ResetTargets();
+    void SynchPositionWhileUsingProbe();
+
+private:
+    float fPreviousTargets[MAX_N_AXIS];
+    uint8_t fAxisDirections[MAX_N_AXIS];
+};

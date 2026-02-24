@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../Grbl.h"
+#include "../../../Grbl.h"
 #include "CoolantManager.h"
 
 #define COOLANTS_COUNT 2
