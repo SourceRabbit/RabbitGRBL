@@ -27,3 +27,18 @@ BacklashManager CNCMachine::fBacklashManager;
 MotorsManager CNCMachine::fMotorsManager;
 CoolantManager CNCMachine::fCoolantManager;
 Probe CNCMachine::fProbe;
+
+void CNCMachine::Initialize()
+{
+    CNCMachine::fBacklashManager.Initialize();
+    CNCMachine::fMotorsManager.Initialize();
+    CNCMachine::fCoolantManager.Initialize();
+    CNCMachine::fProbe.Initialize();
+}
+
+void CNCMachine::Reset()
+{
+    CNCMachine::fBacklashManager.ResetTargets();
+    CNCMachine::fCoolantManager.Initialize();
+    CNCMachine::fProbe.Initialize();
+}

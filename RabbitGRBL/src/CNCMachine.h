@@ -35,4 +35,7 @@ public:
   static MotorsManager fMotorsManager;
   static CoolantManager fCoolantManager;
   static Probe fProbe;
+
+  static void Initialize();
+  static void Reset();
 };
