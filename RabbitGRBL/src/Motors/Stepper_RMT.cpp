@@ -26,23 +26,6 @@
 
 namespace Motors
 {
-    // FIX #1: get_next_RMT_chan_num() - Fixed off-by-one bug.
-    // Previously, the function incremented BEFORE returning, skipping channel 0
-    // and potentially returning RMT_CHANNEL_MAX (invalid) as a usable channel.
-    // Now it returns the current channel first, then increments (post-increment).
-    rmt_channel_t Stepper_RMT::get_next_RMT_chan_num()
-    {
-        static uint8_t next_RMT_chan_num = uint8_t(RMT_CHANNEL_0); // Start at channel 0
-
-        if (next_RMT_chan_num >= uint8_t(RMT_CHANNEL_MAX))
-        {
-            // No more RMT channels available
-            MessageSender::SendMessage(EMessageLevel::Error, "Error: out of RMT channels");
-            return RMT_CHANNEL_MAX; // Return explicit error value without incrementing
-        }
-
-        return rmt_channel_t(next_RMT_chan_num++); // Return current channel, then increment
-    }
 
     Stepper_RMT::Stepper_RMT(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)
         : Motor(axis_index), _step_pin(step_pin), _dir_pin(dir_pin), _disable_pin(disable_pin)
@@ -52,14 +35,6 @@ namespace Motors
     }
 
     void Stepper_RMT::init()
-    {
-        read_settings();
-        config_message();
-    }
-
-    void Stepper_RMT::read_settings() { init_step_dir_pins(); }
-
-    void Stepper_RMT::init_step_dir_pins()
     {
         _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
         _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);
@@ -113,11 +88,8 @@ namespace Motors
         rmt_fill_tx_items(_rmtConfig.channel, &_rmtItem[0], 2, 0); // 2 items: delay + pulse
 
         pinMode(_disable_pin, OUTPUT);
-    }
 
-    void Stepper_RMT::config_message()
-    {
-        // FIX #6: Re-enabled config message for proper debug output during initialization
+        // Information messages
         MessageSender::SendMessage(EMessageLevel::Info,
                                    "%s RMT Stepper Step:%s Dir:%s Disable:%s %s",
                                    reportAxisNameMsg(_axis_index, _dual_axis_index),
@@ -125,6 +97,24 @@ namespace Motors
                                    pinName(_dir_pin).c_str(),
                                    pinName(_disable_pin).c_str(),
                                    reportAxisLimitsMsg(_axis_index));
+    }
+
+    // FIX #1: get_next_RMT_chan_num() - Fixed off-by-one bug.
+    // Previously, the function incremented BEFORE returning, skipping channel 0
+    // and potentially returning RMT_CHANNEL_MAX (invalid) as a usable channel.
+    // Now it returns the current channel first, then increments (post-increment).
+    rmt_channel_t Stepper_RMT::get_next_RMT_chan_num()
+    {
+        static uint8_t next_RMT_chan_num = uint8_t(RMT_CHANNEL_0); // Start at channel 0
+
+        if (next_RMT_chan_num >= uint8_t(RMT_CHANNEL_MAX))
+        {
+            // No more RMT channels available
+            MessageSender::SendMessage(EMessageLevel::Error, "Error: out of RMT channels");
+            return RMT_CHANNEL_MAX; // Return explicit error value without incrementing
+        }
+
+        return rmt_channel_t(next_RMT_chan_num++); // Return current channel, then increment
     }
 
     void Stepper_RMT::step()

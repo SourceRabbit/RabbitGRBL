@@ -17,13 +17,8 @@ namespace Motors
         void set_direction(bool) override;
         void step() override;
         void unstep() override;
-        void read_settings() override;
-
-        void init_step_dir_pins();
 
     protected:
-        void config_message() override;
-
         rmt_channel_t _rmt_chan_num;
 
         // FIX #2: Per-instance RMT config and items (previously static — shared across all axes).

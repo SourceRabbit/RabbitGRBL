@@ -33,23 +33,13 @@ namespace Motors
 
     void Stepper_Software::init()
     {
-        read_settings();
-        config_message();
-    }
-
-    void Stepper_Software::read_settings() { init_step_dir_pins(); }
-
-    void Stepper_Software::init_step_dir_pins()
-    {
         _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
         _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);
         pinMode(_dir_pin, OUTPUT);
         pinMode(_step_pin, OUTPUT);
         pinMode(_disable_pin, OUTPUT);
-    }
 
-    void Stepper_Software::config_message()
-    {
+        // Information Message
         MessageSender::SendMessage(EMessageLevel::Info,
                                    "%s Software Stepper Step:%s Dir:%s Disable:%s %s",
                                    reportAxisNameMsg(_axis_index, _dual_axis_index),

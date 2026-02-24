@@ -17,13 +17,8 @@ namespace Motors
         void set_direction(bool) override;
         void step() override;
         void unstep() override;
-        void read_settings() override;
-
-        void init_step_dir_pins();
 
     protected:
-        void config_message() override;
-
         bool _invert_step_pin;
         bool _invert_dir_pin;
         uint8_t _step_pin;
