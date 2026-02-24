@@ -93,9 +93,9 @@ void limits_go_home(uint8_t cycle_mask)
     // Put motors on axes listed in cycle_mask in homing mode and
     // replace cycle_mask with the list of motors that are ready for homing.
     // Motors with non standard homing can home during motors_set_homing_mode(...)
-    cycle_mask = MotorsManager::SetHomingMode(cycle_mask, true); // tell motors homing is about to start
+    cycle_mask = MotorsManager::SetHomingMode(cycle_mask, true); // Tell motors homing is about to start
 
-    // see if any motors are left
+    // See if any motors are left
     if (cycle_mask == 0)
     {
         return;
@@ -110,6 +110,7 @@ void limits_go_home(uint8_t cycle_mask)
 #ifdef USE_LINE_NUMBERS
     pl_data->line_number = HOMING_CYCLE_LINE_NUMBER;
 #endif
+
     // Initialize variables used for homing computations.
     uint8_t n_cycle = (2 * n_homing_locate_cycle + 1);
     uint8_t step_pin[MAX_N_AXIS];
@@ -117,75 +118,71 @@ void limits_go_home(uint8_t cycle_mask)
     float max_travel = 0.0;
 
     auto n_axis = number_axis->get();
+
+    //  Count active axes and calculate max_travel BEFORE the loop ---
+    uint8_t n_active_axis = 0;
     for (uint8_t idx = 0; idx < n_axis; idx++)
     {
         // Initialize step pin masks
         step_pin[idx] = bit(idx);
+
         if (bit_istrue(cycle_mask, bit(idx)))
         {
+            n_active_axis++;
+
             // Set target based on max_travel setting. Ensure homing switches engaged with search scalar.
             max_travel = MAX(max_travel, (HOMING_AXIS_SEARCH_SCALAR)*axis_settings[idx]->max_travel->get());
 
-            // Αν το max_travel του άξονα είναι 0 αλλά του έχει ζητηθεί να γίνει homing
-            // τότε άλλαξε το max_travel σε 360.00.
-            // Ο λόγος που το κάνουμε αυτό είναι πως σε μερικούς άξονες για να αποφύγουμε τον
-            // περιορισμό των soft limits, τους κάνουμε set το max_travel = 0.
-            // Σε αυτούς τους άξονες όμως μπορεί να υπάρχει τερματικός διακόπτης. Για παράδειγμα
-            // μπορεί να υπάρχει περιστροφικός τέταρτος άξονας ο οποίος να έχει unlimited steps
-            // αλλά να χρειάζεται να έχει τερματικό διακόπτη.
+            // If max_travel for the axis is 0 but homing is requested,
+            // set max_travel to 360 degrees. This handles rotary axes that have
+            // unlimited steps (max_travel=0 to bypass soft limits) but still
+            // have a physical limit switch (e.g. a 4th rotary axis).
             max_travel = (max_travel == 0) ? 360.00f : max_travel;
         }
     }
-    // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
+
+    // Pre-calculate the rate multiplier ONCE (sqrt of active axes count) ---
+    // This avoids multiplying homing_rate repeatedly inside the loop on each iteration.
+    float rate_multiplier = (n_active_axis > 0) ? sqrtf((float)n_active_axis) : 1.0f;
+
+    // Set search mode with approach at seek rate to quickly engage the limit switches.
     bool approach = true;
-    float homing_rate = homing_seek_rate->get();
-    uint8_t n_active_axis;
+    float homing_rate = homing_seek_rate->get() * rate_multiplier; // Apply multiplier once here
     AxisMask limit_state, axislock;
+
     do
     {
         system_convert_array_steps_to_mpos(target, sys_position);
-        // Initialize and declare variables needed for homing routine.
+
+        // Initialize variables needed for homing routine.
         axislock = 0;
-        n_active_axis = 0;
         for (uint8_t idx = 0; idx < n_axis; idx++)
         {
             // Set target location for active axes and setup computation for homing rate.
             if (bit_istrue(cycle_mask, bit(idx)))
             {
-                n_active_axis++;
                 sys_position[idx] = 0;
+
                 // Set target direction based on cycle mask and homing cycle approach state.
                 // NOTE: This happens to compile smaller than any other implementation tried.
                 auto mask = homing_dir_mask->get();
                 if (bit_istrue(mask, bit(idx)))
                 {
-                    if (approach)
-                    {
-                        target[idx] = -max_travel;
-                    }
-                    else
-                    {
-                        target[idx] = max_travel;
-                    }
+                    target[idx] = approach ? -max_travel : max_travel;
                 }
                 else
                 {
-                    if (approach)
-                    {
-                        target[idx] = max_travel;
-                    }
-                    else
-                    {
-                        target[idx] = -max_travel;
-                    }
+                    target[idx] = approach ? max_travel : -max_travel;
                 }
+
                 // Apply axislock to the step port pins active in this cycle.
                 axislock |= step_pin[idx];
             }
         }
 
-        homing_rate *= sqrt(n_active_axis); // [sqrt(number of active axis)] Adjust so individual axes all move at homing rate.
+        // homing_rate is already correctly scaled — no need to multiply inside the loop.
         sys.homing_axis_lock = axislock;
+
         // Perform homing cycle. Planner buffer should be empty, as required to initiate the homing cycle.
         pl_data->feed_rate = homing_rate;  // Set current homing rate.
         plan_buffer_line(target, pl_data); // Bypass mc_line(). Directly plan homing motion.
@@ -193,6 +190,7 @@ void limits_go_home(uint8_t cycle_mask)
         sys.step_control.executeSysMotion = true; // Set to execute homing motion and clear existing flags.
         st_prep_buffer();                         // Prep and fill segment buffer from newly planned block.
         st_wake_up();                             // Initiate motion
+
         do
         {
             if (approach)
@@ -211,12 +209,15 @@ void limits_go_home(uint8_t cycle_mask)
                 }
                 sys.homing_axis_lock = axislock;
             }
+
             st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
+
             // Exit routines: No time to run protocol_execute_realtime() in this loop.
             if (sys_rt_exec_state.bit.safetyDoor || sys_rt_exec_state.bit.reset || cycle_stop)
             {
                 ExecState rt_exec_state;
                 rt_exec_state.value = sys_rt_exec_state.value;
+
                 // Homing failure condition: Reset issued during cycle.
                 if (rt_exec_state.bit.reset)
                 {
@@ -227,7 +228,7 @@ void limits_go_home(uint8_t cycle_mask)
                 {
                     sys_rt_exec_alarm = EAlarm::HomingFailDoor;
                 }
-                // Homing failure condition: Limit switch still engaged after pull-off motion
+                // Homing failure condition: Limit switch still engaged after pull-off motion.
                 if (!approach && (limits_get_state() & cycle_mask))
                 {
                     sys_rt_exec_alarm = EAlarm::HomingFailPulloff;
@@ -240,7 +241,7 @@ void limits_go_home(uint8_t cycle_mask)
 
                 if (sys_rt_exec_alarm != EAlarm::None)
                 {
-                    MotorsManager::SetHomingMode(cycle_mask, false); // tell motors homing is done...failed
+                    MotorsManager::SetHomingMode(cycle_mask, false); // Tell motors homing is done (failed)
                     MessageSender::SendMessage(EMessageLevel::Debug, "Homing fail");
                     mc_reset(); // Stop motors, if they are running.
                     protocol_execute_realtime();
@@ -257,38 +258,36 @@ void limits_go_home(uint8_t cycle_mask)
 
         st_reset();                       // Immediately force kill steppers and reset step segment buffer.
         delay_ms(homing_debounce->get()); // Delay to allow transient dynamics to dissipate.
+
         // Reverse direction and reset homing rate for locate cycle(s).
         approach = !approach;
+
         // After first cycle, homing enters locating phase. Shorten search to pull-off distance.
+        // Apply rate_multiplier on reset to keep the scaling consistent across all iterations.
         if (approach)
         {
             max_travel = homing_pulloff->get() * HOMING_AXIS_LOCATE_SCALAR;
-            homing_rate = homing_feed_rate->get();
+            homing_rate = homing_feed_rate->get() * rate_multiplier; // Scale feed rate correctly
         }
         else
         {
             max_travel = homing_pulloff->get();
-            homing_rate = homing_seek_rate->get();
+            homing_rate = homing_seek_rate->get() * rate_multiplier; // Scale seek rate correctly
         }
+
     } while (n_cycle-- > 0);
-    // The active cycle axes should now be homed and machine limits have been located. By
-    // default, Grbl defines machine space as all negative, as do most CNCs. Since limit switches
-    // can be on either side of an axes, check and set axes machine zero appropriately. Also,
-    // set up pull-off maneuver from axes limit switches that have been homed. This provides
-    // some initial clearance off the switches and should also help prevent them from falsely
-    // triggering when hard limits are enabled or when more than one axes shares a limit pin.
-    int32_t set_axis_position;
+
+    // The active cycle axes should now be homed and machine limits have been located.
     // Set machine positions for homed limit switches. Don't update non-homed axes.
-    auto mask = homing_dir_mask->get();
     auto pulloff = homing_pulloff->get();
     for (uint8_t idx = 0; idx < n_axis; idx++)
     {
         auto steps = axis_settings[idx]->steps_per_mm->get();
         if (cycle_mask & bit(idx))
         {
-            float travel = axis_settings[idx]->max_travel->get();
             float mpos = axis_settings[idx]->home_mpos->get();
 
+            // Set the machine position after homing, offset by the pull-off distance.
             if (bit_istrue(homing_dir_mask->get(), bit(idx)))
             {
                 sys_position[idx] = (mpos + pulloff) * steps;
@@ -299,8 +298,9 @@ void limits_go_home(uint8_t cycle_mask)
             }
         }
     }
+
     sys.step_control = {};                           // Return step control to normal operation.
-    MotorsManager::SetHomingMode(cycle_mask, false); // tell motors homing is done
+    MotorsManager::SetHomingMode(cycle_mask, false); // Tell motors homing is done
 }
 
 uint8_t limit_pins[MAX_N_AXIS][2] = {{X_LIMIT_PIN, X2_LIMIT_PIN}, {Y_LIMIT_PIN, Y2_LIMIT_PIN}, {Z_LIMIT_PIN, Z2_LIMIT_PIN}, {A_LIMIT_PIN, A2_LIMIT_PIN}, {B_LIMIT_PIN, B2_LIMIT_PIN}, {C_LIMIT_PIN, C2_LIMIT_PIN}};
