@@ -22,51 +22,54 @@
 
 #include "ErrorsManager.h"
 
-std::map<EError, const char *> ErrorsManager::fErrorNames = {
-    {EError::Ok, "No error"},
-    {EError::ExpectedCommandLetter, "Expected GCodecommand letter"},
-    {EError::BadNumberFormat, "Bad GCode number format"},
-    {EError::InvalidStatement, "Invalid $ statement"},
-    {EError::NegativeValue, "Negative value"},
-    {EError::SettingDisabled, "Setting disabled"},
-    {EError::SettingStepPulseMin, "Step pulse too short"},
-    {EError::SettingReadFail, "Failed to read settings"},
-    {EError::IdleError, "Command requires idle state"},
-    {EError::SystemGcLock, "GCode cannot be executed in lock or alarm state"},
-    {EError::SoftLimitError, "Soft limit error"},
-    {EError::Overflow, "Line too long"},
-    {EError::MaxStepRateExceeded, "Max step rate exceeded"},
-    {EError::CheckDoor, "Check door"},
-    {EError::LineLengthExceeded, "Startup line too long"},
-    {EError::TravelExceeded, "Max travel exceeded during jog"},
-    {EError::InvalidJogCommand, "Invalid jog command"},
-    {EError::SettingDisabledLaser, "Laser mode requires PWM output"},
-    {EError::HomingNoCycles, "No Homing/Cycle defined in settings"},
-    {EError::GcodeUnsupportedCommand, "Unsupported GCode command"},
-    {EError::GcodeModalGroupViolation, "Gcode modal group violation"},
-    {EError::GcodeUndefinedFeedRate, "Gcode undefined feed rate"},
-    {EError::GcodeCommandValueNotInteger, "Gcode command value not integer"},
-    {EError::GcodeAxisCommandConflict, "Gcode axis command conflict"},
-    {EError::GcodeWordRepeated, "Gcode word repeated"},
-    {EError::GcodeNoAxisWords, "Gcode no axis words"},
-    {EError::GcodeInvalidLineNumber, "Gcode invalid line number"},
-    {EError::GcodeValueWordMissing, "Gcode value word missing"},
-    {EError::GcodeUnsupportedCoordSys, "Gcode unsupported coordinate system"},
-    {EError::GcodeG53InvalidMotionMode, "Gcode G53 invalid motion mode"},
-    {EError::GcodeAxisWordsExist, "Gcode extra axis words"},
-    {EError::GcodeNoAxisWordsInPlane, "Gcode no axis words in plane"},
-    {EError::GcodeInvalidTarget, "Gcode invalid target"},
-    {EError::GcodeArcRadiusError, "Gcode arc radius error"},
-    {EError::GcodeNoOffsetsInPlane, "Gcode no offsets in plane"},
-    {EError::GcodeUnusedWords, "Gcode unused words"},
-    {EError::GcodeG43DynamicAxisError, "Gcode G43 dynamic axis error"},
-    {EError::GcodeMaxValueExceeded, "Gcode max value exceeded"},
-    {EError::PParamMaxExceeded, "P param max exceeded"},
-    {EError::NumberRange, "Number out of range for setting"},
-    {EError::InvalidValue, "Invalid value for setting"},
-    {EError::NvsSetFailed, "Failed to store setting"},
-    {EError::NvsGetStatsFailed, "Failed to get setting status"},
-};
+ErrorsManager::ErrorsManager()
+    : fErrorNames({
+          {EError::Ok, "No error"},
+          {EError::ExpectedCommandLetter, "Expected GCodecommand letter"},
+          {EError::BadNumberFormat, "Bad GCode number format"},
+          {EError::InvalidStatement, "Invalid $ statement"},
+          {EError::NegativeValue, "Negative value"},
+          {EError::SettingDisabled, "Setting disabled"},
+          {EError::SettingStepPulseMin, "Step pulse too short"},
+          {EError::SettingReadFail, "Failed to read settings"},
+          {EError::IdleError, "Command requires idle state"},
+          {EError::SystemGcLock, "GCode cannot be executed in lock or alarm state"},
+          {EError::SoftLimitError, "Soft limit error"},
+          {EError::Overflow, "Line too long"},
+          {EError::MaxStepRateExceeded, "Max step rate exceeded"},
+          {EError::CheckDoor, "Check door"},
+          {EError::LineLengthExceeded, "Startup line too long"},
+          {EError::TravelExceeded, "Max travel exceeded during jog"},
+          {EError::InvalidJogCommand, "Invalid jog command"},
+          {EError::SettingDisabledLaser, "Laser mode requires PWM output"},
+          {EError::HomingNoCycles, "No Homing/Cycle defined in settings"},
+          {EError::GcodeUnsupportedCommand, "Unsupported GCode command"},
+          {EError::GcodeModalGroupViolation, "Gcode modal group violation"},
+          {EError::GcodeUndefinedFeedRate, "Gcode undefined feed rate"},
+          {EError::GcodeCommandValueNotInteger, "Gcode command value not integer"},
+          {EError::GcodeAxisCommandConflict, "Gcode axis command conflict"},
+          {EError::GcodeWordRepeated, "Gcode word repeated"},
+          {EError::GcodeNoAxisWords, "Gcode no axis words"},
+          {EError::GcodeInvalidLineNumber, "Gcode invalid line number"},
+          {EError::GcodeValueWordMissing, "Gcode value word missing"},
+          {EError::GcodeUnsupportedCoordSys, "Gcode unsupported coordinate system"},
+          {EError::GcodeG53InvalidMotionMode, "Gcode G53 invalid motion mode"},
+          {EError::GcodeAxisWordsExist, "Gcode extra axis words"},
+          {EError::GcodeNoAxisWordsInPlane, "Gcode no axis words in plane"},
+          {EError::GcodeInvalidTarget, "Gcode invalid target"},
+          {EError::GcodeArcRadiusError, "Gcode arc radius error"},
+          {EError::GcodeNoOffsetsInPlane, "Gcode no offsets in plane"},
+          {EError::GcodeUnusedWords, "Gcode unused words"},
+          {EError::GcodeG43DynamicAxisError, "Gcode G43 dynamic axis error"},
+          {EError::GcodeMaxValueExceeded, "Gcode max value exceeded"},
+          {EError::PParamMaxExceeded, "P param max exceeded"},
+          {EError::NumberRange, "Number out of range for setting"},
+          {EError::InvalidValue, "Invalid value for setting"},
+          {EError::NvsSetFailed, "Failed to store setting"},
+          {EError::NvsGetStatsFailed, "Failed to get setting status"},
+      })
+{
+}
 
 /**
  * Sends a list with the Rabbit GRBL error codes and titles.
@@ -108,7 +111,7 @@ EError ErrorsManager::ListErrors(const char *value)
     }
 
     // No value provided — iterate and print all error codes and their titles
-    for (auto it = ErrorsManager::fErrorNames.begin(); it != ErrorsManager::fErrorNames.end(); it++)
+    for (auto it = fErrorNames.begin(); it != fErrorNames.end(); it++)
     {
         grbl_sendf("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
     }
@@ -122,6 +125,6 @@ EError ErrorsManager::ListErrors(const char *value)
  */
 const char *ErrorsManager::getErrorTitle(EError alarmNumber)
 {
-    auto it = ErrorsManager::fErrorNames.find(alarmNumber);
-    return it == ErrorsManager::fErrorNames.end() ? NULL : it->second;
+    auto it = fErrorNames.find(alarmNumber);
+    return it == fErrorNames.end() ? NULL : it->second;
 }

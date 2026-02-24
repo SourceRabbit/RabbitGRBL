@@ -36,9 +36,6 @@ const char *const GRBL_VERSION = "1.1h";
 #include "NutsBolts.h"
 #include "Defaults.h"
 
-#include "CNCMachine/Diagnostics/Errors/ErrorsManager.h"
-#include "CNCMachine/Diagnostics/Alarms/AlarmsManager.h"
-
 
 #include "System.h"
 #include "GCode.h"

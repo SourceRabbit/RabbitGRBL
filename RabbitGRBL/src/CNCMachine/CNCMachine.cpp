@@ -27,6 +27,8 @@ BacklashManager CNCMachine::fBacklashManager;
 MotorsManager CNCMachine::fMotorsManager;
 CoolantManager CNCMachine::fCoolantManager;
 Probe CNCMachine::fProbe;
+AlarmsManager CNCMachine::fAlarmsManager;
+ErrorsManager CNCMachine::fErrorsManager;
 
 /**
  * Initialize the CNC Machine

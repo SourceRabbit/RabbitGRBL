@@ -27,6 +27,8 @@
 #include "Peripherals/Motors/MotorsManager.h"
 #include "Peripherals/Coolant/CoolantManager.h"
 #include "Peripherals/Probe/Probe.h"
+#include "Diagnostics/Alarms/AlarmsManager.h"
+#include "Diagnostics/Errors/ErrorsManager.h"
 
 class CNCMachine
 {
@@ -35,6 +37,8 @@ public:
   static MotorsManager fMotorsManager;
   static CoolantManager fCoolantManager;
   static Probe fProbe;
+  static AlarmsManager fAlarmsManager;
+  static ErrorsManager fErrorsManager;
 
   static void Initialize();
   static void Reset();

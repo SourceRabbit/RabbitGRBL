@@ -30,9 +30,10 @@ class ErrorsManager
 {
 
 private:
-    static std::map<EError, const char *> fErrorNames;
+    std::map<EError, const char *> fErrorNames;
 
 public:
-    static EError ListErrors(const char *value);
-    static const char *getErrorTitle(EError errorNumber);
+    ErrorsManager();
+    EError ListErrors(const char *value);
+    const char *getErrorTitle(EError errorNumber);
 };

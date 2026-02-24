@@ -31,10 +31,11 @@ class AlarmsManager
 {
 
 private:
-  static std::map<EAlarm, const char *> fAlarmNames;
+  std::map<EAlarm, const char *> fAlarmNames;
 
 public:
-  static void ReportAlarmMessage(EAlarm alarm_code);
-  static EError ListAlarms(const char *value);
-  static const char *getAlarmTitle(EAlarm alarmNumber);
+  AlarmsManager();
+  void ReportAlarmMessage(EAlarm alarm_code);
+  EError ListAlarms(const char *value);
+  const char *getAlarmTitle(EAlarm alarmNumber);
 };

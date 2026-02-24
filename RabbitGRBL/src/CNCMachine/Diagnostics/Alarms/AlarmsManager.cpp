@@ -22,19 +22,22 @@
 
 #include "AlarmsManager.h"
 
-std::map<EAlarm, const char *> AlarmsManager::fAlarmNames = {
-    {EAlarm::None, "No alarm"},
-    {EAlarm::HardLimit, "Hard limit"},
-    {EAlarm::SoftLimit, "Soft limit"},
-    {EAlarm::AbortCycle, "Abort during cycle"},
-    {EAlarm::ProbeFailInitial, "Probe fail initial"},
-    {EAlarm::ProbeFailContact, "Probe fail contact"},
-    {EAlarm::HomingFailReset, "Homing fail reset"},
-    {EAlarm::HomingFailDoor, "Homing fail door"},
-    {EAlarm::HomingFailPulloff, "Homing fail pulloff"},
-    {EAlarm::HomingFailApproach, "Homing fail approach"},
-    {EAlarm::SpindleControl, "Spindle control"},
-};
+AlarmsManager::AlarmsManager()
+    : fAlarmNames({
+          {EAlarm::None, "No alarm"},
+          {EAlarm::HardLimit, "Hard limit"},
+          {EAlarm::SoftLimit, "Soft limit"},
+          {EAlarm::AbortCycle, "Abort during cycle"},
+          {EAlarm::ProbeFailInitial, "Probe fail initial"},
+          {EAlarm::ProbeFailContact, "Probe fail contact"},
+          {EAlarm::HomingFailReset, "Homing fail reset"},
+          {EAlarm::HomingFailDoor, "Homing fail door"},
+          {EAlarm::HomingFailPulloff, "Homing fail pulloff"},
+          {EAlarm::HomingFailApproach, "Homing fail approach"},
+          {EAlarm::SpindleControl, "Spindle control"},
+      })
+{
+}
 
 /**
  * Sends alarm message (ex. ALARM:1) back to client (g-code sender)
@@ -83,7 +86,7 @@ EError AlarmsManager::ListAlarms(const char *value)
     }
 
     // No value provided — print all alarms
-    for (auto it = AlarmsManager::fAlarmNames.begin(); it != fAlarmNames.end(); it++)
+    for (auto it = fAlarmNames.begin(); it != fAlarmNames.end(); it++)
     {
         grbl_sendf("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
     }
@@ -96,6 +99,6 @@ EError AlarmsManager::ListAlarms(const char *value)
  */
 const char *AlarmsManager::getAlarmTitle(EAlarm alarmNumber)
 {
-    auto it = AlarmsManager::fAlarmNames.find(alarmNumber);
-    return it == AlarmsManager::fAlarmNames.end() ? NULL : it->second;
+    auto it = fAlarmNames.find(alarmNumber);
+    return it == fAlarmNames.end() ? NULL : it->second;
 }

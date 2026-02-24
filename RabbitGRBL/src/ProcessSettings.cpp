@@ -412,8 +412,8 @@ void make_grbl_commands()
     new GrblCommand("SC", "Settings/ListChanged", list_changed_settings, notCycleOrHold);
     new GrblCommand("CMD", "Commands/List", list_commands, notCycleOrHold);
 
-    new GrblCommand("A", "Alarms/List", AlarmsManager::ListAlarms, anyState);
-    new GrblCommand("E", "Errors/List", ErrorsManager::ListErrors, anyState);
+    new GrblCommand("A", "Alarms/List", [](const char *value) { return CNCMachine::fAlarmsManager.ListAlarms(value); }, anyState);
+    new GrblCommand("E", "Errors/List", [](const char *value) { return CNCMachine::fErrorsManager.ListErrors(value); }, anyState);
 
     new GrblCommand("G", "GCode/Modes", report_gcode, anyState);
     new GrblCommand("C", "GCode/Check", toggle_check_mode, anyState);

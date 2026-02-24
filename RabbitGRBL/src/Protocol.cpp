@@ -283,7 +283,7 @@ void protocol_exec_rt_system()
 
         sys.state = State::Alarm; // Set system alarm state
 
-        AlarmsManager::ReportAlarmMessage(alarm);
+        CNCMachine::fAlarmsManager.ReportAlarmMessage(alarm);
 
         // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
 
