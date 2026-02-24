@@ -23,7 +23,7 @@
 
 #include "Grbl.h"
 
-static TaskHandle_t fSerialDataReadHandleID = 0;
+static TaskHandle_t fSerialTaskHandle = 0;
 portMUX_TYPE fSerialDataMutex = portMUX_INITIALIZER_UNLOCKED;
 
 InputBuffer client_buffer; // Creates the serial connection buffer
@@ -41,7 +41,7 @@ void client_init()
                             4096,              // size of task stack
                             NULL,              // parameters
                             1,                 // priority
-                            &fSerialDataReadHandleID,
+                            &fSerialTaskHandle,
                             SUPPORT_TASK_CORE // must run the task on same core
                                               // core
     );
