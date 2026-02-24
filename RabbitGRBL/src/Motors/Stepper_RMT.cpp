@@ -22,8 +22,6 @@
 
 #include "Stepper_RMT.h"
 
-#ifdef USE_RMT_STEPS
-
 namespace Motors
 {
 
@@ -147,5 +145,3 @@ namespace Motors
         digitalWrite(_disable_pin, disable);
     }
 }
-
-#endif // USE_RMT_STEPS

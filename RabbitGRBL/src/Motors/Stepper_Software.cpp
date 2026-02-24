@@ -22,8 +22,6 @@
 
 #include "Stepper_Software.h"
 
-#ifndef USE_RMT_STEPS
-
 namespace Motors
 {
     Stepper_Software::Stepper_Software(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)
@@ -66,5 +64,3 @@ namespace Motors
         digitalWrite(_disable_pin, disable);
     }
 }
-
-#endif // USE_RMT_STEPS

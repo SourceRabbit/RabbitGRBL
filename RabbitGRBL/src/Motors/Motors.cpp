@@ -20,11 +20,12 @@
 #include "../Grbl.h"
 
 #include "NullMotor.h"
-#ifdef USE_RMT_STEPS
 #include "Stepper_RMT.h"
+#include "Stepper_Software.h"
+
+#ifdef USE_RMT_STEPS
 using StepperImpl = Motors::Stepper_RMT;
 #else
-#include "Stepper_Software.h"
 using StepperImpl = Motors::Stepper_Software;
 #endif
 
