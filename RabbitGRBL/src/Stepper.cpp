@@ -224,7 +224,7 @@ static void stepper_pulse_func()
 {
     auto n_axis = number_axis->get();
 
-    if (MotorsManager::Direction(st.dir_outbits))
+    if (CNCMachine::fMotorsManager.Direction(st.dir_outbits))
     {
         auto wait_direction = direction_delay_microseconds->get();
         if (wait_direction > 0)
@@ -260,7 +260,7 @@ static void stepper_pulse_func()
     //
     // NOTE: We could use direction_pulse_start_time + wait_direction, but let's play it safe
     uint64_t step_pulse_start_time = esp_timer_get_time();
-    MotorsManager::Step(st.step_outbits);
+    CNCMachine::fMotorsManager.Step(st.step_outbits);
 
     // If there is no step segment, attempt to pop one from the stepper buffer
     if (st.exec_segment == NULL)
@@ -311,9 +311,9 @@ static void stepper_pulse_func()
         }
     }
     // Check probing state.
-    if (Probe::isSystemUsingProbe())
+    if (CNCMachine::fProbe.isSystemUsingProbe())
     {
-        Probe::StateMonitor();
+        CNCMachine::fProbe.StateMonitor();
     }
     // Reset step out bits.
     st.step_outbits = 0;
@@ -365,7 +365,7 @@ static void stepper_pulse_func()
         {
             NOP(); // spin here until time to turn off step
         }
-        MotorsManager::Unstep();
+        CNCMachine::fMotorsManager.Unstep();
         break;
     case ST_RMT:
         break;
@@ -398,7 +398,7 @@ void st_wake_up()
 {
     //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
-    MotorsManager::SetDisable(false);
+    CNCMachine::fMotorsManager.SetDisable(false);
     stepper_idle = false;
 
     // Initialize step pulse timing from settings. Here to ensure updating after re-writing.
@@ -454,7 +454,7 @@ void st_go_idle()
 
         if (sys.state == State::Sleep || sys_rt_exec_alarm != EAlarm::None)
         {
-            MotorsManager::SetDisable(true);
+            CNCMachine::fMotorsManager.SetDisable(true);
         }
         else
         {
@@ -465,10 +465,10 @@ void st_go_idle()
     }
     else
     {
-        MotorsManager::SetDisable(false);
+        CNCMachine::fMotorsManager.SetDisable(false);
     }
 
-    MotorsManager::Unstep();
+    CNCMachine::fMotorsManager.Unstep();
     st.step_outbits = 0;
 }
 

@@ -2212,20 +2212,20 @@ EError gc_execute_line(char *line)
         gc_state.modal.coolant.Mist = 1;
         protocol_buffer_synchronize();
         // Ask Mist Coolant to TurnOn
-        CoolantManager::Mist_Coolant.TurnOn();
+        CNCMachine::fCoolantManager.Mist_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
         protocol_buffer_synchronize();
         // Ask Flood Coolant to TurnOn
-        CoolantManager::Flood_Coolant.TurnOn();
+        CNCMachine::fCoolantManager.Flood_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M9:
         gc_state.modal.coolant = {};
         // Turn all Collants off
-        CoolantManager::TurnAllCoolantsOff();
+        CNCMachine::fCoolantManager.TurnAllCoolantsOff();
         break;
     }
     pl_data->coolant = gc_state.modal.coolant; // Set state for planner use.
@@ -2510,7 +2510,7 @@ EError gc_execute_line(char *line)
             coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
             fSpindle->setState(SpindleState::Disable, 0);
-            CoolantManager::TurnAllCoolantsOff();
+            CNCMachine::fCoolantManager.TurnAllCoolantsOff();
         }
         MessageSender::SendFeedbackMessage(EFeedbackMessage::ProgramEnd);
 #ifdef USE_M30

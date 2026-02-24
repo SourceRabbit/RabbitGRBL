@@ -59,6 +59,7 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Settings.h"
 #include "SettingsDefinitions.h"
 #include "Coolant/CoolantManager.h"
+#include "CNCMachine.h"
 #include "UserOutputs/UserOutputs.h"
 #include <Wire.h>
 

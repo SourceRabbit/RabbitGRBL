@@ -24,17 +24,17 @@
 class Probe
 {
 public:
-    static void Initialize();
-    static void setDirection(bool isAway);
-    static bool isTriggered();
-    static void StateMonitor();
+    void Initialize();
+    void setDirection(bool isAway);
+    bool isTriggered();
+    void StateMonitor();
 
-    static void ReportProbeParameters();
+    void ReportProbeParameters();
 
-    static bool isSystemUsingProbe();
-    static void setSystemProbeState(bool state);
+    bool isSystemUsingProbe();
+    void setSystemProbeState(bool state);
 
 private:
-    static bool fIsProbeAway;
-    static volatile bool fSystemIsUsingProbe;
+    bool fIsProbeAway;
+    volatile bool fSystemIsUsingProbe;
 };

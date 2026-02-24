@@ -389,7 +389,7 @@ EError motor_disable(const char *value)
             }
         }
     }
-    MotorsManager::SetDisable(true, convertedValue);
+    CNCMachine::fMotorsManager.SetDisable(true, convertedValue);
     return EError::Ok;
 }
 

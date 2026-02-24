@@ -1,7 +1,7 @@
 /*
-  BacklashManager.h
+  CNCMachine.h
 
-  Copyright (c) 2024 Nikolaos Siatras
+  Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
   Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
@@ -22,18 +22,16 @@
 
 #pragma once
 
-#include "../Grbl.h"
+#include "Backlash/BacklashManager.h"
+#include "Motors/MotorsManager.h"
+#include "Coolant/CoolantManager.h"
+#include "Probe/Probe.h"
 
-class BacklashManager
+class CNCMachine
 {
 public:
-    void Initialize();
-    void CompensateBacklash(float *target, plan_line_data_t *pl_data);
-
-    void ResetTargets();
-    void SynchPositionWhileUsingProbe();
-
-private:
-    float fPreviousTargets[MAX_N_AXIS];
-    uint8_t fAxisDirections[MAX_N_AXIS];
+    static BacklashManager fBacklashManager;
+    static MotorsManager fMotorsManager;
+    static CoolantManager fCoolantManager;
+    static Probe fProbe;
 };

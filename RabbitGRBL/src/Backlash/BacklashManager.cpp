@@ -27,9 +27,6 @@
 #define DIR_NEUTRAL 2
 
 // Private (Statics)
-float BacklashManager::fPreviousTargets[MAX_N_AXIS] = {0.0};
-uint8_t BacklashManager::fAxisDirections[MAX_N_AXIS] = {DIR_NEUTRAL};
-
 /**
  * Initialize the Backlash Manager
  * This method is called from grbl_init (Grbl.cpp)

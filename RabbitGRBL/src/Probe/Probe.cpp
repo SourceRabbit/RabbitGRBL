@@ -23,9 +23,6 @@
 #include "Probe.h"
 
 // Private (Statics)
-bool Probe::fIsProbeAway = false;
-volatile bool Probe::fSystemIsUsingProbe = false;
-
 /**
  * Initializes the machine's probe
  */
@@ -47,7 +44,7 @@ void Probe::Initialize()
  */
 void Probe::setDirection(bool isAway)
 {
-    Probe::fIsProbeAway = isAway;
+    fIsProbeAway = isAway;
 }
 
 /**
@@ -65,9 +62,9 @@ bool Probe::isTriggered()
 // NOTE: This function must be extremely efficient as to not bog down the stepper ISR.
 void Probe::StateMonitor()
 {
-    if (Probe::isTriggered() ^ Probe::fIsProbeAway)
+    if (isTriggered() ^ fIsProbeAway)
     {
-        Probe::fSystemIsUsingProbe = false;
+        fSystemIsUsingProbe = false;
         memcpy(sys_probe_position, sys_position, sizeof(sys_position));
         sys_rt_exec_state.bit.motionCancel = true;
     }
@@ -100,7 +97,7 @@ void Probe::ReportProbeParameters()
  */
 bool Probe::isSystemUsingProbe()
 {
-    return Probe::fSystemIsUsingProbe;
+    return fSystemIsUsingProbe;
 }
 
 /**
@@ -109,5 +106,5 @@ bool Probe::isSystemUsingProbe()
  */
 void Probe::setSystemProbeState(bool state)
 {
-    Probe::fSystemIsUsingProbe = state;
+    fSystemIsUsingProbe = state;
 }

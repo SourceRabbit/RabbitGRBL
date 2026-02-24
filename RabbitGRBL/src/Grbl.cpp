@@ -27,8 +27,8 @@ void grbl_init()
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
     system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
-    BacklashManager::Initialize();
-    MotorsManager::Initialize();
+    CNCMachine::fBacklashManager.Initialize();
+    CNCMachine::fMotorsManager.Initialize();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
 
@@ -69,7 +69,7 @@ static void reset_variables()
     sys.spindle_speed_ovr = SpindleSpeedOverride::Default;     // Set to 100%
     memset(sys_probe_position, 0, sizeof(sys_probe_position)); // Clear probe position.
 
-    Probe::setSystemProbeState(false);
+    CNCMachine::fProbe.setSystemProbeState(false);
 
     sys_rt_exec_state.value = 0;
     sys_rt_exec_accessory_override.value = 0;
@@ -85,15 +85,15 @@ static void reset_variables()
     client_reset_read_buffer();
     gc_init(); // Set g-code parser to default state
     fSpindle->Stop();
-    CoolantManager::Initialize();
+    CNCMachine::fCoolantManager.Initialize();
     limits_init();
-    Probe::Initialize();
+    CNCMachine::fProbe.Initialize();
     plan_reset(); // Clear block buffer and planner variables
     st_reset();   // Clear stepper subsystem variables
 
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
-    BacklashManager::ResetTargets();
+    CNCMachine::fBacklashManager.ResetTargets();
     gc_sync_position();
     report_init_message();
 }

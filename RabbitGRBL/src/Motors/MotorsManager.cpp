@@ -30,9 +30,6 @@ using StepperImpl = Stepper_RMT;
 using StepperImpl = Stepper_Software;
 #endif
 
-// Static member definition
-Motor *MotorsManager::fMotors[MAX_AXES][MAX_GANGED];
-
 void MotorsManager::Initialize()
 {
     // MessageSender::SendMessage(EMessageLevel::Info, "Init Motors");
