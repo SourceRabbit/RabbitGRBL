@@ -23,26 +23,16 @@
 
 #include "Grbl.h"
 
-portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-
-static TaskHandle_t clientCheckTaskHandle = 0;
+static TaskHandle_t fSerialDataReadHandleID = 0;
+portMUX_TYPE fSerialDataMutex = portMUX_INITIALIZER_UNLOCKED;
 
 InputBuffer client_buffer; // Creates the serial connection buffer
-
-// Returns the number of bytes available in a client buffer.
-uint8_t client_get_rx_buffer_available()
-{
-    return client_buffer.availableforwrite();
-    // return 128 - Serial.available();
-}
 
 void client_init()
 {
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
     client_reset_read_buffer();
     Serial.write("\r\n"); // create some white space after ESP32 boot info
-
-    clientCheckTaskHandle = 0;
 
     // create a task to check for incoming data
     // For a 4096-word stack, uxTaskGetStackHighWaterMark reports 244 words available
@@ -51,7 +41,7 @@ void client_init()
                             4096,              // size of task stack
                             NULL,              // parameters
                             1,                 // priority
-                            &clientCheckTaskHandle,
+                            &fSerialDataReadHandleID,
                             SUPPORT_TASK_CORE // must run the task on same core
                                               // core
     );
@@ -65,13 +55,15 @@ void client_reset_read_buffer()
 static bool getClientChar(uint8_t *data)
 {
     int res;
-
-    if (client_buffer.availableforwrite() && (res = Serial.read()) != -1)
+    if ((res = Serial.read()) != -1)
     {
-        *data = res;
-        return true;
+        if (client_buffer.availableforwrite())
+        {
+            *data = res;
+            return true;
+        }
+        // Buffer is full - byte is intentionally discarded
     }
-
     return false;
 }
 
@@ -95,25 +87,33 @@ void clientCheckTask(void *pvParameters)
             }
             else
             {
-                vTaskEnterCritical(&myMutex);
+                taskENTER_CRITICAL(&fSerialDataMutex);
                 client_buffer.write(data);
-                vTaskExitCritical(&myMutex);
+                taskEXIT_CRITICAL(&fSerialDataMutex);
             }
-        } // while something available
+        }
 
-        vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
+        // This task sleeps for 1ms in order to yield the CPU and allow other tasks to run
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
 // Fetches the first byte in the client read buffer. Called by protocol loop.
 int client_read()
 {
-    // vPortEnterCritical(&myMutex);
-    vTaskEnterCritical(&myMutex);
+    taskENTER_CRITICAL(&fSerialDataMutex);
     int data = client_buffer.read();
-    vTaskExitCritical(&myMutex);
-    // vPortExitCritical(&myMutex);
+    taskEXIT_CRITICAL(&fSerialDataMutex);
     return data;
+}
+
+// Returns the number of bytes available in a client buffer.
+uint8_t client_get_rx_buffer_available()
+{
+    taskENTER_CRITICAL(&fSerialDataMutex);
+    uint8_t available = client_buffer.availableforwrite();
+    taskEXIT_CRITICAL(&fSerialDataMutex);
+    return available;
 }
 
 // Act upon a realtime character
