@@ -14,15 +14,16 @@
         along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../Grbl.h"
 #include "Motors.h"
 
+// Include Motors
 #include "Motor.h"
-#include "../Grbl.h"
-
 #include "NullMotor.h"
 #include "Stepper_RMT.h"
 #include "Stepper_Software.h"
 
+// RMT or Not...
 #ifdef USE_RMT_STEPS
 using StepperImpl = Motors::Stepper_RMT;
 #else
