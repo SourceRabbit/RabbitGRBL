@@ -125,7 +125,7 @@ void BacklashManager::CompensateBacklash(float *target, plan_line_data_t *pl_dat
     }
 
     // Update fPreviousTargets[] values to target[] values
-    memcpy(fPreviousTargets, target, sizeof(float) * N_AXIS); // target_prev[] = target[]
+    memcpy(fPreviousTargets, target, sizeof(float) * MAX_N_AXIS); // target_prev[] = target[]
 }
 
 /**
