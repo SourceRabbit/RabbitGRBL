@@ -1,7 +1,7 @@
 
 
 /*
-  Builds Correctly with v1.0.6 ESP32 Board Package for Arduino
+  Builds Correctly with v2.0.0 ESP32 Board Package for Arduino
 */
 
 #include "src/Grbl.h"

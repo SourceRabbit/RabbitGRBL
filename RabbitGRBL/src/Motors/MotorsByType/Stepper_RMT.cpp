@@ -35,25 +35,15 @@ void Stepper_RMT::Initialize()
     _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), fAxisIndex);
     pinMode(_dir_pin, OUTPUT);
 
-    // FIX #4: Check for invalid channel FIRST, before touching any RMT config.
-    // Previously this check was done after writing to the shared static rmtConfig,
-    // which could corrupt settings for other axes.
     if (_rmt_chan_num == RMT_CHANNEL_MAX)
     {
         MessageSender::SendMessage(EMessageLevel::Error, "Error: invalid RMT channel for axis %d", fAxisIndex);
         return;
     }
 
-    // FIX #2: _rmtConfig and _rmtItem are now instance members (not static).
-    // Previously they were shared among all stepper instances, causing the last
-    // axis to initialize to overwrite the config/items of all previous axes.
-
-    // FIX #3: mem_block_num set to 1 (was 2).
-    // Each stepper only needs 1 memory block (2 items: pre-delay + pulse).
-    // Using 2 blocks per stepper unnecessarily limits the max axes to 4 (8 blocks / 2).
     _rmtConfig.rmt_mode = RMT_MODE_TX;
-    _rmtConfig.clk_div = 20;      // 80MHz APB / 20 = 4MHz → 1 tick = 0.25us
-    _rmtConfig.mem_block_num = 1; // 1 block is sufficient for 2 RMT items
+    _rmtConfig.clk_div = 20;
+    _rmtConfig.mem_block_num = 1;
     _rmtConfig.tx_config.loop_en = false;
     _rmtConfig.tx_config.carrier_en = false;
     _rmtConfig.tx_config.carrier_freq_hz = 0;
@@ -61,30 +51,30 @@ void Stepper_RMT::Initialize()
     _rmtConfig.tx_config.carrier_level = RMT_CARRIER_LEVEL_LOW;
     _rmtConfig.tx_config.idle_output_en = true;
 
-    // Calculate direction delay (duration0) and step pulse width (duration1).
-    // Multiply by 4 because: 4MHz clock → 1 tick = 0.25us → 1us = 4 ticks
     auto stepPulseDelay = direction_delay_microseconds->get();
-    _rmtItem[0].duration0 = stepPulseDelay < 1 ? 1 : stepPulseDelay * 4; // Direction setup delay
-    _rmtItem[0].duration1 = 4 * pulse_microseconds->get();               // Step pulse width
-    _rmtItem[1].duration0 = 0;                                           // End marker
-    _rmtItem[1].duration1 = 0;                                           // End marker
+    _rmtItem[0].duration0 = stepPulseDelay < 1 ? 1 : stepPulseDelay * 4;
+    _rmtItem[0].duration1 = 4 * pulse_microseconds->get();
+    _rmtItem[1].duration0 = 0;
+    _rmtItem[1].duration1 = 0;
 
-    // Configure idle level based on step pin inversion setting
     _rmtConfig.channel = _rmt_chan_num;
     _rmtConfig.tx_config.idle_level = _invert_step_pin ? RMT_IDLE_LEVEL_HIGH : RMT_IDLE_LEVEL_LOW;
     _rmtConfig.gpio_num = gpio_num_t(_step_pin);
 
-    // Set pulse levels: level0 = idle (pre-delay), level1 = active (step pulse)
     _rmtItem[0].level0 = _rmtConfig.tx_config.idle_level;
     _rmtItem[0].level1 = !_rmtConfig.tx_config.idle_level;
 
-    rmt_set_source_clk(_rmt_chan_num, RMT_BASECLK_APB);
+    // Configure and install RMT driver
     rmt_config(&_rmtConfig);
-    rmt_fill_tx_items(_rmtConfig.channel, &_rmtItem[0], 2, 0); // 2 items: delay + pulse
+    rmt_set_source_clk(_rmt_chan_num, RMT_BASECLK_APB);
+    rmt_driver_install(_rmt_chan_num, 0, 0);
+
+    // Pre-load the RMT items ONCE here at initialization
+    // Step() will only trigger transmission - no item loading needed at ISR time
+    rmt_fill_tx_items(_rmt_chan_num, _rmtItem, 2, 0);
 
     pinMode(_disable_pin, OUTPUT);
 
-    // Information messages
     MessageSender::SendMessage(EMessageLevel::Info,
                                "%s RMT Stepper Step:%s Dir:%s Disable:%s %s",
                                reportAxisNameMsg(fAxisIndex, fDualAxisIndex),
@@ -114,12 +104,9 @@ rmt_channel_t Stepper_RMT::get_next_RMT_chan_num()
 
 void Stepper_RMT::Step()
 {
-    // Use official ESP-IDF API instead of direct register access.
-    // rmt_tx_start(channel, true) resets the memory read pointer (mem_rd_rst)
-    // and starts transmission — equivalent to the previous low-level register writes:
-    //   RMT.conf_ch[_rmt_chan_num].conf1.mem_rd_rst = 1;
-    //   RMT.conf_ch[_rmt_chan_num].conf1.tx_start = 1;
-    // but safe, portable, and compatible across ESP-IDF versions.
+    // Items are pre-loaded in Initialize() - just trigger transmission here.
+    // rmt_tx_start() is ISR-safe: it only writes to hardware registers.
+    // Do NOT use rmt_write_items() here - it uses semaphores and will crash in ISR context!
     rmt_tx_start(_rmt_chan_num, true);
 }
 
