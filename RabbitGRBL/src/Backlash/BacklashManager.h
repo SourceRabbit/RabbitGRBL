@@ -27,13 +27,13 @@
 class BacklashManager
 {
 public:
-  static void Initialize();
-  static void CompensateBacklash(float *target, plan_line_data_t *pl_data);
+    static void Initialize();
+    static void CompensateBacklash(float *target, plan_line_data_t *pl_data);
 
-  static void ResetTargets();
-  static void SynchPositionWhileUsingProbe();
+    static void ResetTargets();
+    static void SynchPositionWhileUsingProbe();
 
 private:
-  static float fPreviousTargets[];
-  static uint8_t fAxisDirections[];
+    static float fPreviousTargets[];
+    static uint8_t fAxisDirections[];
 };
