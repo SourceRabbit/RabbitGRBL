@@ -42,10 +42,6 @@ namespace Motors
         // all motor objects have been constructed.
         virtual void Initialize() {}
 
-        // debug_message() displays motor-specific information that can be
-        // used to assist with motor configuration.  For many motor types,
-        // it is a no-op.
-        virtual void debug_message();
 
         // setHomingMode() is called from motors_set_homing_mode(),
         // which in turn is called at the beginning of a homing cycle
