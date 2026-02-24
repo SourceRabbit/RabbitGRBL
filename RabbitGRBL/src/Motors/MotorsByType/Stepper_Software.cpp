@@ -20,7 +20,6 @@
     along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../Grbl.h"
 #include "Stepper_Software.h"
 
 Stepper_Software::Stepper_Software(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)

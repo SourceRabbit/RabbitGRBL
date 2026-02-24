@@ -25,9 +25,9 @@
 
 // Include Motors
 #include "Motor.h"
-#include "NullMotor.h"
-#include "Stepper_RMT.h"
-#include "Stepper_Software.h"
+#include "MotorsByType/NullMotor.h"
+#include "MotorsByType/Stepper_RMT.h"
+#include "MotorsByType/Stepper_Software.h"
 
 class MotorsManager
 {
