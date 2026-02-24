@@ -21,6 +21,7 @@
 */
 
 #include "Stepper_RMT.h"
+#include "soc/rmt_struct.h"
 
 Stepper_RMT::Stepper_RMT(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)
     : Motor(axis_index), _step_pin(step_pin), _dir_pin(dir_pin), _disable_pin(disable_pin)
@@ -114,13 +115,14 @@ rmt_channel_t Stepper_RMT::get_next_RMT_chan_num()
 
 void Stepper_RMT::Step()
 {
-    // Use official ESP-IDF API instead of direct register access.
-    // rmt_tx_start(channel, true) resets the memory read pointer (mem_rd_rst)
-    // and starts transmission — equivalent to the previous low-level register writes:
-    //   RMT.conf_ch[_rmt_chan_num].conf1.mem_rd_rst = 1;
-    //   RMT.conf_ch[_rmt_chan_num].conf1.tx_start = 1;
-    // but safe, portable, and compatible across ESP-IDF versions.
-    rmt_tx_start(_rmt_chan_num, true);
+    // Direct ISR-safe register writes: reset the memory read pointer, then start TX.
+    // rmt_tx_start() is not reliably ISR-safe in ESP32 Arduino 3.x (ESP-IDF 5.x) because
+    // it acquires internal driver state and can silently fail, causing missed step pulses.
+    // These three writes are exactly what rmt_ll_tx_reset_pointer() + rmt_ll_tx_enable()
+    // (the internals of rmt_tx_start) do, and are always safe to call from an ISR.
+    RMT.conf_ch[_rmt_chan_num].conf1.mem_rd_rst = 1; // reset memory read pointer
+    RMT.conf_ch[_rmt_chan_num].conf1.mem_rd_rst = 0; // clear reset before starting
+    RMT.conf_ch[_rmt_chan_num].conf1.tx_start = 1;   // start transmission
 }
 
 void Stepper_RMT::Unstep()
