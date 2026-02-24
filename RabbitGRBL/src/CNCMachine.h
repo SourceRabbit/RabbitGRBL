@@ -22,11 +22,6 @@
 
 #pragma once
 
-#include "Backlash/BacklashManager.h"
-#include "Motors/MotorsManager.h"
-#include "Coolant/CoolantManager.h"
-#include "Probe/Probe.h"
-
 class CNCMachine
 {
 public:
