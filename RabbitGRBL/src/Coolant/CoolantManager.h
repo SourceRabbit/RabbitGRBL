@@ -35,10 +35,12 @@ public:
     static void Initialize();
     static void TurnAllCoolantsOff();
     static void setCoolantState(CoolantState state);
-
     static bool AreAllCoolantsOff();
 
 private:
+    // Centralized constant - visible to all and type-safe
+    static constexpr int COOLANTS_COUNT = 2; // We can have up to 2 coolants so far (Mist and Flood)
+
     static bool fInitialized;
-    static Coolant *fCoolants[];
+    static Coolant *fCoolants[COOLANTS_COUNT]; 
 };

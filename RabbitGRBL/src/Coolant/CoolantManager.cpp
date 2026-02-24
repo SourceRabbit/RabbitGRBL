@@ -22,14 +22,12 @@ along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CoolantManager.h"
 
-#define COOLANTS_COUNT 2
-
 // Public (Statics)
 Coolant CoolantManager::Mist_Coolant;
 Coolant CoolantManager::Flood_Coolant;
 
 // Private (Statics)
-Coolant *CoolantManager::fCoolants[COOLANTS_COUNT];
+Coolant *CoolantManager::fCoolants[CoolantManager::COOLANTS_COUNT];
 bool CoolantManager::fInitialized = false;
 
 /**
@@ -87,12 +85,19 @@ void CoolantManager::TurnAllCoolantsOff()
 }
 
 /**
- * Sets all coolant states according to the given CoolantState
+ * Sets all coolant states according to the given CoolantState.
+ * Uses the fCoolants array to iterate over all coolants and set their state.
  */
 void CoolantManager::setCoolantState(CoolantState state)
 {
-    CoolantManager::Mist_Coolant.setState(state.Mist == 1);
-    CoolantManager::Flood_Coolant.setState(state.Flood == 1);
+    // Build a matching state array (index 0 = Mist, index 1 = Flood)
+    bool states[COOLANTS_COUNT] = {state.Mist == 1, state.Flood == 1};
+
+    for (int i = 0; i < COOLANTS_COUNT; i++)
+    {
+        CoolantManager::fCoolants[i]->setState(states[i]);
+    }
+
     sys.report_ovr_counter = 0; // Set to report change immediately
 }
 
