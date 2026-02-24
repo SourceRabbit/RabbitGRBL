@@ -106,7 +106,8 @@ bool InputBuffer::push(const char *data)
             _RXbuffer[current] = data[i];
             current++;
         }
-        _RXbufferSize += strlen(data);
+
+        _RXbufferSize += data_size;
         return true;
     }
     return false;

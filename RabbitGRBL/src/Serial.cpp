@@ -32,7 +32,8 @@ InputBuffer client_buffer; // Creates the serial connection buffer
 // Returns the number of bytes available in a client buffer.
 uint8_t client_get_rx_buffer_available()
 {
-    return 128 - Serial.available();
+    return client_buffer.availableforwrite();
+    // return 128 - Serial.available();
 }
 
 void client_init()
