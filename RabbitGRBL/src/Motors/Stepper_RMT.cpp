@@ -22,10 +22,7 @@
 
 #include "Stepper_RMT.h"
 
-namespace Motors
-{
-
-    Stepper_RMT::Stepper_RMT(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)
+Stepper_RMT::Stepper_RMT(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin)
         : Motor(axis_index), _step_pin(step_pin), _dir_pin(dir_pin), _disable_pin(disable_pin)
     {
         // Assign a unique RMT channel to this stepper instance
@@ -144,4 +141,3 @@ namespace Motors
     {
         digitalWrite(_disable_pin, disable);
     }
-}

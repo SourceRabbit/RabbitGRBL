@@ -23,7 +23,7 @@
 
 // Forward declaration to break the circular include:
 // Motor.h includes Motors.h which includes MotorsManager.h
-namespace Motors { class Motor; }
+class Motor;
 
 class MotorsManager
 {
@@ -38,5 +38,5 @@ public:
 	static void Unstep();
 
 private:
-	static Motors::Motor *fMotors[MAX_AXES][MAX_GANGED];
+	static Motor *fMotors[MAX_AXES][MAX_GANGED];
 };

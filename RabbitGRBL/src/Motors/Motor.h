@@ -31,63 +31,60 @@
 
 #include <cstdint>
 
-namespace Motors
+class Motor
 {
-    class Motor
-    {
-    public:
-        Motor(uint8_t axis_index);
+public:
+    Motor(uint8_t axis_index);
 
-        // Initialize() establishes configured motor parameters.  It is called after
-        // all motor objects have been constructed.
-        virtual void Initialize() {}
+    // Initialize() establishes configured motor parameters.  It is called after
+    // all motor objects have been constructed.
+    virtual void Initialize() {}
 
 
-        // setHomingMode() is called from motors_set_homing_mode(),
-        // which in turn is called at the beginning of a homing cycle
-        // with isHoming true, and at the end with isHoming false.
-        // Some motor types require differ setups for homing and
-        // normal operation.  Returns true if the motor can home
-        virtual bool setHomingMode(bool isHoming) = 0;
+    // setHomingMode() is called from MotorsManager::SetHomingMode(),
+    // which in turn is called at the beginning of a homing cycle
+    // with isHoming true, and at the end with isHoming false.
+    // Some motor types require different setups for homing and
+    // normal operation.  Returns true if the motor can home
+    virtual bool setHomingMode(bool isHoming) = 0;
 
-        // setDisable() disables or enables a motor.  It is used to
-        // make a motor transition between idle and non-idle states.
-        virtual void setDisable(bool disable) {}
+    // setDisable() disables or enables a motor.  It is used to
+    // make a motor transition between idle and non-idle states.
+    virtual void setDisable(bool disable) {}
 
-        // setDirection() sets the motor movement direction.  It is
-        // invoked for every motion segment.
-        virtual void setDirection(bool) {}
+    // setDirection() sets the motor movement direction.  It is
+    // invoked for every motion segment.
+    virtual void setDirection(bool) {}
 
-        // Step() initiates a step operation on a motor.  It is called
-        // from motors_step() for ever motor than needs to step now.
-        // For ordinary step/direction motors, it sets the step pin
-        // to the active state.
-        virtual void Step() {}
+    // Step() initiates a step operation on a motor.  It is called
+    // from MotorsManager::Step() for every motor that needs to step now.
+    // For ordinary step/direction motors, it sets the step pin
+    // to the active state.
+    virtual void Step() {}
 
-        // Unstep() turns off the step pin, if applicable, for a motor.
-        // It is called from motors_unstep() for all motors, since
-        // motors_unstep() is used in many contexts where the previous
-        // states of the step pins are unknown.
-        virtual void Unstep() {}
+    // Unstep() turns off the step pin, if applicable, for a motor.
+    // It is called from MotorsManager::Unstep() for all motors, since
+    // Unstep() is used in many contexts where the previous
+    // states of the step pins are unknown.
+    virtual void Unstep() {}
 
-        // Update() is used for some types of "smart" motors that
-        // can be told to move to a specific position.  It is
-        // called from a periodic task.
-        virtual void Update() {}
+    // Update() is used for some types of "smart" motors that
+    // can be told to move to a specific position.  It is
+    // called from a periodic task.
+    virtual void Update() {}
 
-    protected:
-        // fDualAxisIndex is 0 for the primary motor on that
-        // axis and 1 for the ganged motor.
-        // These variables are used for several purposes:
-        // * Displaying the axis name in messages
-        // * When reading settings, determining which setting
-        //   applies to this motor
-        // * For some motor types, it is necessary to maintain
-        //   tables of all the motors of that type; those
-        //   tables can be indexed by these variables.
-        // TODO Architecture: It might be useful to cache a
-        // reference to the axis settings entry.
-        uint8_t fAxisIndex;      // X_AXIS, etc
-        uint8_t fDualAxisIndex; // 0 = primary 1=ganged
-    };
-}
+protected:
+    // fDualAxisIndex is 0 for the primary motor on that
+    // axis and 1 for the ganged motor.
+    // These variables are used for several purposes:
+    // * Displaying the axis name in messages
+    // * When reading settings, determining which setting
+    //   applies to this motor
+    // * For some motor types, it is necessary to maintain
+    //   tables of all the motors of that type; those
+    //   tables can be indexed by these variables.
+    // TODO Architecture: It might be useful to cache a
+    // reference to the axis settings entry.
+    uint8_t fAxisIndex;      // X_AXIS, etc
+    uint8_t fDualAxisIndex; // 0 = primary 1=ganged
+};

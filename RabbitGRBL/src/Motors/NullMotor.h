@@ -2,10 +2,8 @@
 
 #include "Motor.h"
 
-namespace Motors {
-    class Nullmotor : public Motor {
-    public:
-        Nullmotor(uint8_t axis_index);
-        bool setHomingMode(bool isHoming) { return false; }
-    };
-}
+class Nullmotor : public Motor {
+public:
+    Nullmotor(uint8_t axis_index);
+    bool setHomingMode(bool isHoming) { return false; }
+};

@@ -24,13 +24,13 @@
 
 // RMT or Not...
 #ifdef USE_RMT_STEPS
-using StepperImpl = Motors::Stepper_RMT;
+using StepperImpl = Stepper_RMT;
 #else
-using StepperImpl = Motors::Stepper_Software;
+using StepperImpl = Stepper_Software;
 #endif
 
 // Static member definition
-Motors::Motor *MotorsManager::fMotors[MAX_AXES][MAX_GANGED];
+Motor *MotorsManager::fMotors[MAX_AXES][MAX_GANGED];
 
 void MotorsManager::Initialize()
 {
@@ -46,19 +46,19 @@ void MotorsManager::Initialize()
 #if defined(X_STEP_PIN)
                 fMotors[X_AXIS][0] = new StepperImpl(X_AXIS, X_STEP_PIN, X_DIRECTION_PIN, X_DISABLE_PIN);
 #else
-                fMotors[X_AXIS][0] = new Motors::Nullmotor(X_AXIS);
+                fMotors[X_AXIS][0] = new Nullmotor(X_AXIS);
 #endif
 
 #if defined(X2_STEP_PIN)
                 fMotors[X_AXIS][1] = new StepperImpl(X2_AXIS, X2_STEP_PIN, X2_DIRECTION_PIN, X2_DISABLE_PIN);
 #else
-                fMotors[X_AXIS][1] = new Motors::Nullmotor(X2_AXIS);
+                fMotors[X_AXIS][1] = new Nullmotor(X2_AXIS);
 #endif
         }
         else
         {
-                fMotors[X_AXIS][0] = new Motors::Nullmotor(X_AXIS);
-                fMotors[X_AXIS][1] = new Motors::Nullmotor(X2_AXIS);
+                fMotors[X_AXIS][0] = new Nullmotor(X_AXIS);
+                fMotors[X_AXIS][1] = new Nullmotor(X2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -69,19 +69,19 @@ void MotorsManager::Initialize()
 #if defined(Y_STEP_PIN)
                 fMotors[Y_AXIS][0] = new StepperImpl(Y_AXIS, Y_STEP_PIN, Y_DIRECTION_PIN, Y_DISABLE_PIN);
 #else
-                fMotors[Y_AXIS][0] = new Motors::Nullmotor(Y_AXIS);
+                fMotors[Y_AXIS][0] = new Nullmotor(Y_AXIS);
 #endif
 
 #if defined(Y2_STEP_PIN)
                 fMotors[Y_AXIS][1] = new StepperImpl(Y2_AXIS, Y2_STEP_PIN, Y2_DIRECTION_PIN, Y2_DISABLE_PIN);
 #else
-                fMotors[Y_AXIS][1] = new Motors::Nullmotor(Y2_AXIS);
+                fMotors[Y_AXIS][1] = new Nullmotor(Y2_AXIS);
 #endif
         }
         else
         {
-                fMotors[Y_AXIS][0] = new Motors::Nullmotor(Y_AXIS);
-                fMotors[Y_AXIS][1] = new Motors::Nullmotor(Y2_AXIS);
+                fMotors[Y_AXIS][0] = new Nullmotor(Y_AXIS);
+                fMotors[Y_AXIS][1] = new Nullmotor(Y2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -92,19 +92,19 @@ void MotorsManager::Initialize()
 #if defined(Z_STEP_PIN)
                 fMotors[Z_AXIS][0] = new StepperImpl(Z_AXIS, Z_STEP_PIN, Z_DIRECTION_PIN, Z_DISABLE_PIN);
 #else
-                fMotors[Z_AXIS][0] = new Motors::Nullmotor(Z_AXIS);
+                fMotors[Z_AXIS][0] = new Nullmotor(Z_AXIS);
 #endif
 
 #if defined(Z2_STEP_PIN)
                 fMotors[Z_AXIS][1] = new StepperImpl(Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN);
 #else
-                fMotors[Z_AXIS][1] = new Motors::Nullmotor(Z2_AXIS);
+                fMotors[Z_AXIS][1] = new Nullmotor(Z2_AXIS);
 #endif
         }
         else
         {
-                fMotors[Z_AXIS][0] = new Motors::Nullmotor(Z_AXIS);
-                fMotors[Z_AXIS][1] = new Motors::Nullmotor(Z2_AXIS);
+                fMotors[Z_AXIS][0] = new Nullmotor(Z_AXIS);
+                fMotors[Z_AXIS][1] = new Nullmotor(Z2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -115,19 +115,19 @@ void MotorsManager::Initialize()
 #if defined(A_STEP_PIN)
                 fMotors[A_AXIS][0] = new StepperImpl(A_AXIS, A_STEP_PIN, A_DIRECTION_PIN, A_DISABLE_PIN);
 #else
-                fMotors[A_AXIS][0] = new Motors::Nullmotor(A_AXIS);
+                fMotors[A_AXIS][0] = new Nullmotor(A_AXIS);
 #endif
 
 #if defined(A2_STEP_PIN)
                 fMotors[A_AXIS][1] = new StepperImpl(A2_AXIS, A2_STEP_PIN, A2_DIRECTION_PIN, A2_DISABLE_PIN);
 #else
-                fMotors[A_AXIS][1] = new Motors::Nullmotor(A2_AXIS);
+                fMotors[A_AXIS][1] = new Nullmotor(A2_AXIS);
 #endif
         }
         else
         {
-                fMotors[A_AXIS][0] = new Motors::Nullmotor(A_AXIS);
-                fMotors[A_AXIS][1] = new Motors::Nullmotor(A2_AXIS);
+                fMotors[A_AXIS][0] = new Nullmotor(A_AXIS);
+                fMotors[A_AXIS][1] = new Nullmotor(A2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -138,19 +138,19 @@ void MotorsManager::Initialize()
 #if defined(B_STEP_PIN)
                 fMotors[B_AXIS][0] = new StepperImpl(B_AXIS, B_STEP_PIN, B_DIRECTION_PIN, B_DISABLE_PIN);
 #else
-                fMotors[B_AXIS][0] = new Motors::Nullmotor(B_AXIS);
+                fMotors[B_AXIS][0] = new Nullmotor(B_AXIS);
 #endif
 
 #if defined(B2_STEP_PIN)
                 fMotors[B_AXIS][1] = new StepperImpl(B2_AXIS, B2_STEP_PIN, B2_DIRECTION_PIN, B2_DISABLE_PIN);
 #else
-                fMotors[B_AXIS][1] = new Motors::Nullmotor(B2_AXIS);
+                fMotors[B_AXIS][1] = new Nullmotor(B2_AXIS);
 #endif
         }
         else
         {
-                fMotors[B_AXIS][0] = new Motors::Nullmotor(B_AXIS);
-                fMotors[B_AXIS][1] = new Motors::Nullmotor(B2_AXIS);
+                fMotors[B_AXIS][0] = new Nullmotor(B_AXIS);
+                fMotors[B_AXIS][1] = new Nullmotor(B2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -161,19 +161,19 @@ void MotorsManager::Initialize()
 #if defined(C_STEP_PIN)
                 fMotors[C_AXIS][0] = new StepperImpl(C_AXIS, C_STEP_PIN, C_DIRECTION_PIN, C_DISABLE_PIN);
 #else
-                fMotors[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
+                fMotors[C_AXIS][0] = new Nullmotor(C_AXIS);
 #endif
 
 #if defined(C2_STEP_PIN)
                 fMotors[C_AXIS][1] = new StepperImpl(C2_AXIS, C2_STEP_PIN, C2_DIRECTION_PIN, C2_DISABLE_PIN);
 #else
-                fMotors[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
+                fMotors[C_AXIS][1] = new Nullmotor(C2_AXIS);
 #endif
         }
         else
         {
-                fMotors[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
-                fMotors[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
+                fMotors[C_AXIS][0] = new Nullmotor(C_AXIS);
+                fMotors[C_AXIS][1] = new Nullmotor(C2_AXIS);
         }
 
         /////////////////////////////////////////////////////////////////////////////////

@@ -33,8 +33,4 @@
 
 #include "Motor.h"
 
-namespace Motors
-{
-    Motor::Motor(uint8_t axis_index) : fAxisIndex(axis_index % MAX_AXES), fDualAxisIndex(axis_index / MAX_AXES) {}
-
-}
+Motor::Motor(uint8_t axis_index) : fAxisIndex(axis_index % MAX_AXES), fDualAxisIndex(axis_index / MAX_AXES) {}
