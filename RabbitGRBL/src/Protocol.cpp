@@ -159,7 +159,7 @@ void protocol_main_loop()
         // Receive one line of incoming serial data, as the data becomes available.
         // Filtering, if necessary, is done later in gc_execute_line(), so the
         // filtering is the same with serial and file input.
-        char *line;
+        char *received_line;
 
         while ((c = client_read()) != -1)
         {
@@ -176,13 +176,13 @@ void protocol_main_loop()
                 {
                     return; // Bail to calling function upon system abort
                 }
-                line = client_lines.buffer;
+                received_line = client_lines.buffer; // Use the renamed variable
 
 #ifdef REPORT_ECHO_RAW_LINE_RECEIVED
-                report_echo_line_received(line);
+                report_echo_line_received(received_line);
 #endif
                 // auth_level can be upgraded by supplying a password on the command line
-                report_status_message(execute_line(line));
+                report_status_message(execute_line(received_line));
                 empty_lines();
                 break;
 
@@ -676,7 +676,7 @@ static void protocol_exec_rt_suspend()
                     // Ensure any prior spindle stop override is disabled at start of safety door routine.
                     sys.spindle_stop_ovr.value = 0; // Disable override
 #ifndef PARKING_ENABLE
-                    fSpindle->set_state(SpindleState::Disable, 0); // De-energize
+                    fSpindle->setState(SpindleState::Disable, 0); // De-energize
                     CoolantManager::TurnAllCoolantsOff();
 #else
                     // Get current position and store restore location and spindle retract waypoint.

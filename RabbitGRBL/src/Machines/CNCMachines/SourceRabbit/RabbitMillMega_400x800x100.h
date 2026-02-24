@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define MACHINE_NAME "Rabbit Mill Mega 300x600x100 4-Axis"
+#define MACHINE_NAME "Rabbit Mill Mega 400x800x100 4-Axis"
 
 #ifdef N_AXIS
 	#undef N_AXIS
