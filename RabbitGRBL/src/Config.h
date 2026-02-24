@@ -49,8 +49,8 @@
 // For example B1101 will invert the function of the Reset pin.
 #define INVERT_CONTROL_PIN_MASK B00001111
 
-// #define ENABLE_CONTROL_SW_DEBOUNCE     // Default disabled. Uncomment to enable.
-#define CONTROL_SW_DEBOUNCE_PERIOD 32 // in milliseconds default 32 microseconds
+// #define ENABLE_CONTROL_SW_DEBOUNCE           // Default disabled. Uncomment to enable.
+#define CONTROL_SW_DEBOUNCE_PERIOD 32 // default 32 milliseconds
 
 // Include the file that loads the machine-specific config file.
 // machine.h must be edited to choose the desired file.
