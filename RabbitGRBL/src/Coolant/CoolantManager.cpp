@@ -37,40 +37,40 @@ bool CoolantManager::fInitialized = false;
  */
 void CoolantManager::Initialize()
 {
-        if (CoolantManager::fInitialized)
-        {
-                // If the CoolantManager has already been initialized then just turn all coolants off.
-                // This case might happened after the user send a reset command to the controller.
-                TurnAllCoolantsOff();
-                return;
-        }
+    if (CoolantManager::fInitialized)
+    {
+        // If the CoolantManager has already been initialized then just turn all coolants off.
+        // This case might happened after the user send a reset command to the controller.
+        TurnAllCoolantsOff();
+        return;
+    }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Mist (M7)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_MIST_PIN
-        CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, INVERT_COOLANT_MIST_PIN, settings_coolant_mist_start_delay);
+    CoolantManager::Mist_Coolant.Initialize(COOLANT_MIST_PIN, INVERT_COOLANT_MIST_PIN, settings_coolant_mist_start_delay);
 //  MessageSender::SendMessage(EMessageLevel::Info, "Mist coolant on pin %s", pinName(COOLANT_MIST_PIN).c_str());
 #else
-        CoolantManager::Mist_Coolant.Initialize(0, true);
+    CoolantManager::Mist_Coolant.Initialize(0, true);
 #endif
-        CoolantManager::fCoolants[0] = &CoolantManager::Mist_Coolant;
+    CoolantManager::fCoolants[0] = &CoolantManager::Mist_Coolant;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Flood (M8)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef COOLANT_FLOOD_PIN
-        CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, settings_coolant_flood_start_delay);
+    CoolantManager::Flood_Coolant.Initialize(COOLANT_FLOOD_PIN, INVERT_COOLANT_FLOOD_PIN, settings_coolant_flood_start_delay);
 //  MessageSender::SendMessage(EMessageLevel::Info, "Flood coolant on pin %s", pinName(COOLANT_FLOOD_PIN).c_str());
 #else
-        CoolantManager::Flood_Coolant.Initialize(0, true);
+    CoolantManager::Flood_Coolant.Initialize(0, true);
 #endif
-        CoolantManager::fCoolants[1] = &CoolantManager::Flood_Coolant;
+    CoolantManager::fCoolants[1] = &CoolantManager::Flood_Coolant;
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // Finally mark the CoolantManager as Initialized !
-        CoolantManager::fInitialized = true;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Finally mark the CoolantManager as Initialized !
+    CoolantManager::fInitialized = true;
 }
 
 /**
@@ -78,12 +78,12 @@ void CoolantManager::Initialize()
  */
 void CoolantManager::TurnAllCoolantsOff()
 {
-        for (int i = 0; i < COOLANTS_COUNT; i++)
-        {
-                CoolantManager::fCoolants[i]->TurnOff();
-        }
+    for (int i = 0; i < COOLANTS_COUNT; i++)
+    {
+        CoolantManager::fCoolants[i]->TurnOff();
+    }
 
-        sys.report_ovr_counter = 0; // Set to report change immediately
+    sys.report_ovr_counter = 0; // Set to report change immediately
 }
 
 /**
@@ -91,9 +91,9 @@ void CoolantManager::TurnAllCoolantsOff()
  */
 void CoolantManager::setCoolantState(CoolantState state)
 {
-        CoolantManager::Mist_Coolant.setState(state.Mist == 1);
-        CoolantManager::Flood_Coolant.setState(state.Flood == 1);
-        sys.report_ovr_counter = 0; // Set to report change immediately
+    CoolantManager::Mist_Coolant.setState(state.Mist == 1);
+    CoolantManager::Flood_Coolant.setState(state.Flood == 1);
+    sys.report_ovr_counter = 0; // Set to report change immediately
 }
 
 /**
@@ -101,12 +101,12 @@ void CoolantManager::setCoolantState(CoolantState state)
  */
 bool CoolantManager::AreAllCoolantsOff()
 {
-        for (int i = 0; i < COOLANTS_COUNT; i++)
+    for (int i = 0; i < COOLANTS_COUNT; i++)
+    {
+        if (CoolantManager::fCoolants[i]->isOn())
         {
-                if (CoolantManager::fCoolants[i]->isOn())
-                {
-                        return false;
-                }
+            return false;
         }
-        return true;
+    }
+    return true;
 }

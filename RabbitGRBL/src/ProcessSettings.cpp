@@ -389,7 +389,7 @@ EError motor_disable(const char *value)
             }
         }
     }
-    motors_set_disable(true, convertedValue);
+    MotorsManager::SetDisable(true, convertedValue);
     return EError::Ok;
 }
 

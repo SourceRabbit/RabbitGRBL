@@ -52,7 +52,7 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Report.h"
 #include "Pins.h"
 #include "Spindles/Spindle.h"
-#include "Motors/Motors.h"
+#include "Motors/MotorsManager.h"
 #include "Stepper.h"
 #include "Jog.h"
 #include "InputBuffer/InputBuffer.h"

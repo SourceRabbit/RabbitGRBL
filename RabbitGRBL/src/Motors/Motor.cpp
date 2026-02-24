@@ -31,14 +31,7 @@
         TMC2130 Datasheet https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC2130_datasheet.pdf
 */
 
+#include "../Grbl.h"
 #include "Motor.h"
 
-namespace Motors
-{
-    Motor::Motor(uint8_t axis_index) : _axis_index(axis_index % MAX_AXES), _dual_axis_index(axis_index / MAX_AXES) {}
-
-    void Motor::debug_message() {}
-
-    bool Motor::test() { return true; }; // true = OK
-
-}
+Motor::Motor(uint8_t axis_index) : fAxisIndex(axis_index % MAX_AXES), fDualAxisIndex(axis_index / MAX_AXES) {}

@@ -173,10 +173,6 @@ static bool checkStartupLine(char *value)
 
 static bool postMotorSetting(char *value)
 {
-    if (!value)
-    {
-        motors_read_settings();
-    }
     return true;
 }
 
