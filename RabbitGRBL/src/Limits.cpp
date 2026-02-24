@@ -62,12 +62,12 @@ void IRAM_ATTR isr_limit_switches()
             if (limits_get_state())
             {
                 MessageSender::SendMessage(EMessageLevel::Debug, "Hard limits");
-                mc_reset();                               // Initiate system kill.
+                mc_reset();                            // Initiate system kill.
                 sys_rt_exec_alarm = EAlarm::HardLimit; // Indicate hard limit critical event
             }
 #else
             MessageSender::SendMessage(EMessageLevel::Debug, "Hard limits");
-            mc_reset();                               // Initiate system kill.
+            mc_reset();                            // Initiate system kill.
             sys_rt_exec_alarm = EAlarm::HardLimit; // Indicate hard limit critical event
 #endif
 #endif
@@ -88,7 +88,7 @@ void limits_go_home(uint8_t cycle_mask)
     {
         return; // Block if system reset has been issued.
     }
-    
+
     // Initialize plan data struct for homing motion. Spindle and coolant are disabled.
     // Put motors on axes listed in cycle_mask in homing mode and
     // replace cycle_mask with the list of motors that are ready for homing.
@@ -133,7 +133,7 @@ void limits_go_home(uint8_t cycle_mask)
             // Σε αυτούς τους άξονες όμως μπορεί να υπάρχει τερματικός διακόπτης. Για παράδειγμα
             // μπορεί να υπάρχει περιστροφικός τέταρτος άξονας ο οποίος να έχει unlimited steps
             // αλλά να χρειάζεται να έχει τερματικό διακόπτη.
-            max_travel == 0 ? max_travel = 360.00 : max_travel;
+            max_travel = (max_travel == 0) ? 360.00f : max_travel;
         }
     }
     // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
@@ -299,7 +299,7 @@ void limits_go_home(uint8_t cycle_mask)
             }
         }
     }
-    sys.step_control = {};                              // Return step control to normal operation.
+    sys.step_control = {};                           // Return step control to normal operation.
     MotorsManager::SetHomingMode(cycle_mask, false); // tell motors homing is done
 }
 
@@ -425,9 +425,9 @@ void limits_soft_check(float *target)
             } while (sys.state != State::Idle);
         }
         MessageSender::SendMessage(EMessageLevel::Debug, "Soft limits");
-        mc_reset();                               // Issue system reset and ensure spindle and coolant are shutdown.
+        mc_reset();                            // Issue system reset and ensure spindle and coolant are shutdown.
         sys_rt_exec_alarm = EAlarm::SoftLimit; // Indicate soft limit critical event
-        protocol_execute_realtime();              // Execute to enter critical event loop and system abort
+        protocol_execute_realtime();           // Execute to enter critical event loop and system abort
         return;
     }
 }
@@ -445,7 +445,7 @@ void limitCheckTask(void *pvParameters)
         if (switch_state)
         {
             MessageSender::SendMessage(EMessageLevel::Debug, "Limit Switch State %08d", switch_state);
-            mc_reset();                               // Initiate system kill.
+            mc_reset();                            // Initiate system kill.
             sys_rt_exec_alarm = EAlarm::HardLimit; // Indicate hard limit critical event
         }
     }
