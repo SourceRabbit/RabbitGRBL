@@ -93,7 +93,7 @@ void Coolant::setState(bool state)
     }
     else
     {
-        this->TurnOn();
+        this->TurnOff();
     }
 }
 
