@@ -22,11 +22,17 @@
 
 #pragma once
 
+#include "Grbl.h"
+#include "Backlash/BacklashManager.h"
+#include "Motors/MotorsManager.h"
+#include "Coolant/CoolantManager.h"
+#include "Probe/Probe.h"
+
 class CNCMachine
 {
 public:
-    static BacklashManager fBacklashManager;
-    static MotorsManager fMotorsManager;
-    static CoolantManager fCoolantManager;
-    static Probe fProbe;
+  static BacklashManager fBacklashManager;
+  static MotorsManager fMotorsManager;
+  static CoolantManager fCoolantManager;
+  static Probe fProbe;
 };

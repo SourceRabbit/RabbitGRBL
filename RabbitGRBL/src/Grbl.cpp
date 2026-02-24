@@ -22,7 +22,7 @@
 
 void grbl_init()
 {
-    client_init(); // Setup serial baud rate and interrupts   
+    client_init(); // Setup serial baud rate and interrupts
 
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
@@ -108,5 +108,3 @@ void run_once()
 }
 
 void __attribute__((weak)) machine_init() {}
-
-
