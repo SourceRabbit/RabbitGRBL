@@ -10,9 +10,9 @@ namespace Motors
         Stepper_RMT(uint8_t axis_index, uint8_t step_pin, uint8_t dir_pin, uint8_t disable_pin);
 
         // Overrides for inherited methods
-        void init() override;
+        void Initialize() override;
         // No special action, but return true to say homing is possible
-        bool set_homing_mode(bool isHoming) override { return true; }
+        bool setHomingMode(bool isHoming) override { return true; }
         void set_disable(bool) override;
         void set_direction(bool) override;
         void step() override;

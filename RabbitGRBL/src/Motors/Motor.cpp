@@ -39,6 +39,4 @@ namespace Motors
 
     void Motor::debug_message() {}
 
-    bool Motor::test() { return true; }; // true = OK
-
 }

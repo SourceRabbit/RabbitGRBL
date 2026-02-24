@@ -32,8 +32,6 @@
 // These are used for setup and to talk to the motors as a group.
 void init_motors();
 uint8_t get_next_trinamic_driver_index();
-void readSgTask(void *pvParameters);
-void motors_read_settings();
 
 // The return value is a bitmask of axes that can home
 uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming);

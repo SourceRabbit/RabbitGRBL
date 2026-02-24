@@ -38,27 +38,21 @@ namespace Motors
     public:
         Motor(uint8_t axis_index);
 
-        // init() establishes configured motor parameters.  It is called after
+        // Initialize() establishes configured motor parameters.  It is called after
         // all motor objects have been constructed.
-        virtual void init() {}
+        virtual void Initialize() {}
 
         // debug_message() displays motor-specific information that can be
         // used to assist with motor configuration.  For many motor types,
         // it is a no-op.
         virtual void debug_message();
 
-        // read_settings(), called from init() and motors_read_settings(),
-        // re-establishes the motor configuration parameters that come
-        // from $ settings.
-        // TODO Architecture: Maybe this should be subsumed by init()
-        virtual void read_settings() {}
-
-        // set_homing_mode() is called from motors_set_homing_mode(),
+        // setHomingMode() is called from motors_set_homing_mode(),
         // which in turn is called at the beginning of a homing cycle
         // with isHoming true, and at the end with isHoming false.
         // Some motor types require differ setups for homing and
         // normal operation.  Returns true if the motor can home
-        virtual bool set_homing_mode(bool isHoming) = 0;
+        virtual bool setHomingMode(bool isHoming) = 0;
 
         // set_disable() disables or enables a motor.  It is used to
         // make a motor transition between idle and non-idle states.
@@ -80,19 +74,13 @@ namespace Motors
         // states of the step pins are unknown.
         virtual void unstep() {}
 
-        // test(), called from init(), checks to see if a motor is
-        // responsive, returning true on failure.  Typical
-        // implementations also display messages to show the result.
-        // TODO Architecture: Should this be private?
-        virtual bool test();
-
         // update() is used for some types of "smart" motors that
         // can be told to move to a specific position.  It is
         // called from a periodic task.
         virtual void update() {}
 
     protected:
-        // config_message(), called from init(), displays a message describing
+        // config_message(), called from Initialize(), displays a message describing
         // the motor configuration - pins and other motor-specific items
         virtual void config_message() {}
 

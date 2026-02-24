@@ -31,7 +31,7 @@ namespace Motors
     {
     }
 
-    void Stepper_Software::init()
+    void Stepper_Software::Initialize()
     {
         _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
         _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);

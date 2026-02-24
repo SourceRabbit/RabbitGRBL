@@ -34,7 +34,7 @@ namespace Motors
         _rmt_chan_num = get_next_RMT_chan_num();
     }
 
-    void Stepper_RMT::init()
+    void Stepper_RMT::Initialize()
     {
         _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
         _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);

@@ -187,7 +187,7 @@ void init_motors()
         {
                 for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
                 {
-                        myMotor[axis][gang_index]->init();
+                        myMotor[axis][gang_index]->Initialize();
                 }
         }
 }
@@ -240,19 +240,6 @@ void motors_set_disable(bool disable, uint8_t mask)
         }
 }
 
-void motors_read_settings()
-{
-        // MessageSender::SendMessage(EMessageLevel::Info, "Read Settings");
-        auto n_axis = number_axis->get();
-        for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
-        {
-                for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
-                {
-                        myMotor[axis][gang_index]->read_settings();
-                }
-        }
-}
-
 // use this to tell all the motors what the current homing mode is
 // They can use this to setup things like Stall
 uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming)
@@ -263,11 +250,11 @@ uint8_t motors_set_homing_mode(uint8_t homing_mask, bool isHoming)
         {
                 if (bitnum_istrue(homing_mask, axis))
                 {
-                        if (myMotor[axis][0]->set_homing_mode(isHoming))
+                        if (myMotor[axis][0]->setHomingMode(isHoming))
                         {
                                 bitnum_true(can_home, axis);
                         }
-                        myMotor[axis][1]->set_homing_mode(isHoming);
+                        myMotor[axis][1]->setHomingMode(isHoming);
                 }
         }
         return can_home;
