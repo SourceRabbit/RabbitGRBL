@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../Grbl.h"
+#include "../../Grbl.h"
 #include <cstdint>
 #include "Coolant.h"
 

@@ -21,7 +21,7 @@
 */
 
 #pragma once
-#include "../Grbl.h"
+#include "../../Grbl.h"
 
 // Include Motors
 #include "Motor.h"

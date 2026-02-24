@@ -19,7 +19,7 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../Grbl.h"
+#include "../../Grbl.h"
 #include "Probe.h"
 
 // Private (Statics)
