@@ -477,7 +477,7 @@ void mc_parking_motion(float *parking_target, plan_line_data_t *pl_data)
         return; // Block during abort.
     }
     uint8_t plan_status = plan_buffer_line(parking_target, pl_data);
-    if (plan_status)
+    if (plan_status == PLAN_OK)
     {
         sys.step_control.executeSysMotion = true;
         sys.step_control.endMotion = false; // Allow parking motion to execute, if feed hold is active.

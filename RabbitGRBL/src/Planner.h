@@ -25,8 +25,8 @@
 */
 
 // Returned status message from planner.
-const int PLAN_OK = true;
-const int PLAN_EMPTY_BLOCK = false;
+const uint8_t PLAN_OK = 1;
+const uint8_t PLAN_EMPTY_BLOCK = 0;
 
 // Define planner data condition flags. Used to denote running conditions of a block.
 struct PlMotion
@@ -134,5 +134,3 @@ uint8_t plan_get_block_buffer_count();
 
 // Returns the status of the block ring buffer. True, if buffer is full.
 uint8_t plan_check_full_buffer();
-
-void plan_get_planner_mpos(float *target);

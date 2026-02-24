@@ -487,11 +487,18 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
     return PLAN_OK;
 }
 
-// Reset the planner position vectors. Called by the system abort/initialization routine.
+/**
+ * Reset the planner position vectors. Called by the system abort/initialization routine.
+ *
+ * NOTE: This implementation assumes a Cartesian coordinate system where motor steps
+ * map directly to machine positions. For non-Cartesian configurations (e.g. CoreXY, Delta),
+ *
+ * TODO: this function needs to be updated to accommodate the coordinate transformation.
+ */
 void plan_sync_position()
 {
-    // TODO: For motor configurations not in the same coordinate frame as the machine position,
-    // this function needs to be updated to accomodate the difference.
+    memset(pl.position, 0, sizeof(pl.position));
+
     uint8_t idx;
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
