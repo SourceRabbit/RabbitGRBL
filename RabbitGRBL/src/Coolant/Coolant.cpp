@@ -47,13 +47,14 @@ void Coolant::TurnOn()
     if (this->fPinNumber > 0)
     {
         digitalWrite(this->fPinNumber, (this->fInvertPinOutput) ? 0 : 1);
-        this->fIsOn = true;
 
-        // Wait if delay is set
-        if (this->fStartDelaySetting->get() > 0)
+        // Wait for the coolant to reach operational state before marking it as on
+        if (this->fStartDelaySetting != nullptr && this->fStartDelaySetting->get() > 0)
         {
             delay_msec((1000.0 * this->fStartDelaySetting->get()), DwellMode::SysSuspend);
         }
+
+        this->fIsOn = true; // Mark as ON only after delay completes
     }
 }
 
