@@ -32,6 +32,12 @@ uint8_t n_homing_locate_cycle = NHomingLocateCycle;
 
 xQueueHandle limit_sw_queue; // used by limit switch debouncing
 
+// Tracks whether limit switch ISRs are currently attached.
+// Guards detachInterrupt() calls so they are never issued before
+// attachInterrupt() has been called (ESP32 Arduino 3.x requires the GPIO ISR
+// service to be installed before gpio_isr_handler_remove() can be called).
+static bool limits_isr_attached = false;
+
 // Homing axis search distance multiplier. Computed by this value times the cycle travel.
 #ifndef HOMING_AXIS_SEARCH_SCALAR
 #define HOMING_AXIS_SEARCH_SCALAR 1.1 // Must be > 1 to ensure limit switch will be engaged.
@@ -329,18 +335,19 @@ void limits_init()
                 if (hard_limits->get())
                 {
                     attachInterrupt(pin, isr_limit_switches, CHANGE);
+                    limits_isr_attached = true;
                 }
-                else
+                else if (limits_isr_attached)
                 {
                     detachInterrupt(pin);
                 }
-
-                /*if (limit_sw_queue == NULL)
-                {
-                    MessageSender::SendMessage(EMessageLevel::Info, "%s limit switch on pin %s", reportAxisNameMsg(axis, gang_index), pinName(pin).c_str());
-                }*/
             }
         }
+    }
+
+    if (!hard_limits->get())
+    {
+        limits_isr_attached = false;
     }
 
     // setup task used for debouncing
@@ -359,6 +366,10 @@ void limits_init()
 // Disables hard limits.
 void limits_disable()
 {
+    if (!limits_isr_attached)
+    {
+        return;
+    }
     auto n_axis = number_axis->get();
     for (int axis = 0; axis < n_axis; axis++)
     {
@@ -371,6 +382,7 @@ void limits_disable()
             }
         }
     }
+    limits_isr_attached = false;
 }
 
 // Returns limit state as a bit-wise uint8 variable. Each bit indicates an axis limit, where
