@@ -20,6 +20,7 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../Grbl.h"
 #include "BacklashManager.h"
 
 #define DIR_POSITIVE 0
@@ -27,9 +28,6 @@
 #define DIR_NEUTRAL 2
 
 // Private (Statics)
-float BacklashManager::fPreviousTargets[MAX_N_AXIS] = {0.0};
-uint8_t BacklashManager::fAxisDirections[MAX_N_AXIS] = {DIR_NEUTRAL};
-
 /**
  * Initialize the Backlash Manager
  * This method is called from grbl_init (Grbl.cpp)

@@ -21,7 +21,7 @@
 */
 
 #pragma once
-#include "../../Grbl.h"
+#include "../Grbl.h"
 
 // Include Motors
 #include "Motor.h"
@@ -32,15 +32,15 @@
 class MotorsManager
 {
 public:
-	static void Initialize();
+	void Initialize();
 
 	// The return value is a bitmask of axes that can home
-	static uint8_t SetHomingMode(uint8_t homing_mask, bool isHoming);
-	static void SetDisable(bool disable, uint8_t mask = B11111111); // default is all axes
-	static bool Direction(uint8_t dir_mask);
-	static void Step(uint8_t step_mask);
-	static void Unstep();
+	uint8_t SetHomingMode(uint8_t homing_mask, bool isHoming);
+	void SetDisable(bool disable, uint8_t mask = B11111111); // default is all axes
+	bool Direction(uint8_t dir_mask);
+	void Step(uint8_t step_mask);
+	void Unstep();
 
 private:
-	static Motor *fMotors[MAX_AXES][MAX_GANGED];
+	Motor *fMotors[MAX_AXES][MAX_GANGED];
 };

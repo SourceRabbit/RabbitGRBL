@@ -210,7 +210,7 @@ void protocol_main_loop()
         {
             if (esp_timer_get_time() > stepper_idle_counter)
             {
-                MotorsManager::SetDisable(true);
+                CNCMachine::fMotorsManager.SetDisable(true);
             }
         }
     }
@@ -577,7 +577,7 @@ void protocol_exec_rt_system()
         if (sys.state == State::Idle || sys.state == State::Cycle || sys.state == State::Hold)
         {
             gc_state.modal.coolant.Flood = !gc_state.modal.coolant.Flood;
-            CoolantManager::Flood_Coolant.Toggle(); // Report counter set in Toggle().
+            CNCMachine::fCoolantManager.Flood_Coolant.Toggle(); // Report counter set in Toggle().
         }
 #endif
     }
@@ -591,7 +591,7 @@ void protocol_exec_rt_system()
         if (sys.state == State::Idle || sys.state == State::Cycle || sys.state == State::Hold)
         {
             gc_state.modal.coolant.Mist = !gc_state.modal.coolant.Mist;
-            CoolantManager::Mist_Coolant.Toggle(); // Report counter set in Toggle().
+            CNCMachine::fCoolantManager.Mist_Coolant.Toggle(); // Report counter set in Toggle().
         }
 #endif
     }
@@ -677,7 +677,7 @@ static void protocol_exec_rt_suspend()
                     sys.spindle_stop_ovr.value = 0; // Disable override
 #ifndef PARKING_ENABLE
                     fSpindle->set_state(SpindleState::Disable, 0); // De-energize
-                    CoolantManager::TurnAllCoolantsOff();
+                    CNCMachine::fCoolantManager.TurnAllCoolantsOff();
 #else
                     // Get current position and store restore location and spindle retract waypoint.
                     system_convert_array_steps_to_mpos(parking_target, sys_position);
@@ -713,7 +713,7 @@ static void protocol_exec_rt_suspend()
                         pl_data->motion.noFeedOverride = 1;
                         pl_data->spindle_speed = 0.0;
                         fSpindle->setState(pl_data->spindle, 0); // De-energize
-                        CoolantManager::TurnAllCoolantsOff();
+                        CNCMachine::fCoolantManager.TurnAllCoolantsOff();
 
                         //  Execute fast parking retract motion to parking target location.
                         if (parking_target[PARKING_AXIS] < PARKING_TARGET)
@@ -728,7 +728,7 @@ static void protocol_exec_rt_suspend()
                         // Parking motion not possible. Just disable the spindle and coolant.
                         // NOTE: Laser mode does not start a parking motion to ensure the laser stops immediately.
                         fSpindle->setState(SpindleState::Disable, 0); // De-energize
-                        CoolantManager::TurnAllCoolantsOff();
+                        CNCMachine::fCoolantManager.TurnAllCoolantsOff();
                     }
 #endif
                     sys.suspend.bit.restartRetract = false;
@@ -741,7 +741,7 @@ static void protocol_exec_rt_suspend()
                         MessageSender::SendFeedbackMessage(EFeedbackMessage::SleepMode);
                         // Spindle and coolant should already be stopped, but do it again just to be sure.
                         fSpindle->setState(SpindleState::Disable, 0); // De-energize
-                        CoolantManager::TurnAllCoolantsOff();
+                        CNCMachine::fCoolantManager.TurnAllCoolantsOff();
                         st_go_idle(); // Disable steppers
                         while (!(sys.abort))
                         {
@@ -799,7 +799,7 @@ static void protocol_exec_rt_suspend()
                             // Block if safety door re-opened during prior restore actions.
                             if (!sys.suspend.bit.restartRetract)
                             {
-                                CoolantManager::setCoolantState(restore_coolant);
+                                CNCMachine::fCoolantManager.setCoolantState(restore_coolant);
                             }
                         }
 #ifdef PARKING_ENABLE

@@ -20,7 +20,7 @@
     along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../Grbl.h"
+#include "../Grbl.h"
 #include "MotorsManager.h"
 
 // RMT or Not...
@@ -29,9 +29,6 @@ using StepperImpl = Stepper_RMT;
 #else
 using StepperImpl = Stepper_Software;
 #endif
-
-// Static member definition
-Motor *MotorsManager::fMotors[MAX_AXES][MAX_GANGED];
 
 void MotorsManager::Initialize()
 {

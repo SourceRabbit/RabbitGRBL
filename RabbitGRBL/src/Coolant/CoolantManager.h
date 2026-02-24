@@ -1,8 +1,9 @@
 /*
-  Probe.h
+  CoolantManager.h
 
-  Copyright (c) 2024 Nikolaos Siatras
+  Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
+  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -21,20 +22,23 @@
 
 #pragma once
 
-class Probe
+#include "../Grbl.h"
+#include <cstdint>
+#include "Coolant.h"
+
+class CoolantManager
 {
 public:
-    static void Initialize();
-    static void setDirection(bool isAway);
-    static bool isTriggered();
-    static void StateMonitor();
+    Coolant Mist_Coolant;
+    Coolant Flood_Coolant;
 
-    static void ReportProbeParameters();
+    void Initialize();
+    void TurnAllCoolantsOff();
+    void setCoolantState(CoolantState state);
 
-    static bool isSystemUsingProbe();
-    static void setSystemProbeState(bool state);
+    bool AreAllCoolantsOff();
 
 private:
-    static bool fIsProbeAway;
-    static volatile bool fSystemIsUsingProbe;
+    bool fInitialized;
+    Coolant *fCoolants[2];
 };

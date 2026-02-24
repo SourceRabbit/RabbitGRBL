@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Grbl.h"
+#include "../../Grbl.h"
 #include "../Motor.h"
 
 class Nullmotor : public Motor

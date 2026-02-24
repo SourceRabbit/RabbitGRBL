@@ -39,22 +39,27 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Diagnostics/Errors/ErrorsManager.h"
 #include "Diagnostics/Alarms/AlarmsManager.h"
 
+
 #include "System.h"
 #include "GCode.h"
 #include "Planner.h"
 #include "Limits.h"
+
 #include "MotionControl.h"
 #include "Protocol.h"
 #include "Serial.h"
 #include "MessageSender/MessageSender.h"
 #include "Report.h"
 #include "Pins.h"
+#include "Spindles/Spindle.h"
+
 #include "Stepper.h"
 #include "Jog.h"
 #include "InputBuffer/InputBuffer.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
-#include "CNCMachine/CNCMachine.h"
+
+#include "CNCMachine.h"
 #include "UserOutputs/UserOutputs.h"
 #include <Wire.h>
 

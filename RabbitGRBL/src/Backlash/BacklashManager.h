@@ -22,18 +22,18 @@
 
 #pragma once
 
-#include "../../Grbl.h"
+#include "../Grbl.h"
 
 class BacklashManager
 {
 public:
-    static void Initialize();
-    static void CompensateBacklash(float *target, plan_line_data_t *pl_data);
+    void Initialize();
+    void CompensateBacklash(float *target, plan_line_data_t *pl_data);
 
-    static void ResetTargets();
-    static void SynchPositionWhileUsingProbe();
+    void ResetTargets();
+    void SynchPositionWhileUsingProbe();
 
 private:
-    static float fPreviousTargets[];
-    static uint8_t fAxisDirections[];
+    float fPreviousTargets[MAX_N_AXIS];
+    uint8_t fAxisDirections[MAX_N_AXIS];
 };
