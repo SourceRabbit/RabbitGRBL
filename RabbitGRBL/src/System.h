@@ -22,8 +22,8 @@
 
 // Execution states and alarm
 #include "Exec.h"
-#include "Diagnostics/Alarms/EAlarm.h"
-#include "Diagnostics/Errors/EError.h"
+#include "CNCMachine/Diagnostics/Alarms/EAlarm.h"
+#include "CNCMachine/Diagnostics/Errors/EError.h"
 
 // System states. The state variable primarily tracks the individual functions
 // of Grbl to manage each without overlapping. It is also used as a messaging flag for

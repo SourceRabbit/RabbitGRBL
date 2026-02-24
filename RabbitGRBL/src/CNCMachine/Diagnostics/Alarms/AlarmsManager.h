@@ -23,7 +23,7 @@
 #pragma once
 
 #include <map>
-#include "../../Grbl.h"
+#include "../../../Grbl.h"
 #include "EAlarm.h"
 #include "../Errors/EError.h"
 
