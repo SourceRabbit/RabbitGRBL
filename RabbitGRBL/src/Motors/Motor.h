@@ -54,19 +54,19 @@ namespace Motors
         // normal operation.  Returns true if the motor can home
         virtual bool setHomingMode(bool isHoming) = 0;
 
-        // set_disable() disables or enables a motor.  It is used to
+        // setDisable() disables or enables a motor.  It is used to
         // make a motor transition between idle and non-idle states.
-        virtual void set_disable(bool disable) {}
+        virtual void setDisable(bool disable) {}
 
-        // set_direction() sets the motor movement direction.  It is
+        // setDirection() sets the motor movement direction.  It is
         // invoked for every motion segment.
-        virtual void set_direction(bool) {}
+        virtual void setDirection(bool) {}
 
-        // step() initiates a step operation on a motor.  It is called
+        // Step() initiates a step operation on a motor.  It is called
         // from motors_step() for ever motor than needs to step now.
         // For ordinary step/direction motors, it sets the step pin
         // to the active state.
-        virtual void step() {}
+        virtual void Step() {}
 
         // unstep() turns off the step pin, if applicable, for a motor.
         // It is called from motors_unstep() for all motors, since

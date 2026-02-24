@@ -13,9 +13,9 @@ namespace Motors
         void Initialize() override;
         // No special action, but return true to say homing is possible
         bool setHomingMode(bool isHoming) override { return true; }
-        void set_disable(bool) override;
-        void set_direction(bool) override;
-        void step() override;
+        void setDisable(bool) override;
+        void setDirection(bool) override;
+        void Step() override;
         void unstep() override;
 
     protected:

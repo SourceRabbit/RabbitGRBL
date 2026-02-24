@@ -218,7 +218,7 @@ void motors_set_disable(bool disable, uint8_t mask)
                 {
                         if (bitnum_istrue(mask, axis))
                         {
-                                myMotor[axis][gang_index]->set_disable(disable);
+                                myMotor[axis][gang_index]->setDisable(disable);
                         }
                 }
         }
@@ -275,8 +275,8 @@ bool motors_direction(uint8_t dir_mask)
                 for (int axis = X_AXIS; axis < n_axis; axis++)
                 {
                         bool thisDir = bitnum_istrue(dir_mask, axis);
-                        myMotor[axis][0]->set_direction(thisDir);
-                        myMotor[axis][1]->set_direction(thisDir);
+                        myMotor[axis][0]->setDirection(thisDir);
+                        myMotor[axis][1]->setDirection(thisDir);
                 }
 
                 return true;
@@ -299,11 +299,11 @@ void motors_step(uint8_t step_mask)
                 {
                         if ((ganged_mode == SquaringMode::Dual) || (ganged_mode == SquaringMode::A))
                         {
-                                myMotor[axis][0]->step();
+                                myMotor[axis][0]->Step();
                         }
                         if ((ganged_mode == SquaringMode::Dual) || (ganged_mode == SquaringMode::B))
                         {
-                                myMotor[axis][1]->step();
+                                myMotor[axis][1]->Step();
                         }
                 }
         }

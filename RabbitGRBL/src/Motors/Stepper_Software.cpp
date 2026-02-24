@@ -49,7 +49,7 @@ namespace Motors
                                    reportAxisLimitsMsg(_axis_index));
     }
 
-    void Stepper_Software::step()
+    void Stepper_Software::Step()
     {
         digitalWrite(_step_pin, !_invert_step_pin);
     }
@@ -59,9 +59,9 @@ namespace Motors
         digitalWrite(_step_pin, _invert_step_pin);
     }
 
-    void Stepper_Software::set_direction(bool dir) { digitalWrite(_dir_pin, dir ^ _invert_dir_pin); }
+    void Stepper_Software::setDirection(bool dir) { digitalWrite(_dir_pin, dir ^ _invert_dir_pin); }
 
-    void Stepper_Software::set_disable(bool disable)
+    void Stepper_Software::setDisable(bool disable)
     {
         digitalWrite(_disable_pin, disable);
     }

@@ -117,7 +117,7 @@ namespace Motors
         return rmt_channel_t(next_RMT_chan_num++); // Return current channel, then increment
     }
 
-    void Stepper_RMT::step()
+    void Stepper_RMT::Step()
     {
         // FIX #5: Guard against invalid channel before accessing RMT hardware.
         // Previously there was no check, leading to potential out-of-bounds register access.
@@ -140,9 +140,9 @@ namespace Motors
         // With RMT, the pulse end is handled automatically by hardware — no action needed here.
     }
 
-    void Stepper_RMT::set_direction(bool dir) { digitalWrite(_dir_pin, dir ^ _invert_dir_pin); }
+    void Stepper_RMT::setDirection(bool dir) { digitalWrite(_dir_pin, dir ^ _invert_dir_pin); }
 
-    void Stepper_RMT::set_disable(bool disable)
+    void Stepper_RMT::setDisable(bool disable)
     {
         digitalWrite(_disable_pin, disable);
     }
