@@ -6,10 +6,8 @@
 	Here is the hierarchy
 		Motor
 			Nullmotor
-			StandardStepper
-				TrinamicDriver
-			Unipolar
-			RC Servo
+			Stepper_RMT
+			Stepper_Software
 
 	These are for motors coordinated by Grbl_ESP32
 	See motorClass.cpp for more details

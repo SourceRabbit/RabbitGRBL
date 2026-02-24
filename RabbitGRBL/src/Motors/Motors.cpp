@@ -20,7 +20,13 @@
 #include "../Grbl.h"
 
 #include "NullMotor.h"
-#include "StandardStepper.h"
+#ifdef USE_RMT_STEPS
+#include "Stepper_RMT.h"
+using StepperImpl = Motors::Stepper_RMT;
+#else
+#include "Stepper_Software.h"
+using StepperImpl = Motors::Stepper_Software;
+#endif
 
 Motors::Motor *myMotor[MAX_AXES][MAX_GANGED]; // number of axes (normal and ganged)
 void init_motors()
@@ -35,13 +41,13 @@ void init_motors()
         if (n_axis >= 1)
         {
 #if defined(X_STEP_PIN)
-                myMotor[X_AXIS][0] = new Motors::StandardStepper(X_AXIS, X_STEP_PIN, X_DIRECTION_PIN, X_DISABLE_PIN);
+                myMotor[X_AXIS][0] = new StepperImpl(X_AXIS, X_STEP_PIN, X_DIRECTION_PIN, X_DISABLE_PIN);
 #else
                 myMotor[X_AXIS][0] = new Motors::Nullmotor(X_AXIS);
 #endif
 
 #if defined(X2_STEP_PIN)
-                myMotor[X_AXIS][1] = new Motors::StandardStepper(X2_AXIS, X2_STEP_PIN, X2_DIRECTION_PIN, X2_DISABLE_PIN);
+                myMotor[X_AXIS][1] = new StepperImpl(X2_AXIS, X2_STEP_PIN, X2_DIRECTION_PIN, X2_DISABLE_PIN);
 #else
                 myMotor[X_AXIS][1] = new Motors::Nullmotor(X2_AXIS);
 #endif
@@ -58,13 +64,13 @@ void init_motors()
         if (n_axis >= 2)
         {
 #if defined(Y_STEP_PIN)
-                myMotor[Y_AXIS][0] = new Motors::StandardStepper(Y_AXIS, Y_STEP_PIN, Y_DIRECTION_PIN, Y_DISABLE_PIN);
+                myMotor[Y_AXIS][0] = new StepperImpl(Y_AXIS, Y_STEP_PIN, Y_DIRECTION_PIN, Y_DISABLE_PIN);
 #else
                 myMotor[Y_AXIS][0] = new Motors::Nullmotor(Y_AXIS);
 #endif
 
 #if defined(Y2_STEP_PIN)
-                myMotor[Y_AXIS][1] = new Motors::StandardStepper(Y2_AXIS, Y2_STEP_PIN, Y2_DIRECTION_PIN, Y2_DISABLE_PIN);
+                myMotor[Y_AXIS][1] = new StepperImpl(Y2_AXIS, Y2_STEP_PIN, Y2_DIRECTION_PIN, Y2_DISABLE_PIN);
 #else
                 myMotor[Y_AXIS][1] = new Motors::Nullmotor(Y2_AXIS);
 #endif
@@ -81,13 +87,13 @@ void init_motors()
         if (n_axis >= 3)
         {
 #if defined(Z_STEP_PIN)
-                myMotor[Z_AXIS][0] = new Motors::StandardStepper(Z_AXIS, Z_STEP_PIN, Z_DIRECTION_PIN, Z_DISABLE_PIN);
+                myMotor[Z_AXIS][0] = new StepperImpl(Z_AXIS, Z_STEP_PIN, Z_DIRECTION_PIN, Z_DISABLE_PIN);
 #else
                 myMotor[Z_AXIS][0] = new Motors::Nullmotor(Z_AXIS);
 #endif
 
 #if defined(Z2_STEP_PIN)
-                myMotor[Z_AXIS][1] = new Motors::StandardStepper(Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN);
+                myMotor[Z_AXIS][1] = new StepperImpl(Z2_AXIS, Z2_STEP_PIN, Z2_DIRECTION_PIN, Z2_DISABLE_PIN);
 #else
                 myMotor[Z_AXIS][1] = new Motors::Nullmotor(Z2_AXIS);
 #endif
@@ -104,13 +110,13 @@ void init_motors()
         if (n_axis >= 4)
         {
 #if defined(A_STEP_PIN)
-                myMotor[A_AXIS][0] = new Motors::StandardStepper(A_AXIS, A_STEP_PIN, A_DIRECTION_PIN, A_DISABLE_PIN);
+                myMotor[A_AXIS][0] = new StepperImpl(A_AXIS, A_STEP_PIN, A_DIRECTION_PIN, A_DISABLE_PIN);
 #else
                 myMotor[A_AXIS][0] = new Motors::Nullmotor(A_AXIS);
 #endif
 
 #if defined(A2_STEP_PIN)
-                myMotor[A_AXIS][1] = new Motors::StandardStepper(A2_AXIS, A2_STEP_PIN, A2_DIRECTION_PIN, A2_DISABLE_PIN);
+                myMotor[A_AXIS][1] = new StepperImpl(A2_AXIS, A2_STEP_PIN, A2_DIRECTION_PIN, A2_DISABLE_PIN);
 #else
                 myMotor[A_AXIS][1] = new Motors::Nullmotor(A2_AXIS);
 #endif
@@ -127,13 +133,13 @@ void init_motors()
         if (n_axis >= 5)
         {
 #if defined(B_STEP_PIN)
-                myMotor[B_AXIS][0] = new Motors::StandardStepper(B_AXIS, B_STEP_PIN, B_DIRECTION_PIN, B_DISABLE_PIN);
+                myMotor[B_AXIS][0] = new StepperImpl(B_AXIS, B_STEP_PIN, B_DIRECTION_PIN, B_DISABLE_PIN);
 #else
                 myMotor[B_AXIS][0] = new Motors::Nullmotor(B_AXIS);
 #endif
 
 #if defined(B2_STEP_PIN)
-                myMotor[B_AXIS][1] = new Motors::StandardStepper(B2_AXIS, B2_STEP_PIN, B2_DIRECTION_PIN, B2_DISABLE_PIN);
+                myMotor[B_AXIS][1] = new StepperImpl(B2_AXIS, B2_STEP_PIN, B2_DIRECTION_PIN, B2_DISABLE_PIN);
 #else
                 myMotor[B_AXIS][1] = new Motors::Nullmotor(B2_AXIS);
 #endif
@@ -150,13 +156,13 @@ void init_motors()
         if (n_axis >= 6)
         {
 #if defined(C_STEP_PIN)
-                myMotor[C_AXIS][0] = new Motors::StandardStepper(C_AXIS, C_STEP_PIN, C_DIRECTION_PIN, C_DISABLE_PIN);
+                myMotor[C_AXIS][0] = new StepperImpl(C_AXIS, C_STEP_PIN, C_DIRECTION_PIN, C_DISABLE_PIN);
 #else
                 myMotor[C_AXIS][0] = new Motors::Nullmotor(C_AXIS);
 #endif
 
 #if defined(C2_STEP_PIN)
-                myMotor[C_AXIS][1] = new Motors::StandardStepper(C2_AXIS, C2_STEP_PIN, C2_DIRECTION_PIN, C2_DISABLE_PIN);
+                myMotor[C_AXIS][1] = new StepperImpl(C2_AXIS, C2_STEP_PIN, C2_DIRECTION_PIN, C2_DISABLE_PIN);
 #else
                 myMotor[C_AXIS][1] = new Motors::Nullmotor(C2_AXIS);
 #endif
