@@ -26,8 +26,6 @@
 #include "Grbl.h"
 
 #include <atomic>
-#include "soc/timer_group_struct.h"
-#include "esp_idf_version.h"
 
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
 // buffer. Normally, this buffer is partially in-use, but, for the worst case scenario, it will
@@ -200,21 +198,17 @@ void IRAM_ATTR onStepperDriverTimer(void *para)
 {
     // Timer ISR, normally takes a step.
     //
-    // When handling an interrupt within an interrupt serivce routine (ISR), the interrupt status bit
+    // When handling an interrupt within an interrupt service routine (ISR), the interrupt status bit
     // needs to be explicitly cleared.
-    // Clear the interrupt status bit (register name changed in ESP-IDF 5.x).
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-    TIMERG0.int_clr.t0 = 1;
-#else
-    TIMERG0.int_clr_timers.t0 = 1;
-#endif
+    // Clear the interrupt status bit using the ISR-safe driver API.
+    timer_group_clr_intr_status_in_isr(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
 
     bool expected = false;
     if (busy.compare_exchange_strong(expected, true))
     {
         stepper_pulse_func();
 
-        TIMERG0.hw_timer[STEP_TIMER_INDEX].config.alarm_en = TIMER_ALARM_EN;
+        timer_group_enable_alarm_in_isr(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
 
         busy.store(false);
     }
@@ -1086,7 +1080,7 @@ void IRAM_ATTR Stepper_Timer_Start()
 
     timer_set_counter_value(STEP_TIMER_GROUP, STEP_TIMER_INDEX, 0x00000000ULL);
     timer_start(STEP_TIMER_GROUP, STEP_TIMER_INDEX);
-    TIMERG0.hw_timer[STEP_TIMER_INDEX].config.alarm_en = TIMER_ALARM_EN;
+    timer_set_alarm(STEP_TIMER_GROUP, STEP_TIMER_INDEX, TIMER_ALARM_EN);
 }
 
 void IRAM_ATTR Stepper_Timer_Stop()
