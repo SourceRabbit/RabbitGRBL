@@ -42,5 +42,8 @@ public:
 	static void Unstep();
 
 private:
+	static bool fLastMotorsState;
+	static uint8_t fLastStateMask;
+
 	static Motor *fMotors[MAX_AXES][MAX_GANGED];
 };

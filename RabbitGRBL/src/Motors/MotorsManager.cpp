@@ -31,6 +31,8 @@ using StepperImpl = Stepper_Software;
 #endif
 
 // Static member definition
+bool MotorsManager::fLastMotorsState = false;
+uint8_t MotorsManager::fLastStateMask = 0;
 Motor *MotorsManager::fMotors[MAX_AXES][MAX_GANGED];
 
 void MotorsManager::Initialize()
@@ -189,7 +191,7 @@ void MotorsManager::Initialize()
     // Initialize motors
     for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
     {
-        for (uint8_t gang_index = 0; gang_index < 2; gang_index++)
+        for (uint8_t gang_index = 0; gang_index < MAX_GANGED; gang_index++)
         {
             fMotors[axis][gang_index]->Initialize();
         }
@@ -198,16 +200,13 @@ void MotorsManager::Initialize()
 
 void MotorsManager::SetDisable(bool disable, uint8_t mask)
 {
-    static bool prev_disable = true;
-    static uint8_t prev_mask = 0;
-
-    if ((disable == prev_disable) && (mask == prev_mask))
+    if ((disable == fLastMotorsState) && (mask == fLastStateMask))
     {
         return;
     }
 
-    prev_disable = disable;
-    prev_mask = mask;
+    fLastMotorsState = disable;
+    fLastStateMask = mask;
 
     if (step_enable_invert->get())
     {
@@ -237,7 +236,7 @@ void MotorsManager::SetDisable(bool disable, uint8_t mask)
     {
         auto disable_start_time = esp_timer_get_time() + wait_disable_change;
 
-        while ((esp_timer_get_time() - disable_start_time) < 0)
+        while (esp_timer_get_time() < disable_start_time)
         {
             NOP();
         }
