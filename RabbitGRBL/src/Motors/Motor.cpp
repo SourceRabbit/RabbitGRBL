@@ -35,7 +35,7 @@
 
 namespace Motors
 {
-    Motor::Motor(uint8_t axis_index) : _axis_index(axis_index % MAX_AXES), _dual_axis_index(axis_index / MAX_AXES) {}
+    Motor::Motor(uint8_t axis_index) : fAxisIndex(axis_index % MAX_AXES), fDualAxisIndex(axis_index / MAX_AXES) {}
 
     void Motor::debug_message() {}
 

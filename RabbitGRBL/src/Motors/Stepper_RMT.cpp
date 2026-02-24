@@ -36,8 +36,8 @@ namespace Motors
 
     void Stepper_RMT::Initialize()
     {
-        _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
-        _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);
+        _invert_step_pin = bitnum_istrue(step_invert_mask->get(), fAxisIndex);
+        _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), fAxisIndex);
         pinMode(_dir_pin, OUTPUT);
 
         // FIX #4: Check for invalid channel FIRST, before touching any RMT config.
@@ -45,7 +45,7 @@ namespace Motors
         // which could corrupt settings for other axes.
         if (_rmt_chan_num == RMT_CHANNEL_MAX)
         {
-            MessageSender::SendMessage(EMessageLevel::Error, "Error: invalid RMT channel for axis %d", _axis_index);
+            MessageSender::SendMessage(EMessageLevel::Error, "Error: invalid RMT channel for axis %d", fAxisIndex);
             return;
         }
 
@@ -92,11 +92,11 @@ namespace Motors
         // Information messages
         MessageSender::SendMessage(EMessageLevel::Info,
                                    "%s RMT Stepper Step:%s Dir:%s Disable:%s %s",
-                                   reportAxisNameMsg(_axis_index, _dual_axis_index),
+                                   reportAxisNameMsg(fAxisIndex, fDualAxisIndex),
                                    pinName(_step_pin).c_str(),
                                    pinName(_dir_pin).c_str(),
                                    pinName(_disable_pin).c_str(),
-                                   reportAxisLimitsMsg(_axis_index));
+                                   reportAxisLimitsMsg(fAxisIndex));
     }
 
     // FIX #1: get_next_RMT_chan_num() - Fixed off-by-one bug.

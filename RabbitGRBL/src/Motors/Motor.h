@@ -80,7 +80,7 @@ namespace Motors
         virtual void Update() {}
 
     protected:
-        // _dual_axis_index is 0 for the primary motor on that
+        // fDualAxisIndex is 0 for the primary motor on that
         // axis and 1 for the ganged motor.
         // These variables are used for several purposes:
         // * Displaying the axis name in messages
@@ -91,7 +91,7 @@ namespace Motors
         //   tables can be indexed by these variables.
         // TODO Architecture: It might be useful to cache a
         // reference to the axis settings entry.
-        uint8_t _axis_index;      // X_AXIS, etc
-        uint8_t _dual_axis_index; // 0 = primary 1=ganged
+        uint8_t fAxisIndex;      // X_AXIS, etc
+        uint8_t fDualAxisIndex; // 0 = primary 1=ganged
     };
 }

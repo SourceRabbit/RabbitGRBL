@@ -33,8 +33,8 @@ namespace Motors
 
     void Stepper_Software::Initialize()
     {
-        _invert_step_pin = bitnum_istrue(step_invert_mask->get(), _axis_index);
-        _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), _axis_index);
+        _invert_step_pin = bitnum_istrue(step_invert_mask->get(), fAxisIndex);
+        _invert_dir_pin = bitnum_istrue(dir_invert_mask->get(), fAxisIndex);
         pinMode(_dir_pin, OUTPUT);
         pinMode(_step_pin, OUTPUT);
         pinMode(_disable_pin, OUTPUT);
@@ -42,11 +42,11 @@ namespace Motors
         // Information Message
         MessageSender::SendMessage(EMessageLevel::Info,
                                    "%s Software Stepper Step:%s Dir:%s Disable:%s %s",
-                                   reportAxisNameMsg(_axis_index, _dual_axis_index),
+                                   reportAxisNameMsg(fAxisIndex, fDualAxisIndex),
                                    pinName(_step_pin).c_str(),
                                    pinName(_dir_pin).c_str(),
                                    pinName(_disable_pin).c_str(),
-                                   reportAxisLimitsMsg(_axis_index));
+                                   reportAxisLimitsMsg(fAxisIndex));
     }
 
     void Stepper_Software::Step()
