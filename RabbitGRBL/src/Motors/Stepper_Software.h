@@ -16,7 +16,7 @@ namespace Motors
         void setDisable(bool) override;
         void setDirection(bool) override;
         void Step() override;
-        void unstep() override;
+        void Unstep() override;
 
     protected:
         bool _invert_step_pin;

@@ -135,7 +135,7 @@ namespace Motors
         rmt_tx_start(_rmt_chan_num, true);
     }
 
-    void Stepper_RMT::unstep()
+    void Stepper_RMT::Unstep()
     {
         // With RMT, the pulse end is handled automatically by hardware — no action needed here.
     }

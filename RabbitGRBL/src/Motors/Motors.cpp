@@ -314,7 +314,7 @@ void motors_unstep()
         auto n_axis = number_axis->get();
         for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
         {
-                myMotor[axis][0]->unstep();
-                myMotor[axis][1]->unstep();
+                myMotor[axis][0]->Unstep();
+                myMotor[axis][1]->Unstep();
         }
 }

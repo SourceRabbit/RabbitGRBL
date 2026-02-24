@@ -54,7 +54,7 @@ namespace Motors
         digitalWrite(_step_pin, !_invert_step_pin);
     }
 
-    void Stepper_Software::unstep()
+    void Stepper_Software::Unstep()
     {
         digitalWrite(_step_pin, _invert_step_pin);
     }

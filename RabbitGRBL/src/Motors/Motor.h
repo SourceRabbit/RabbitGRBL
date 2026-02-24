@@ -68,23 +68,18 @@ namespace Motors
         // to the active state.
         virtual void Step() {}
 
-        // unstep() turns off the step pin, if applicable, for a motor.
+        // Unstep() turns off the step pin, if applicable, for a motor.
         // It is called from motors_unstep() for all motors, since
         // motors_unstep() is used in many contexts where the previous
         // states of the step pins are unknown.
-        virtual void unstep() {}
+        virtual void Unstep() {}
 
-        // update() is used for some types of "smart" motors that
+        // Update() is used for some types of "smart" motors that
         // can be told to move to a specific position.  It is
         // called from a periodic task.
-        virtual void update() {}
+        virtual void Update() {}
 
     protected:
-        // config_message(), called from Initialize(), displays a message describing
-        // the motor configuration - pins and other motor-specific items
-        virtual void config_message() {}
-
-        // _axis_index is the axis from XYZABC, while
         // _dual_axis_index is 0 for the primary motor on that
         // axis and 1 for the ganged motor.
         // These variables are used for several purposes:
