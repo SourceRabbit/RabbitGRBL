@@ -95,9 +95,9 @@ void clientCheckTask(void *pvParameters)
             }
             else
             {
-                vTaskEnterCritical(&myMutex);
+                vPortEnterCritical(&myMutex);
                 client_buffer.write(data);
-                vTaskExitCritical(&myMutex);
+                vPortExitCritical(&myMutex);
             }
         } // while something available
 
@@ -109,9 +109,9 @@ void clientCheckTask(void *pvParameters)
 int client_read()
 {
     // vPortEnterCritical(&myMutex);
-    vTaskEnterCritical(&myMutex);
+    vPortEnterCritical(&myMutex);
     int data = client_buffer.read();
-    vTaskExitCritical(&myMutex);
+    vPortExitCritical(&myMutex);
     // vPortExitCritical(&myMutex);
     return data;
 }

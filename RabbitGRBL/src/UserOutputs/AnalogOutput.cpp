@@ -49,9 +49,8 @@ namespace UserOutput
             return;
         }
 
-        ledcSetup(_pwm_channel, _pwm_frequency, _resolution_bits);
-        ledcAttachPin(this->getPinNumber(), _pwm_channel);
-        ledcWrite(_pwm_channel, 0);
+        ledcAttach(this->getPinNumber(), _pwm_frequency, _resolution_bits);
+        ledcWrite(this->getPinNumber(), 0);
 
         MessageSender::SendMessage(EMessageLevel::Info, "User Analog Output:%d on Pin:%s Freq:%0.0fHz", this->getNumber(), pinName(this->getPinNumber()).c_str(), _pwm_frequency);
     }
@@ -76,7 +75,7 @@ namespace UserOutput
         }
 
         _current_value = numerator;
-        ledcWrite(_pwm_channel, numerator);
+        ledcWrite(this->getPinNumber(), numerator);
 
         return true;
     }

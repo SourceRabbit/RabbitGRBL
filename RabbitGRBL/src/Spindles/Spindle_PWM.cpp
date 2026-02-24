@@ -101,12 +101,10 @@ namespace Spindles
 
         fInvertPWM = invert;
 
-        // Setup the PWM channel
-        ledcSetup(fPWMChannelNumber, (double)fPWMFrequency, fPWMPrecision);
+        // Setup the PWM channel and attach it to the output pin
+        ledcAttachChannel(fOutputPin, (double)fPWMFrequency, fPWMPrecision, fPWMChannelNumber);
 
-        // Attach the PWM to the output pin
         pinMode(fOutputPin, OUTPUT);
-        ledcAttachPin(fOutputPin, fPWMChannelNumber);
     }
 
     void PWM::Stop()

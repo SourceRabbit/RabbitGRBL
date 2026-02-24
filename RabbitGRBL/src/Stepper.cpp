@@ -26,6 +26,8 @@
 #include "Grbl.h"
 
 #include <atomic>
+#include "soc/timer_group_struct.h"
+#include "esp_idf_version.h"
 
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
 // buffer. Normally, this buffer is partially in-use, but, for the worst case scenario, it will
@@ -200,7 +202,12 @@ void IRAM_ATTR onStepperDriverTimer(void *para)
     //
     // When handling an interrupt within an interrupt serivce routine (ISR), the interrupt status bit
     // needs to be explicitly cleared.
+    // Clear the interrupt status bit (register name changed in ESP-IDF 5.x).
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    TIMERG0.int_clr.t0 = 1;
+#else
     TIMERG0.int_clr_timers.t0 = 1;
+#endif
 
     bool expected = false;
     if (busy.compare_exchange_strong(expected, true))
