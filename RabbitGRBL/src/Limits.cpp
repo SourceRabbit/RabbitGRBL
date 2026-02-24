@@ -448,7 +448,6 @@ void limitCheckTask(void *pvParameters)
             mc_reset();                               // Initiate system kill.
             sys_rt_exec_alarm = EAlarm::HardLimit; // Indicate hard limit critical event
         }
-        static UBaseType_t uxHighWaterMark = 0;
     }
 }
 
