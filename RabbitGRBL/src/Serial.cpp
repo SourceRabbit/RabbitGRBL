@@ -80,32 +80,28 @@ static bool getClientChar(uint8_t *data)
 void clientCheckTask(void *pvParameters)
 {
     uint8_t data = 0;
-    static UBaseType_t uxHighWaterMark = 0;
 
     while (true)
     {
-        // run continuously
+        // Run continuously
         while (getClientChar(&data))
         {
-            // Pick off realtime command characters directly from the serial stream. These characters are
-            // not passed into the main buffer, but these set system state flag bits for realtime execution.
+            // Pick off realtime command characters directly from the serial stream.
+            // These characters are not passed into the main buffer, but set system
+            // state flag bits for realtime execution.
             if (is_realtime_command(data))
             {
                 execute_realtime_command(static_cast<Cmd>(data));
             }
             else
             {
-                // vPortEnterCritical(&myMutex);
                 vTaskEnterCritical(&myMutex);
                 client_buffer.write(data);
                 vTaskExitCritical(&myMutex);
-                // vPortExitCritical(&myMutex);
             }
-        } // if something available
+        } // while something available
 
         vTaskDelay(1 / portTICK_RATE_MS); // Yield to other tasks
-
-        static UBaseType_t uxHighWaterMark = 0;
     }
 }
 

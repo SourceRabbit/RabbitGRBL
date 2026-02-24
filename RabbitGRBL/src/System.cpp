@@ -129,8 +129,6 @@ void controlCheckTask(void *pvParameters)
             system_exec_control_pin(pins);
         }
         debouncing = false;
-
-        static UBaseType_t uxHighWaterMark = 0;
     }
 }
 #endif
