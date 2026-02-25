@@ -87,7 +87,7 @@ EError ErrorsManager::ListErrors(const char *value)
         // Check if the parsed value is a valid number (endptr should point to null terminator)
         if (*endptr)
         {
-            grbl_sendf("Malformed error number: %s\r\n", value);
+            ConnectionManager::Active().WriteFormatted("Malformed error number: %s\r\n", value);
             return EError::InvalidValue;
         }
 
@@ -96,13 +96,13 @@ EError ErrorsManager::ListErrors(const char *value)
         if (errorName)
         {
             // Error found — send the error number and its title
-            grbl_sendf("%d: %s\r\n", errorNumber, errorName);
+            ConnectionManager::Active().WriteFormatted("%d: %s\r\n", errorNumber, errorName);
             return EError::Ok;
         }
         else
         {
             // Error number not found in the map
-            grbl_sendf("Unknown error number: %d\r\n", errorNumber);
+            ConnectionManager::Active().WriteFormatted("Unknown error number: %d\r\n", errorNumber);
             return EError::InvalidValue;
         }
     }
@@ -110,7 +110,7 @@ EError ErrorsManager::ListErrors(const char *value)
     // No value provided — iterate and print all error codes and their titles
     for (auto it = ErrorsManager::fErrorNames.begin(); it != ErrorsManager::fErrorNames.end(); it++)
     {
-        grbl_sendf("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
+        ConnectionManager::Active().WriteFormatted("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
     }
     
     delay_ms(100); // Wait 100ms before sending the "OK"

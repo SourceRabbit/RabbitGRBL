@@ -117,14 +117,14 @@ public:
         {
             return EError::NvsGetStatsFailed;
         }
-        grbl_sendf("[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
+        ConnectionManager::Active().WriteFormatted("[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
 #if 0 // The SDK we use does not have this yet
         nvs_iterator_t it = nvs_entry_find(NULL, NULL, NVS_TYPE_ANY);
         while (it != NULL) {
             nvs_entry_info_t info;
             nvs_entry_info(it, &info);
             it = nvs_entry_next(it);
-            grbl_sendf("namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
+            ConnectionManager::Active().WriteFormatted("namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
         }
 #endif
         return EError::Ok;

@@ -48,9 +48,6 @@ enum class Message : uint8_t
   SdFileQuit = 60, // mc_reset was called during an SD job
 };
 
-// functions to send data to the user.
-void grbl_sendf(const char *format, ...);
-
 // Prints system status messages.
 void report_status_message(EError status_code);
 void report_realtime_steps();

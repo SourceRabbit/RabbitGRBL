@@ -86,7 +86,7 @@ void Setting::init()
     {
         if (esp_err_t err = nvs_open("Grbl_ESP32", NVS_READWRITE, &_handle))
         {
-            grbl_sendf("nvs_open failed with error %d\r\n", err);
+            ConnectionManager::Active().WriteFormatted("nvs_open failed with error %d\r\n", err);
         }
     }
 }

@@ -48,8 +48,8 @@ void MessageSender::SendMessage(EMessageLevel level, const char *format, ...)
     vsnprintf(temp, sizeof(temp), format, arg);
     va_end(arg);
 
-    // Wrap in the [MSG:...] frame and send via grbl_sendf.
-    grbl_sendf("[MSG:%s]\r\n", temp);
+    // Wrap in the [MSG:...] frame and send via ConnectionManager::Active().WriteFormatted.
+    ConnectionManager::Active().WriteFormatted("[MSG:%s]\r\n", temp);
 }
 
 /**

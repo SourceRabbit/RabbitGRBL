@@ -41,7 +41,7 @@ std::map<EAlarm, const char *> AlarmsManager::fAlarmNames = {
  */
 void AlarmsManager::ReportAlarmMessage(EAlarm alarm_code)
 {
-    grbl_sendf("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
+    ConnectionManager::Active().WriteFormatted("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
     delay_ms(500);                                            // Force delay to ensure message clears serial write buffer.
 }
 
@@ -64,7 +64,7 @@ EError AlarmsManager::ListAlarms(const char *value)
         // Check if the value is a valid number
         if (*endptr)
         {
-            grbl_sendf("Malformed alarm number: %s\r\n", value);
+            ConnectionManager::Active().WriteFormatted("Malformed alarm number: %s\r\n", value);
             return EError::InvalidValue;
         }
 
@@ -72,12 +72,12 @@ EError AlarmsManager::ListAlarms(const char *value)
         const char *alarmName = getAlarmTitle(static_cast<EAlarm>(alarmNumber));
         if (alarmName)
         {
-            grbl_sendf("%d: %s\r\n", alarmNumber, alarmName);
+            ConnectionManager::Active().WriteFormatted("%d: %s\r\n", alarmNumber, alarmName);
             return EError::Ok;
         }
         else
         {
-            grbl_sendf("Unknown alarm number: %d\r\n", alarmNumber);
+            ConnectionManager::Active().WriteFormatted("Unknown alarm number: %d\r\n", alarmNumber);
             return EError::InvalidValue;
         }
     }
@@ -85,7 +85,7 @@ EError AlarmsManager::ListAlarms(const char *value)
     // No value provided — print all alarms
     for (auto it = AlarmsManager::fAlarmNames.begin(); it != fAlarmNames.end(); it++)
     {
-        grbl_sendf("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
+        ConnectionManager::Active().WriteFormatted("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
     }
     delay_ms(100); // Wait 100ms before sending the "OK"
     return EError::Ok;

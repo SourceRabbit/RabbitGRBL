@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "../Config.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -46,6 +47,53 @@ public:
 
   // Write a null-terminated C string (generic alternative to Arduino String).
   virtual size_t Write(const char *text) = 0;
+
+  // Formats a printf-style message and writes it to the connection.
+  // Uses a stack buffer (TX_BUFFER_SIZE) for small messages to avoid heap
+  // allocation. Falls back to heap allocation only if the formatted message
+  // exceeds TX_BUFFER_SIZE. Returns the number of bytes written, or 0 on failure.
+  virtual size_t WriteFormatted(const char *format, ...)
+  {
+    char loc_buf[TX_BUFFER_SIZE];
+    char *temp = loc_buf;
+
+    va_list arg;
+    va_start(arg, format);
+
+    // Use a copy to measure the required length,
+    // keeping arg intact for the actual formatting pass.
+    va_list copy;
+    va_copy(copy, arg);
+    size_t len = vsnprintf(NULL, 0, format, copy); // measure using copy
+    va_end(copy);                                  // done with copy
+
+    if (len >= sizeof(loc_buf))
+    {
+      // Message is too large for the stack buffer, fall back to heap.
+      temp = new char[len + 1];
+      if (temp == NULL)
+      {
+        // Memory allocation failed, abort gracefully.
+        va_end(arg);
+        return 0;
+      }
+    }
+
+    // arg is still intact here, safe to use for the final formatting pass.
+    vsnprintf(temp, len + 1, format, arg);
+    va_end(arg);
+
+    // Write the formatted string to the connection.
+    size_t written = this->Write(temp);
+
+    // Free heap memory only if it was allocated (i.e. temp != stack buffer).
+    if (temp != loc_buf)
+    {
+      delete[] temp;
+    }
+
+    return written;
+  }
 
   // Inject a null-terminated G-code command string into the RX buffer,
   // as if it was received from the physical connection.
