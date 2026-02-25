@@ -17,7 +17,7 @@ engineered for continuous operation, low latency, accuracy, robustness, scalabil
 Rabbit GRBL is a **GRBL-compatible motion control firmware for ESP32**, originally developed as a fork of **Grbl_Esp32**.
 
 This repository is maintained to provide a **professional-grade**, fast and predictable firmware that remains  
-**100% backward compatible with the original GRBL (AVR)** command set and works with **all standard GRBL G-code senders**.
+**100% backward compatible with the original Grbl v1.1h for AVR processors** command set and works with **all standard GRBL G-code senders**.
 
 Rabbit GRBL is optimized for **stable timing and low jitter**, achieving **up to 120 kHz step pulse rates** on ESP32 hardware,
 making it suitable for real CNC machines — not experimental setups.
