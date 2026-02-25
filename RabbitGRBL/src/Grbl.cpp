@@ -22,12 +22,10 @@
 
 void grbl_init()
 {
-    // client_init(); // Setup serial baud rate and interrupts
-    ConnectionManager::Initialize();
-
-    settings_init(); // Load Grbl settings from non-volatile storage
-    stepper_init();  // Configure stepper pins and interrupt timers
-    system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
+    ConnectionManager::Initialize(); // Initialize Connection Manager (Serial, Bluetooth, Wifi etc.)
+    settings_init();                 // Load Grbl settings from non-volatile storage
+    stepper_init();                  // Configure stepper pins and interrupt timers
+    system_ini();                    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
     BacklashManager::Initialize();
     MotorsManager::Initialize();
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.

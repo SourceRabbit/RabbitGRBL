@@ -66,7 +66,7 @@ const double INCH_PER_MM = (0.0393701);
 
 // Useful macros
 #define clear_vector(a) memset(a, 0, sizeof(a))
-#define clear_vector_float(a) memset(a, 0.0, sizeof(float) * MAX_N_AXIS)
+
 // #define clear_vector_long(a) memset(a, 0.0, sizeof(long)*MAX_N_AXIS)
 #define MAX(a, b) (((a) > (b)) ? (a) : (b)) // changed to upper case to remove conflicts with other libraries
 #define MIN(a, b) (((a) < (b)) ? (a) : (b)) // changed to upper case to remove conflicts with other libraries
