@@ -47,5 +47,10 @@ public:
   // Write a null-terminated C string (generic alternative to Arduino String).
   virtual size_t Write(const char *text) = 0;
 
+  // Inject a null-terminated G-code command string into the RX buffer,
+  // as if it was received from the physical connection.
+  // Returns true if the data fits and was accepted, false if the buffer is full.
+  virtual bool Push(const char *data) = 0;
+
   virtual void ResetReadBuffer();
 };

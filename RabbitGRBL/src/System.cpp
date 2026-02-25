@@ -446,5 +446,5 @@ void __attribute__((weak)) user_defined_macro(uint8_t index)
     user_macro.replace('&', '\n');
     user_macro.toCharArray(line, 255, 0);
     strcat(line, "\r");
-    fSerialInputBuffer.push(line);
+    ConnectionManager::Active().Push(line);
 }

@@ -55,5 +55,3 @@ private:
     uint16_t _RXbufferSize;
     uint16_t _RXbufferpos;
 };
-
-extern InputBuffer fSerialInputBuffer;

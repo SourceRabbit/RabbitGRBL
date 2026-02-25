@@ -37,7 +37,10 @@ public:
     ~SerialConnection() override = default;
 
     void Init() override;
+
     int Read() override;
+    bool Push(const char *data) override;
+
     void ResetReadBuffer();
     uint8_t GetRxBufferAvailable() override;
 

@@ -104,6 +104,15 @@ int SerialConnection::Read()
     return data;
 }
 
+bool SerialConnection::Push(const char *data)
+{
+    // Protect the shared input buffer from concurrent access by the client check task.
+    taskENTER_CRITICAL(&fInputBufferMutex);
+    bool result = fInputBuffer.push(data);
+    taskEXIT_CRITICAL(&fInputBufferMutex);
+    return result;
+}
+
 uint8_t SerialConnection::GetRxBufferAvailable()
 {
     taskENTER_CRITICAL(&fInputBufferMutex);

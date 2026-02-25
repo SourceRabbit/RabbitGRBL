@@ -56,7 +56,6 @@ void grbl_init()
 #endif
 
     Spindles::Spindle::Select();
-    fSerialInputBuffer.begin();
 }
 
 static void reset_variables()

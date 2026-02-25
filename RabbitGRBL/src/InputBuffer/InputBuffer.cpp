@@ -21,8 +21,6 @@
 #include "../Config.h"
 #include "InputBuffer.h"
 
-InputBuffer fSerialInputBuffer;
-
 InputBuffer::InputBuffer()
 {
     _RXbufferSize = 0;
