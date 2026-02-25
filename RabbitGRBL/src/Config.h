@@ -381,15 +381,10 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // block velocity profile is traced exactly. The size of this buffer governs how much step
 // execution lead time there is for other Grbl processes have to compute and do their thing
 // before having to come back and refill this buffer, currently at ~50msec of step moves.
-// #define SEGMENT_BUFFER_SIZE 6 // Uncomment to override default in stepper.h.
+#define SEGMENT_BUFFER_SIZE 6
 
 // Line buffer size from the serial input stream to be executed. Also, governs the size of
 // each of the startup blocks, as they are each stored as a string of this size.
-//
-// NOTE: 256 characters is not a problem except for extreme cases, but the line buffer size
-// can be too small and GCode blocks can get truncated. Officially, the GCode standards
-// support up to 256 characters.
-//
 // NOTE: Not a problem except for extreme cases, but the line buffer size can be too small
 // and g-code blocks can get truncated. Officially, the g-code standards support up to 256
 // characters. In future versions, this will be increased, when we know how much extra
