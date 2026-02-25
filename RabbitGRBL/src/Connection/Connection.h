@@ -25,8 +25,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-
-
 // Generic connection interface (Serial/WiFi/Bluetooth).
 class Connection
 {
@@ -45,4 +43,6 @@ public:
 
   // Write raw bytes to the transport.
   virtual size_t Write(const uint8_t *data, size_t len) = 0;
+
+  virtual void ResetReadBuffer();
 };

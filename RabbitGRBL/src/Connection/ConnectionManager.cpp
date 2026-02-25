@@ -22,9 +22,25 @@
 
 #include "../Grbl.h"
 #include "ConnectionManager.h"
+#include "SerialConnection/SerialConnection.h"
 
 // Default to null; must be set during init.
 Connection *ConnectionManager::s_active = nullptr;
+
+void ConnectionManager::Initialize()
+{
+    // Reset to a known state during startup.
+    s_active = nullptr;
+
+    // Create the default connection instance (Serial) and set it as active.
+    // NOTE: This uses dynamic allocation; ensure it matches your project's memory policy.
+    auto *serialConnection = new SerialConnection();
+    serialConnection->Init();
+
+    // ConnectionManager does not own the pointer semantically, but since we allocate it here
+    // we intentionally keep it alive for the lifetime of the firmware.
+    SetActive(serialConnection);
+}
 
 void ConnectionManager::SetActive(Connection *connection)
 {

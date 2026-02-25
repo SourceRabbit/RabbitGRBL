@@ -516,7 +516,7 @@ void report_realtime_status()
     if (bit_istrue(status_mask->get(), RtStatus::Buffer))
     {
         int bufsize = DEFAULTBUFFERSIZE;
-        bufsize = client_get_rx_buffer_available();
+        bufsize = ConnectionManager::Active().GetRxBufferAvailable();
         sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), bufsize);
         strcat(status, temp);
     }

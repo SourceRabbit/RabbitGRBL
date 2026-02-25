@@ -38,11 +38,11 @@ public:
 
     void Init() override;
     int Read() override;
+    void ResetReadBuffer();
     uint8_t GetRxBufferAvailable() override;
     size_t Write(const uint8_t *data, size_t len) override;
 
 private:
-    void ResetReadBuffer();
     bool GetClientChar(uint8_t *data);
 
     static void ClientCheckTaskThunk(void *pvParameters);

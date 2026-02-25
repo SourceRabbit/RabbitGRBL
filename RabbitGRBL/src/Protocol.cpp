@@ -109,7 +109,8 @@ bool can_park()
 */
 void protocol_main_loop()
 {
-    client_reset_read_buffer();
+    ConnectionManager::Active().ResetReadBuffer();
+
     empty_lines();
 
     //  Perform some machine checks to make sure everything is good to go.
@@ -157,7 +158,7 @@ void protocol_main_loop()
         // filtering is the same with serial and file input.
         char *received_line;
 
-        while ((c = client_read()) != -1)
+        while ((c = ConnectionManager::Active().Read()) != -1)
         {
             EError res = add_char_to_line(c);
             switch (res)

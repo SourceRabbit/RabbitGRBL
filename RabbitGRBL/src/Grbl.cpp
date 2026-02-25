@@ -22,7 +22,8 @@
 
 void grbl_init()
 {
-    client_init(); // Setup serial baud rate and interrupts   
+    // client_init(); // Setup serial baud rate and interrupts
+    ConnectionManager::Initialize();
 
     settings_init(); // Load Grbl settings from non-volatile storage
     stepper_init();  // Configure stepper pins and interrupt timers
@@ -82,7 +83,8 @@ static void reset_variables()
     sys_rt_s_override = SpindleSpeedOverride::Default;
 
     // Reset Grbl primary systems.
-    client_reset_read_buffer();
+    ConnectionManager::Active().ResetReadBuffer();
+
     gc_init(); // Set g-code parser to default state
     fSpindle->Stop();
     CoolantManager::Initialize();
@@ -108,5 +110,3 @@ void run_once()
 }
 
 void __attribute__((weak)) machine_init() {}
-
-

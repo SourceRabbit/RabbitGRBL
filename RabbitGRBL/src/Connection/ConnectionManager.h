@@ -31,6 +31,15 @@ class ConnectionManager
 {
 public:
     /**
+     * Initializes the connection subsystem.
+     *
+     * Notes:
+     * - This should be called once during system startup.
+     * - By default, no active connection is selected; the caller must call SetActive().
+     */
+    static void Initialize();
+
+    /**
      * Sets the active connection used by the system.
      *
      * Notes:
