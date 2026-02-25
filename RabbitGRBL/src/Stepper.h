@@ -24,10 +24,6 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SEGMENT_BUFFER_SIZE
-#define SEGMENT_BUFFER_SIZE 6
-#endif
-
 #include "Grbl.h"
 #include "Config.h"
 
