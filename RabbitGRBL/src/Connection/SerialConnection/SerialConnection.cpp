@@ -33,12 +33,12 @@ void SerialConnection::Init()
     Serial.write("\r\n"); // create some white space after ESP32 boot info
 
     // Create a task to check for incoming data.
-    xTaskCreatePinnedToCore(SerialConnection::ClientCheckTaskThunk, "clientCheckTask", 4096, this, 1, &m_taskHandle, SUPPORT_TASK_CORE);
+    xTaskCreatePinnedToCore(SerialConnection::ClientCheckTaskThunk, "clientCheckTask", 4096, this, 1, &fTaskHandle, SUPPORT_TASK_CORE);
 }
 
 void SerialConnection::ResetReadBuffer()
 {
-    m_buffer.begin();
+    fInputBuffer.begin();
 }
 
 bool SerialConnection::GetClientChar(uint8_t *data)
@@ -49,7 +49,7 @@ bool SerialConnection::GetClientChar(uint8_t *data)
         return false;
     }
 
-    if (m_buffer.availableforwrite())
+    if (fInputBuffer.availableforwrite())
     {
         *data = static_cast<uint8_t>(res);
         return true;
@@ -80,9 +80,9 @@ void SerialConnection::ClientCheckTaskLoop()
             }
             else
             {
-                taskENTER_CRITICAL(&m_dataMutex);
-                m_buffer.write(data);
-                taskEXIT_CRITICAL(&m_dataMutex);
+                taskENTER_CRITICAL(&fDataMutex);
+                fInputBuffer.write(data);
+                taskEXIT_CRITICAL(&fDataMutex);
             }
         }
 
@@ -93,17 +93,17 @@ void SerialConnection::ClientCheckTaskLoop()
 
 int SerialConnection::Read()
 {
-    taskENTER_CRITICAL(&m_dataMutex);
-    int data = m_buffer.read();
-    taskEXIT_CRITICAL(&m_dataMutex);
+    taskENTER_CRITICAL(&fDataMutex);
+    int data = fInputBuffer.read();
+    taskEXIT_CRITICAL(&fDataMutex);
     return data;
 }
 
 uint8_t SerialConnection::GetRxBufferAvailable()
 {
-    taskENTER_CRITICAL(&m_dataMutex);
-    uint8_t available = m_buffer.availableforwrite();
-    taskEXIT_CRITICAL(&m_dataMutex);
+    taskENTER_CRITICAL(&fDataMutex);
+    uint8_t available = fInputBuffer.availableforwrite();
+    taskEXIT_CRITICAL(&fDataMutex);
     return available;
 }
 

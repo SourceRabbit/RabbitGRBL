@@ -51,8 +51,8 @@ private:
     void ClientCheckTaskLoop();
 
 private:
-    TaskHandle_t m_taskHandle = nullptr;
-    portMUX_TYPE m_dataMutex = portMUX_INITIALIZER_UNLOCKED;
+    TaskHandle_t fTaskHandle = nullptr;
+    portMUX_TYPE fDataMutex = portMUX_INITIALIZER_UNLOCKED;
 
-    InputBuffer m_buffer;
+    InputBuffer fInputBuffer;
 };
