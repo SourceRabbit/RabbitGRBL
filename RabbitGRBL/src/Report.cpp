@@ -22,28 +22,11 @@
 */
 
 /*
-  This file functions as the primary feedback interface for Grbl. Any outgoing data, such
-  as the protocol status messages, feedback messages, and status reports, are stored here.
-  For the most part, these functions primarily are called from Protocol.cpp methods. If a
-  different style feedback is desired (i.e. JSON), then a user can change these following
-  methods to accommodate their needs.
-
-
-    ESP32 Notes:
-
-    Major rewrite to fix issues with BlueTooth. As described here there is a
-    when you try to send data a single byte at a time using SerialBT.write(...).
-    https://github.com/espressif/arduino-esp32/issues/1537
-
-    A solution is to send messages as a string using SerialBT.print(...). Use
-    a short delay after each send. Therefore this file needed to be rewritten
-    to work that way. AVR Grbl was written to be super efficient to give it
-    good performance. This is far less efficient, but the ESP32 can handle it.
-    Do not use this version of the file with AVR Grbl.
-
-    ESP32 discussion here ...  https://github.com/bdring/Grbl_Esp32/issues/3
-
-
+    This file functions as the primary feedback interface for Grbl. Any outgoing data, such
+    as the protocol status messages, feedback messages, and status reports, are stored here.
+    For the most part, these functions are primarily called from Protocol.cpp methods. If a
+    different style of feedback is desired (i.e. JSON), a user can change the following
+    methods to accommodate their needs.
 */
 
 #include "Grbl.h"
