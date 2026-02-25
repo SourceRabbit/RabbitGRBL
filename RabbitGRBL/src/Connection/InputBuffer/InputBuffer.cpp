@@ -125,5 +125,7 @@ int InputBuffer::read(void)
 
 void InputBuffer::flush(void)
 {
-    // No need currently...
+    // Reset ring buffer state to empty
+    _RXbufferSize = 0;
+    _RXbufferpos = 0;
 }
