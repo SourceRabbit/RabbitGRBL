@@ -24,6 +24,7 @@
 #include "SerialConnection.h"
 
 enum class Cmd : uint8_t;
+
 SerialConnection::SerialConnection()
 {
 }

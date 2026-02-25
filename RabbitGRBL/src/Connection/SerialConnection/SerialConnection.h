@@ -58,5 +58,6 @@ private:
     portMUX_TYPE fInputBufferMutex = portMUX_INITIALIZER_UNLOCKED;
     SemaphoreHandle_t fSendDataMutex = nullptr; // TX mutex for Serial.write
 
-    InputBuffer fInputBuffer;
+    // RX_BUFFER_SIZE is defined in Config.h
+    InputBuffer fInputBuffer{RX_BUFFER_SIZE};
 };
