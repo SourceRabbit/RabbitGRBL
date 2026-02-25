@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "../Report.h"
 #include "EMessageLevel.h"
 #include "EFeedbackMessage.h"
 

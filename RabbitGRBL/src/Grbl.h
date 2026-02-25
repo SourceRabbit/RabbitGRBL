@@ -48,7 +48,6 @@ const char *const GRBL_VERSION = "1.1h";
 #include "MotionControl.h"
 #include "Protocol.h"
 #include "Connection/ConnectionManager.h"
-#include "MessageSender/MessageSender.h"
 #include "Report.h"
 #include "Pins.h"
 #include "Spindles/Spindle.h"
