@@ -50,7 +50,6 @@ enum class Message : uint8_t
 
 // Prints system status messages.
 void report_status_message(EError status_code);
-void report_realtime_steps();
 
 // Prints welcome message
 void report_init_message();

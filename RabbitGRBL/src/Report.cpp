@@ -111,11 +111,12 @@ void report_status_message(EError status_code)
 {
     switch (status_code)
     {
+
     case EError::Ok: // EError::Ok
         ConnectionManager::Active().Write("ok\r\n");
         break;
-    default:
 
+    default:
         // Grbl 0.9 reported errors as text, Grbl 1.1 switched to numeric codes.
         // RabbitGRBL follows the Grbl 1.1 standard, so the error number is reported.
         ConnectionManager::Active().WriteFormatted("error:%d\r\n", static_cast<int>(status_code));
@@ -656,15 +657,6 @@ void report_realtime_status()
     ConnectionManager::Active().Write(status);
 }
 
-void report_realtime_steps()
-{
-    uint8_t idx;
-    auto n_axis = number_axis->get();
-    for (idx = 0; idx < n_axis; idx++)
-    {
-        ConnectionManager::Active().WriteFormatted("%ld\n", sys_position[idx]); // OK to send to all ... debug stuff
-    }
-}
 
 void report_gcode_comment(char *comment)
 {
