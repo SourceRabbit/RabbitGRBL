@@ -23,8 +23,10 @@
 #include "../../Grbl.h"
 #include "SerialConnection.h"
 
-SerialConnection::SerialConnection() = default;
 enum class Cmd : uint8_t;
+SerialConnection::SerialConnection()
+{
+}
 
 void SerialConnection::Init()
 {
