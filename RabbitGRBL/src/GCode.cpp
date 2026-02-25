@@ -156,13 +156,10 @@ static void execute_g81_cycle(float *target, float r_plane, plan_line_data_t *pl
     mc_line(move, pl_data);
 
     // 2) Rapid to R plane
-    if (pos[Z_AXIS] != r_plane)
-    {
-        move[Z_AXIS] = r_plane;
-        pl_data->motion = {};
-        pl_data->motion.rapidMotion = 1;
-        mc_line(move, pl_data);
-    }
+    move[Z_AXIS] = r_plane;
+    pl_data->motion = {};
+    pl_data->motion.rapidMotion = 1;
+    mc_line(move, pl_data);
 
     // 3) Feed move to drilling depth.
     move[Z_AXIS] = target[Z_AXIS];
@@ -1199,11 +1196,12 @@ EError gc_execute_line(char *line)
     else
     {
         if (gc_block.modal.feed_rate == FeedRate::InverseTime)
-        { // = G93
+        {
+            // = G93
             // NOTE: G38 can also operate in inverse time, but is undefined as an error. Missing F word check added here.
             if (axis_command == AxisCommand::MotionMode)
             {
-                if ((gc_block.modal.motion != Motion::None) || (gc_block.modal.motion != Motion::Seek))
+                if ((gc_block.modal.motion != Motion::None) && (gc_block.modal.motion != Motion::Seek))
                 {
                     if (bit_isfalse(value_words, bit(GCodeWord::F)))
                     {
@@ -1224,7 +1222,8 @@ EError gc_execute_line(char *line)
             // a feed rate, we simply move on and the state feed rate value gets updated to zero and remains undefined.
         }
         else
-        { // = G94
+        {
+            // = G94
             // - In units per mm mode: If F word passed, ensure value is in mm/min, otherwise push last state value.
             if (gc_state.modal.feed_rate == FeedRate::UnitsPerMin)
             { // Last state is also G94
@@ -2527,7 +2526,6 @@ EError gc_execute_line(char *line)
 /*
   Not supported:
 
-  - Canned cycles
   - Tool radius compensation
   - Evaluation of expressions
   - Variables
