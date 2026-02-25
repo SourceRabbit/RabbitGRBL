@@ -28,9 +28,12 @@ enum class Cmd : uint8_t;
 
 void SerialConnection::Init()
 {
+    // Create a FreeRTOS mutex for TX serialization.
+    fSendDataMutex = xSemaphoreCreateMutex();
+
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
     ResetReadBuffer();
-    Serial.write("\r\n"); // create some white space after ESP32 boot info
+    this->Write("\r\n"); // create some white space after ESP32 boot info
 
     // Create a task to check for incoming data.
     xTaskCreatePinnedToCore(SerialConnection::ClientCheckTaskThunk, "clientCheckTask", 4096, this, 1, &fTaskHandle, SUPPORT_TASK_CORE);
@@ -80,9 +83,9 @@ void SerialConnection::ClientCheckTaskLoop()
             }
             else
             {
-                taskENTER_CRITICAL(&fDataMutex);
+                taskENTER_CRITICAL(&fInputBufferMutex);
                 fInputBuffer.write(data);
-                taskEXIT_CRITICAL(&fDataMutex);
+                taskEXIT_CRITICAL(&fInputBufferMutex);
             }
         }
 
@@ -93,32 +96,91 @@ void SerialConnection::ClientCheckTaskLoop()
 
 int SerialConnection::Read()
 {
-    taskENTER_CRITICAL(&fDataMutex);
+    taskENTER_CRITICAL(&fInputBufferMutex);
     int data = fInputBuffer.read();
-    taskEXIT_CRITICAL(&fDataMutex);
+    taskEXIT_CRITICAL(&fInputBufferMutex);
     return data;
 }
 
 uint8_t SerialConnection::GetRxBufferAvailable()
 {
-    taskENTER_CRITICAL(&fDataMutex);
+    taskENTER_CRITICAL(&fInputBufferMutex);
     uint8_t available = fInputBuffer.availableforwrite();
-    taskEXIT_CRITICAL(&fDataMutex);
+    taskEXIT_CRITICAL(&fInputBufferMutex);
     return available;
 }
 
+/**
+ * Writes raw bytes to the Serial transport in a thread-safe manner.
+ *
+ * This method serializes TX access using a FreeRTOS mutex because Serial.write()
+ * may block and must not be protected by a critical section.
+ *
+ * @param data Pointer to the bytes to write.
+ * @param len  Number of bytes to write.
+ * @return The number of bytes written (as reported by Serial.write()).
+ */
 size_t SerialConnection::Write(const uint8_t *data, size_t len)
 {
-    return Serial.write(data, len);
+    // Validate input to avoid undefined behavior and unnecessary locking.
+    if (data == nullptr || len == 0)
+    {
+        return 0;
+    }
+
+    // Serialize TX access across tasks.
+    // NOTE: We use a FreeRTOS mutex (not a critical section) because Serial.write()
+    // may block and can take a non-trivial amount of time.
+    if (fSendDataMutex)
+    {
+        // Wait indefinitely until the TX mutex becomes available.
+        xSemaphoreTake(fSendDataMutex, portMAX_DELAY);
+    }
+
+    // Write raw bytes to the Arduino Serial transport.
+    size_t result = Serial.write(data, len);
+
+    // Release the TX mutex so other tasks can write.
+    if (fSendDataMutex)
+    {
+        xSemaphoreGive(fSendDataMutex);
+    }
+
+    return result;
 }
 
+/**
+ * Writes a null-terminated C string to the Serial transport in a thread-safe manner.
+ *
+ * This method serializes TX access using a FreeRTOS mutex to prevent interleaved
+ * output when multiple tasks write concurrently.
+ *
+ * @param text Null-terminated string to write.
+ * @return The number of bytes written (as reported by Serial.write()).
+ */
 size_t SerialConnection::Write(const char *text)
 {
+    // Validate input to avoid dereferencing null pointers.
     if (text == nullptr)
     {
         return 0;
     }
 
-    // Arduino: writes bytes until the terminating '\0'.
-    return Serial.write(text);
+    // Serialize TX access across tasks.
+    if (fSendDataMutex)
+    {
+        // Wait indefinitely until the TX mutex becomes available.
+        xSemaphoreTake(fSendDataMutex, portMAX_DELAY);
+    }
+
+    // Write a null-terminated string to the Arduino Serial transport.
+    size_t result = Serial.write(text);
+
+    // Release the TX mutex so other tasks can write.
+    if (fSendDataMutex)
+    {
+        xSemaphoreGive(fSendDataMutex);
+    }
+
+    return result;
 }

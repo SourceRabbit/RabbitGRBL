@@ -52,7 +52,8 @@ private:
 
 private:
     TaskHandle_t fTaskHandle = nullptr;
-    portMUX_TYPE fDataMutex = portMUX_INITIALIZER_UNLOCKED;
+    portMUX_TYPE fInputBufferMutex = portMUX_INITIALIZER_UNLOCKED;
+    SemaphoreHandle_t fSendDataMutex = nullptr; // TX mutex for Serial.write
 
     InputBuffer fInputBuffer;
 };
