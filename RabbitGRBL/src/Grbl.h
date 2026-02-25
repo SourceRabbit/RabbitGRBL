@@ -47,6 +47,7 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Backlash/BacklashManager.h"
 #include "MotionControl.h"
 #include "Protocol.h"
+#include "Connection/ConnectionManager.h"
 #include "Serial.h"
 #include "MessageSender/MessageSender.h"
 #include "Report.h"
