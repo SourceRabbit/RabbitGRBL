@@ -52,28 +52,43 @@
 const int DEFAULTBUFFERSIZE = 64;
 
 /**
- * This is a formating version of the Serial.write method.
- * It works like printf
+ * Formats a printf-style message and writes it to the active connection.
+ *
+ * Uses a stack buffer (TX_BUFFER_SIZE) for small messages to avoid heap allocation.
+ * Falls back to heap allocation only if the formatted message exceeds TX_BUFFER_SIZE.
+ *
+ * @param format  printf-style format string.
+ * @param ...     Additional arguments for the format string.
  */
 void grbl_sendf(const char *format, ...)
 {
-    char loc_buf[64];
+    char loc_buf[TX_BUFFER_SIZE];
     char *temp = loc_buf;
+
     va_list arg;
-    va_list copy;
     va_start(arg, format);
+
+    // Use a copy to measure the required length,
+    // keeping arg intact for the actual formatting pass.
+    va_list copy;
     va_copy(copy, arg);
-    size_t len = vsnprintf(NULL, 0, format, arg);
-    va_end(copy);
+    size_t len = vsnprintf(NULL, 0, format, copy); // measure using copy
+    va_end(copy);                                  // done with copy
+
     if (len >= sizeof(loc_buf))
     {
         temp = new char[len + 1];
         if (temp == NULL)
         {
+            va_end(arg);
             return;
         }
     }
-    len = vsnprintf(temp, len + 1, format, arg);
+
+    // arg is still intact here, safe to use for the final formatting pass.
+    vsnprintf(temp, len + 1, format, arg);
+
+    // Ask the Connection Manager to write data!
     ConnectionManager::Active().Write(temp);
 
     va_end(arg);
@@ -87,9 +102,6 @@ void grbl_sendf(const char *format, ...)
 void report_init_message()
 {
     grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
-
-    // This is the old welcome message.
-    // grbl_sendf("\r\nGrbl %s (%s) %s \r\n", GRBL_VERSION, FIRMWARE_NAME, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message

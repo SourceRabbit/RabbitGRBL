@@ -33,65 +33,23 @@
  */
 void MessageSender::SendMessage(EMessageLevel level, const char *format, ...)
 {
-    // settings_message_level may be null before the messaging system is fully initialized.
-    // In that case we must NOT call settings_message_level->get(), so we simply skip
-    // filtering and allow the message to be sent.
     if (settings_message_level != NULL)
     {
-        // If the message level is more verbose (numerically higher) than the currently
-        // configured level, suppress it (do not send it).
-        //
-        // Example: if the configured level is Info, Debug/Verbose messages won't be sent.
         if (level > static_cast<EMessageLevel>(settings_message_level->get()))
         {
-            return; // Exit early without sending anything
-        }
-    }
-
-    char loc_buf[100];
-    char *temp = loc_buf;
-
-    va_list arg;
-    va_start(arg, format);
-
-    // Use a copy of arg to calculate the required buffer length,
-    // so that the original arg remains intact for the actual formatting pass.
-    va_list copy;
-    va_copy(copy, arg);
-    const int required = vsnprintf(NULL, 0, format, copy); // measure required length using copy
-    va_end(copy);                                          // copy is no longer needed
-
-    // vsnprintf returns a negative value if an encoding error occurs
-    if (required < 0)
-    {
-        va_end(arg);
-        return;
-    }
-
-    const size_t len = static_cast<size_t>(required);
-
-    // If the message does not fit in the stack buffer, allocate on the heap
-    if (len >= sizeof(loc_buf))
-    {
-        temp = new char[len + 1];
-        if (temp == NULL)
-        {
-            va_end(arg);
             return;
         }
     }
 
-    // arg is still intact here, safe to use for the final formatting pass
-    vsnprintf(temp, len + 1, format, arg);
-    grbl_sendf("[MSG:%s]\r\n", temp);
-
+    // Format the user's message into a temporary buffer.
+    char temp[TX_BUFFER_SIZE];
+    va_list arg;
+    va_start(arg, format);
+    vsnprintf(temp, sizeof(temp), format, arg);
     va_end(arg);
 
-    // Free heap memory if it was allocated
-    if (temp != loc_buf)
-    {
-        delete[] temp;
-    }
+    // Wrap in the [MSG:...] frame and send via grbl_sendf.
+    grbl_sendf("[MSG:%s]\r\n", temp);
 }
 
 /**
