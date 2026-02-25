@@ -168,22 +168,42 @@ EError list_commands(const char *value)
 {
     for (Command *cp = Command::List; cp; cp = cp->next())
     {
+        // Build the full command line into a local buffer before sending.
+        // This avoids multiple fragmented Write calls per line,
+        // which is critical for Bluetooth compatibility.
+        char line[RX_BUFFER_SIZE];
+
         const char *name = cp->getName();
         const char *oldName = cp->getGrblName();
+        const char *description = cp->getDescription();
+
         if (oldName)
         {
-            ConnectionManager::Active().WriteFormatted("$%s or $%s", name, oldName);
+            // Format: "$name or $oldName =description\r\n"
+            if (description)
+            {
+                snprintf(line, sizeof(line), "$%s or $%s =%s\r\n", name, oldName, description);
+            }
+            else
+            {
+                snprintf(line, sizeof(line), "$%s or $%s\r\n", name, oldName);
+            }
         }
         else
         {
-            ConnectionManager::Active().WriteFormatted("$%s", name);
+            // Format: "$name =description\r\n"
+            if (description)
+            {
+                snprintf(line, sizeof(line), "$%s =%s\r\n", name, description);
+            }
+            else
+            {
+                snprintf(line, sizeof(line), "$%s\r\n", name);
+            }
         }
-        const char *description = cp->getDescription();
-        if (description)
-        {
-            ConnectionManager::Active().WriteFormatted(" =%s", description);
-        }
-        ConnectionManager::Active().WriteFormatted("\r\n");
+
+        // Single Write per line — safe for Serial and Bluetooth
+        ConnectionManager::Active().Write(line);
     }
     return EError::Ok;
 }
