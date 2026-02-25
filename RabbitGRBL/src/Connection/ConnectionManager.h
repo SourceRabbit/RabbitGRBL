@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "InputBuffer/InputBuffer.h"
 #include "Connection.h"
 
 enum class Cmd : uint8_t;

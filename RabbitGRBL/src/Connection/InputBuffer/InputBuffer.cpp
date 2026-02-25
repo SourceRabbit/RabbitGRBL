@@ -20,7 +20,7 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../Config.h"
+#include "../../Config.h"
 #include "InputBuffer.h"
 
 InputBuffer::InputBuffer(uint16_t bufferSize)
