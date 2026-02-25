@@ -4,12 +4,21 @@
 
 void show_setting(const char *name, const char *value, const char *description)
 {
-    grbl_sendf("$%s=%s", name, value);
+    // Build the full setting string before sending it.
+    char setting[RX_BUFFER_SIZE];
+
     if (description)
     {
-        grbl_sendf("    %s", description);
+        // Format: "$name=value    description\r\n"
+        snprintf(setting, sizeof(setting), "$%s=%s    %s\r\n", name, value, description);
     }
-    grbl_sendf("\r\n");
+    else
+    {
+        // Format: "$name=value\r\n"
+        snprintf(setting, sizeof(setting), "$%s=%s\r\n", name, value);
+    }
+
+    ConnectionManager::Active().Write(setting);
 }
 
 void settings_restore(uint8_t restore_flag)
@@ -121,7 +130,7 @@ EError list_grbl_names(const char *value)
         const char *gn = s->getGrblName();
         if (gn)
         {
-            grbl_sendf("$%s => $%s\r\n", gn, s->getName());
+            ConnectionManager::Active().WriteFormatted("$%s => $%s\r\n", gn, s->getName());
         }
     }
     return EError::Ok;
@@ -163,18 +172,18 @@ EError list_commands(const char *value)
         const char *oldName = cp->getGrblName();
         if (oldName)
         {
-            grbl_sendf("$%s or $%s", name, oldName);
+            ConnectionManager::Active().WriteFormatted("$%s or $%s", name, oldName);
         }
         else
         {
-            grbl_sendf("$%s", name);
+            ConnectionManager::Active().WriteFormatted("$%s", name);
         }
         const char *description = cp->getDescription();
         if (description)
         {
-            grbl_sendf(" =%s", description);
+            ConnectionManager::Active().WriteFormatted(" =%s", description);
         }
-        grbl_sendf("\r\n");
+        ConnectionManager::Active().WriteFormatted("\r\n");
     }
     return EError::Ok;
 }
@@ -333,7 +342,7 @@ EError restore_settings(const char *value)
 
 EError showState(const char *value)
 {
-    grbl_sendf("State 0x%x\r\n", sys.state);
+    ConnectionManager::Active().WriteFormatted("State 0x%x\r\n", sys.state);
     return EError::Ok;
 }
 

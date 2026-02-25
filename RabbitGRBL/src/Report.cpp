@@ -22,86 +22,20 @@
 */
 
 /*
-  This file functions as the primary feedback interface for Grbl. Any outgoing data, such
-  as the protocol status messages, feedback messages, and status reports, are stored here.
-  For the most part, these functions primarily are called from Protocol.cpp methods. If a
-  different style feedback is desired (i.e. JSON), then a user can change these following
-  methods to accommodate their needs.
-
-
-    ESP32 Notes:
-
-    Major rewrite to fix issues with BlueTooth. As described here there is a
-    when you try to send data a single byte at a time using SerialBT.write(...).
-    https://github.com/espressif/arduino-esp32/issues/1537
-
-    A solution is to send messages as a string using SerialBT.print(...). Use
-    a short delay after each send. Therefore this file needed to be rewritten
-    to work that way. AVR Grbl was written to be super efficient to give it
-    good performance. This is far less efficient, but the ESP32 can handle it.
-    Do not use this version of the file with AVR Grbl.
-
-    ESP32 discussion here ...  https://github.com/bdring/Grbl_Esp32/issues/3
-
-
+    This file functions as the primary feedback interface for Grbl. Any outgoing data, such
+    as the protocol status messages, feedback messages, and status reports, are stored here.
+    For the most part, these functions are primarily called from Protocol.cpp methods. If a
+    different style of feedback is desired (i.e. JSON), a user can change the following
+    methods to accommodate their needs.
 */
 
 #include "Grbl.h"
 #include <map>
 
-const int DEFAULTBUFFERSIZE = 64;
-
-/**
- * Formats a printf-style message and writes it to the active connection.
- *
- * Uses a stack buffer (TX_BUFFER_SIZE) for small messages to avoid heap allocation.
- * Falls back to heap allocation only if the formatted message exceeds TX_BUFFER_SIZE.
- *
- * @param format  printf-style format string.
- * @param ...     Additional arguments for the format string.
- */
-void grbl_sendf(const char *format, ...)
-{
-    char loc_buf[TX_BUFFER_SIZE];
-    char *temp = loc_buf;
-
-    va_list arg;
-    va_start(arg, format);
-
-    // Use a copy to measure the required length,
-    // keeping arg intact for the actual formatting pass.
-    va_list copy;
-    va_copy(copy, arg);
-    size_t len = vsnprintf(NULL, 0, format, copy); // measure using copy
-    va_end(copy);                                  // done with copy
-
-    if (len >= sizeof(loc_buf))
-    {
-        temp = new char[len + 1];
-        if (temp == NULL)
-        {
-            va_end(arg);
-            return;
-        }
-    }
-
-    // arg is still intact here, safe to use for the final formatting pass.
-    vsnprintf(temp, len + 1, format, arg);
-
-    // Ask the Connection Manager to write data!
-    ConnectionManager::Active().Write(temp);
-
-    va_end(arg);
-    if (temp != loc_buf)
-    {
-        delete[] temp;
-    }
-}
-
 // Welcome message
 void report_init_message()
 {
-    grbl_sendf("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
+    ConnectionManager::Active().WriteFormatted("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
@@ -184,7 +118,7 @@ void report_status_message(EError status_code)
 
         // Grbl 0.9 reported errors as text, Grbl 1.1 switched to numeric codes.
         // RabbitGRBL follows the Grbl 1.1 standard, so the error number is reported.
-        grbl_sendf("error:%d\r\n", static_cast<int>(status_code));
+        ConnectionManager::Active().WriteFormatted("error:%d\r\n", static_cast<int>(status_code));
     }
 }
 
@@ -212,7 +146,6 @@ void report_ngc_parameters()
         tlo *= INCH_PER_MM;
     }
     ngc_rpt += String(tlo, 3);
-    ;
     ngc_rpt += "]\r\n";
     ConnectionManager::Active().Write(ngc_rpt.c_str());
     Probe::ReportProbeParameters();
@@ -222,7 +155,7 @@ void report_ngc_parameters()
 void report_gcode_modes()
 {
     char temp[20];
-    char modes_rpt[75];
+    char modes_rpt[128];
     const char *mode = "";
     strcpy(modes_rpt, "[GC:");
 
@@ -307,7 +240,8 @@ void report_gcode_modes()
     strcat(modes_rpt, mode);
 
 #if 0
-    switch (gc_state.modal.arc_distance) {
+    switch (gc_state.modal.arc_distance) 
+    {
         case ArcDistance::Absolute: mode = " G90.1"; break;
         case ArcDistance::Incremental: mode = " G91.1"; break;
     }
@@ -402,64 +336,61 @@ void report_gcode_modes()
 // Prints specified startup line
 void report_startup_line(uint8_t n, const char *line)
 {
-    grbl_sendf("$N%d=%s\r\n", n, line); // OK to send to all
+    ConnectionManager::Active().WriteFormatted("$N%d=%s\r\n", n, line); // OK to send to all
 }
 
 void report_execute_startup_message(const char *line, EError status_code)
 {
-    grbl_sendf(">%s:", line); // OK to send to all
+    ConnectionManager::Active().WriteFormatted(">%s:", line); // OK to send to all
     report_status_message(status_code);
 }
 
 // Prints build info line
 void report_build_info()
 {
-    grbl_sendf("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
-    grbl_sendf("[OPT:");
-
+    ConnectionManager::Active().WriteFormatted("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
+    ConnectionManager::Active().Write("[OPT:"
 #ifdef COOLANT_MIST_PIN
-    ConnectionManager::Active().Write("M"); // TODO Need to deal with M8...it could be disabled
+                                      "M"
 #endif
 #ifdef PARKING_ENABLE
-    ConnectionManager::Active().Write("P");
+                                      "P"
 #endif
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-    ConnectionManager::Active().Write("H");
+                                      "H"
 #endif
 #ifdef LIMITS_TWO_SWITCHES_ON_AXES
-    ConnectionManager::Active().Write("L");
+                                      "L"
 #endif
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
-    SConnectionManager::Active().Write("A");
+                                      "A"
 #endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
-    ConnectionManager::Active().Write("R");
+                                      "R"
 #endif
-#ifndef ENABLE_RESTORE_WIPE_ALL // NOTE: Shown when disabled.
-    ConnectionManager::Active().Write("*");
+#ifndef ENABLE_RESTORE_WIPE_ALL
+                                      "*"
 #endif
-#ifndef ENABLE_RESTORE_DEFAULT_SETTINGS // NOTE: Shown when disabled.
-    ConnectionManager::Active().Write("$");
+#ifndef ENABLE_RESTORE_DEFAULT_SETTINGS
+                                      "$"
 #endif
-#ifndef ENABLE_RESTORE_CLEAR_PARAMETERS // NOTE: Shown when disabled.
-    ConnectionManager::Active().Write("#");
+#ifndef ENABLE_RESTORE_CLEAR_PARAMETERS
+                                      "#"
 #endif
-#ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE // NOTE: Shown when disabled.
-    ConnectionManager::Active().Write("E");
+#ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE
+                                      "E"
 #endif
-#ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE // NOTE: Shown when disabled.
-    ConnectionManager::Active().Write("W");
+#ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE
+                                      "W"
 #endif
-    // NOTE: Compiled values, like override increments/max/min values, may be added at some point later.
-    // These will likely have a comma delimiter to separate them.
-    ConnectionManager::Active().Write("]\r\n");
+                                      "]\r\n");
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,
 // and has been sent into protocol_execute_line() routine to be executed by Grbl.
 void report_echo_line_received(char *line)
 {
-    grbl_sendf("[echo: %s]\r\n", line);
+    ConnectionManager::Active().WriteFormatted("[echo: %s]\r\n", line);
 }
 
 // Calculate the position for status reports.
@@ -525,9 +456,8 @@ void report_realtime_status()
 #ifdef REPORT_FIELD_BUFFER_STATE
     if (bit_istrue(status_mask->get(), RtStatus::Buffer))
     {
-        int bufsize = DEFAULTBUFFERSIZE;
-        bufsize = ConnectionManager::Active().GetRxBufferAvailable();
-        sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), bufsize);
+        // Report available planner blocks and RX buffer space.
+        sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), ConnectionManager::Active().GetRxBufferAvailable());
         strcat(status, temp);
     }
 #endif
@@ -655,6 +585,7 @@ void report_realtime_status()
         case State::Jog:
         case State::SafetyDoor:
             sys.report_wco_counter = (REPORT_WCO_REFRESH_BUSY_COUNT - 1); // Reset counter for slow refresh
+            break;
         default:
             sys.report_wco_counter = (REPORT_WCO_REFRESH_IDLE_COUNT - 1);
             break;
@@ -683,6 +614,7 @@ void report_realtime_status()
         case State::Jog:
         case State::SafetyDoor:
             sys.report_ovr_counter = (REPORT_OVR_REFRESH_BUSY_COUNT - 1); // Reset counter for slow refresh
+            break;
         default:
             sys.report_ovr_counter = (REPORT_OVR_REFRESH_IDLE_COUNT - 1);
             break;
@@ -730,7 +662,7 @@ void report_realtime_steps()
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
     {
-        grbl_sendf("%ld\n", sys_position[idx]); // OK to send to all ... debug stuff
+        ConnectionManager::Active().WriteFormatted("%ld\n", sys_position[idx]); // OK to send to all ... debug stuff
     }
 }
 
@@ -792,7 +724,7 @@ char *report_state_text()
             if (sys.suspend.bit.retractComplete)
             {
                 sys.suspend.bit.safetyDoorAjar ? strcat(state, "1") : strcat(state, "0");
-                ; // Door ajar
+                // Door ajar
                 // Door closed and ready to resume
             }
             else
