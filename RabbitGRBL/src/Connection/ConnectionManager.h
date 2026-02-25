@@ -82,5 +82,5 @@ public:
 
 private:
     // Non-owning pointer to the active connection instance.
-    static Connection *s_active;
+    static Connection *fActiveConnectionPointer;
 };

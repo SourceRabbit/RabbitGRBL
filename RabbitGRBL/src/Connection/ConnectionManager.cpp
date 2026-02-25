@@ -25,32 +25,30 @@
 #include "SerialConnection/SerialConnection.h"
 
 // Default to null; must be set during init.
-Connection *ConnectionManager::s_active = nullptr;
+Connection *ConnectionManager::fActiveConnectionPointer = nullptr;
 
 void ConnectionManager::Initialize()
 {
     // Reset to a known state during startup.
-    s_active = nullptr;
+    fActiveConnectionPointer = nullptr;
 
-    // Create the default connection instance (Serial) and set it as active.
-    // NOTE: This uses dynamic allocation; ensure it matches your project's memory policy.
+    // TODO: Later switch for Serial/Bluetooth/Wifi
+
+    // Create serial connection and set it as Active
     auto *serialConnection = new SerialConnection();
     serialConnection->Init();
-
-    // ConnectionManager does not own the pointer semantically, but since we allocate it here
-    // we intentionally keep it alive for the lifetime of the firmware.
     SetActive(serialConnection);
 }
 
 void ConnectionManager::SetActive(Connection *connection)
 {
     // Non-owning pointer: lifetime is managed by the caller.
-    s_active = connection;
+    fActiveConnectionPointer = connection;
 }
 
 Connection &ConnectionManager::Active()
 {
-    return *s_active;
+    return *fActiveConnectionPointer;
 }
 
 /**
