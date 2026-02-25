@@ -40,7 +40,9 @@ public:
     int Read() override;
     void ResetReadBuffer();
     uint8_t GetRxBufferAvailable() override;
+
     size_t Write(const uint8_t *data, size_t len) override;
+    size_t Write(const char *text) override;
 
 private:
     bool GetClientChar(uint8_t *data);

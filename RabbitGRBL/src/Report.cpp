@@ -49,9 +49,6 @@
 #include "Grbl.h"
 #include <map>
 
-#ifdef REPORT_HEAP
-EspClass esp;
-#endif
 const int DEFAULTBUFFERSIZE = 64;
 
 /**
@@ -77,7 +74,8 @@ void grbl_sendf(const char *format, ...)
         }
     }
     len = vsnprintf(temp, len + 1, format, arg);
-    Serial.write(temp);
+    ConnectionManager::Active().Write(temp);
+
     va_end(arg);
     if (temp != loc_buf)
     {
@@ -97,7 +95,7 @@ void report_init_message()
 // Grbl help message
 void report_grbl_help()
 {
-    Serial.write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E $A ~ ! ? ctrl-x]\r\n");
+    ConnectionManager::Active().Write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E $A ~ ! ? ctrl-x]\r\n");
 }
 
 /**
@@ -168,7 +166,7 @@ void report_status_message(EError status_code)
     switch (status_code)
     {
     case EError::Ok: // EError::Ok
-        Serial.write("ok\r\n");
+        ConnectionManager::Active().Write("ok\r\n");
         break;
     default:
 
@@ -204,7 +202,7 @@ void report_ngc_parameters()
     ngc_rpt += String(tlo, 3);
     ;
     ngc_rpt += "]\r\n";
-    Serial.write(ngc_rpt.c_str());
+    ConnectionManager::Active().Write(ngc_rpt.c_str());
     Probe::ReportProbeParameters();
 }
 
@@ -386,7 +384,7 @@ void report_gcode_modes()
     sprintf(temp, " S%d", uint32_t(gc_state.spindle_speed));
     strcat(modes_rpt, temp);
     strcat(modes_rpt, "]\r\n");
-    Serial.write(modes_rpt);
+    ConnectionManager::Active().Write(modes_rpt);
 }
 
 // Prints specified startup line
@@ -408,41 +406,41 @@ void report_build_info()
     grbl_sendf("[OPT:");
 
 #ifdef COOLANT_MIST_PIN
-    Serial.write("M"); // TODO Need to deal with M8...it could be disabled
+    ConnectionManager::Active().Write("M"); // TODO Need to deal with M8...it could be disabled
 #endif
 #ifdef PARKING_ENABLE
-    Serial.write("P");
+    ConnectionManager::Active().Write("P");
 #endif
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-    Serial.write("H");
+    ConnectionManager::Active().Write("H");
 #endif
 #ifdef LIMITS_TWO_SWITCHES_ON_AXES
-    Serial.write("L");
+    ConnectionManager::Active().Write("L");
 #endif
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
-    Serial.write("A");
+    SConnectionManager::Active().Write("A");
 #endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
-    Serial.write("R");
+    ConnectionManager::Active().Write("R");
 #endif
 #ifndef ENABLE_RESTORE_WIPE_ALL // NOTE: Shown when disabled.
-    Serial.write("*");
+    ConnectionManager::Active().Write("*");
 #endif
 #ifndef ENABLE_RESTORE_DEFAULT_SETTINGS // NOTE: Shown when disabled.
-    Serial.write("$");
+    ConnectionManager::Active().Write("$");
 #endif
 #ifndef ENABLE_RESTORE_CLEAR_PARAMETERS // NOTE: Shown when disabled.
-    Serial.write("#");
+    ConnectionManager::Active().Write("#");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE // NOTE: Shown when disabled.
-    Serial.write("E");
+    ConnectionManager::Active().Write("E");
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE // NOTE: Shown when disabled.
-    Serial.write("W");
+    ConnectionManager::Active().Write("W");
 #endif
     // NOTE: Compiled values, like override increments/max/min values, may be added at some point later.
     // These will likely have a comma delimiter to separate them.
-    Serial.write("]\r\n");
+    ConnectionManager::Active().Write("]\r\n");
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,
@@ -710,12 +708,8 @@ void report_realtime_status()
     }
 #endif
 
-#ifdef REPORT_HEAP
-    sprintf(temp, "|Heap:%d", esp.getHeapSize());
-    strcat(status, temp);
-#endif
     strcat(status, ">\r\n");
-    Serial.write(status);
+    ConnectionManager::Active().Write(status);
 }
 
 void report_realtime_steps()

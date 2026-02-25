@@ -111,3 +111,14 @@ size_t SerialConnection::Write(const uint8_t *data, size_t len)
 {
     return Serial.write(data, len);
 }
+
+size_t SerialConnection::Write(const char *text)
+{
+    if (text == nullptr)
+    {
+        return 0;
+    }
+
+    // Arduino: writes bytes until the terminating '\0'.
+    return Serial.write(text);
+}

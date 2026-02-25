@@ -92,7 +92,7 @@ void Probe::ReportProbeParameters()
     // add the success indicator and add closing characters
     sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
     strcat(probe_rpt, temp);
-    Serial.write(probe_rpt); // send the report
+    ConnectionManager::Active().Write(probe_rpt); // send the report
 }
 
 /**

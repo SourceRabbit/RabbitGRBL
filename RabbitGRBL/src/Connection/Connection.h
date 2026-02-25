@@ -41,8 +41,11 @@ public:
   // Free space in RX buffer (used for status reporting).
   virtual uint8_t GetRxBufferAvailable() = 0;
 
-  // Write raw bytes to the transport.
+  // Write raw bytes.
   virtual size_t Write(const uint8_t *data, size_t len) = 0;
+
+  // Write a null-terminated C string (generic alternative to Arduino String).
+  virtual size_t Write(const char *text) = 0;
 
   virtual void ResetReadBuffer();
 };
