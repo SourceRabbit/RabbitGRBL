@@ -1,35 +1,14 @@
 #include "Grbl.h"
 
 #include <map>
-#include <nvs.h>
 
-bool anyState()
-{
-    return false;
-}
-
-bool idleOrJog()
-{
-    return sys.state != State::Idle && sys.state != State::Jog;
-}
-
-bool idleOrAlarm()
-{
-    return sys.state != State::Idle && sys.state != State::Alarm;
-}
-
-bool notCycleOrHold()
-{
-    return sys.state == State::Cycle && sys.state == State::Hold;
-}
-
-Word::Word(type_t type, permissions_t permissions, const char *description, const char *grblName, const char *fullName) : _description(description), _grblName(grblName), _fullName(fullName), _type(type), _permissions(permissions) {}
+Word::Word(type_t type, const char *description, const char *grblName, const char *fullName) : _description(description), _grblName(grblName), _fullName(fullName), _type(type) {}
 
 Command *Command::List = NULL;
 
 Command::Command(
-    const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*cmdChecker)()) : Word(type, permissions, description, grblName, fullName),
-                                                                                                                                         _cmdChecker(cmdChecker)
+    const char *description, type_t type, const char *grblName, const char *fullName, bool (*cmdChecker)()) : Word(type, description, grblName, fullName),
+                                                                                                              _cmdChecker(cmdChecker)
 {
     link = List;
     List = this;
@@ -38,8 +17,8 @@ Command::Command(
 Setting *Setting::List = NULL;
 
 Setting::Setting(
-    const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*checker)(char *)) : Word(type, permissions, description, grblName, fullName),
-                                                                                                                                            _checker(checker)
+    const char *description, type_t type, const char *grblName, const char *fullName, bool (*checker)(char *)) : Word(type, description, grblName, fullName),
+                                                                                                                 _checker(checker)
 {
     link = List;
     List = this;
@@ -78,29 +57,15 @@ EError Setting::check(char *s)
     return _checker(s) ? EError::Ok : EError::InvalidValue;
 }
 
-nvs_handle Setting::_handle = 0;
-
-void Setting::init()
-{
-    if (!_handle)
-    {
-        if (esp_err_t err = nvs_open("Grbl_ESP32", NVS_READWRITE, &_handle))
-        {
-            ConnectionManager::Active().WriteFormatted("nvs_open failed with error %d\r\n", err);
-        }
-    }
-}
-
 IntSetting::IntSetting(const char *description,
                        type_t type,
-                       permissions_t permissions,
                        const char *grblName,
                        const char *name,
                        int32_t defVal,
                        int32_t minVal,
                        int32_t maxVal,
                        bool (*checker)(char *) = NULL,
-                       bool currentIsNvm) : Setting(description, type, permissions, grblName, name, checker),
+                       bool currentIsNvm) : Setting(description, type, grblName, name, checker),
                                             _defaultValue(defVal), _currentValue(defVal), _minValue(minVal), _maxValue(maxVal), _currentIsNvm(currentIsNvm)
 {
     _storedValue = std::numeric_limits<int32_t>::min();
@@ -108,8 +73,8 @@ IntSetting::IntSetting(const char *description,
 
 void IntSetting::load()
 {
-    esp_err_t err = nvs_get_i32(_handle, _keyName, &_storedValue);
-    if (err)
+    // Read the stored int32 value from NVS
+    if (!NVSManager::ReadInt(_keyName, &_storedValue))
     {
         _storedValue = std::numeric_limits<int32_t>::min();
         _currentValue = _defaultValue;
@@ -124,14 +89,14 @@ void IntSetting::setDefault()
 {
     if (_currentIsNvm)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
     else
     {
         _currentValue = _defaultValue;
         if (_storedValue != _currentValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
     }
 }
@@ -165,11 +130,11 @@ EError IntSetting::setStringValue(char *s)
     {
         if (convertedValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
         else
         {
-            if (nvs_set_i32(_handle, _keyName, convertedValue))
+            if (NVSManager::WriteInt(_keyName, convertedValue) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -214,17 +179,16 @@ const char *IntSetting::getStringValue()
 
 AxisMaskSetting::AxisMaskSetting(const char *description,
                                  type_t type,
-                                 permissions_t permissions,
                                  const char *grblName,
                                  const char *name,
                                  int32_t defVal,
-                                 bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker),
+                                 bool (*checker)(char *) = NULL) : Setting(description, type, grblName, name, checker),
                                                                    _defaultValue(defVal), _currentValue(defVal) {}
 
 void AxisMaskSetting::load()
 {
-    esp_err_t err = nvs_get_i32(_handle, _keyName, &_storedValue);
-    if (err)
+    // Read the stored axis mask value from NVS
+    if (!NVSManager::ReadInt(_keyName, &_storedValue))
     {
         _storedValue = -1;
         _currentValue = _defaultValue;
@@ -240,7 +204,7 @@ void AxisMaskSetting::setDefault()
     _currentValue = _defaultValue;
     if (_storedValue != _currentValue)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
 }
 
@@ -282,11 +246,11 @@ EError AxisMaskSetting::setStringValue(char *s)
     {
         if (_currentValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
         else
         {
-            if (nvs_set_i32(_handle, _keyName, _currentValue))
+            if (NVSManager::WriteInt(_keyName, _currentValue) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -332,29 +296,20 @@ const char *AxisMaskSetting::getStringValue()
 
 FloatSetting::FloatSetting(const char *description,
                            type_t type,
-                           permissions_t permissions,
                            const char *grblName,
                            const char *name,
                            float defVal,
                            float minVal,
                            float maxVal,
-                           bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker),
+                           bool (*checker)(char *) = NULL) : Setting(description, type, grblName, name, checker),
                                                              _defaultValue(defVal), _currentValue(defVal), _minValue(minVal), _maxValue(maxVal) {}
 
 void FloatSetting::load()
 {
-    union
-    {
-        int32_t ival;
-        float fval;
-    } v;
-    if (nvs_get_i32(_handle, _keyName, &v.ival))
+    // Read the stored float value from NVS
+    if (!NVSManager::ReadFloat(_keyName, &_currentValue))
     {
         _currentValue = _defaultValue;
-    }
-    else
-    {
-        _currentValue = v.fval;
     }
 }
 
@@ -363,7 +318,7 @@ void FloatSetting::setDefault()
     _currentValue = _defaultValue;
     if (_storedValue != _currentValue)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
 }
 
@@ -392,17 +347,11 @@ EError FloatSetting::setStringValue(char *s)
     {
         if (_currentValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
         else
         {
-            union
-            {
-                int32_t ival;
-                float fval;
-            } v;
-            v.fval = _currentValue;
-            if (nvs_set_i32(_handle, _keyName, v.ival))
+            if (NVSManager::WriteFloat(_keyName, _currentValue) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -441,13 +390,12 @@ const char *FloatSetting::getStringValue()
 
 StringSetting::StringSetting(const char *description,
                              type_t type,
-                             permissions_t permissions,
                              const char *grblName,
                              const char *name,
                              const char *defVal,
                              int min,
                              int max,
-                             bool (*checker)(char *)) : Setting(description, type, permissions, grblName, name, checker)
+                             bool (*checker)(char *)) : Setting(description, type, grblName, name, checker)
 {
     _defaultValue = defVal;
     _currentValue = defVal;
@@ -457,17 +405,16 @@ StringSetting::StringSetting(const char *description,
 
 void StringSetting::load()
 {
+    // First call with NULL buffer to get the required length
     size_t len = 0;
-    esp_err_t err = nvs_get_str(_handle, _keyName, NULL, &len);
-    if (err)
+    if (!NVSManager::ReadString(_keyName, NULL, &len))
     {
         _storedValue = _defaultValue;
         _currentValue = _defaultValue;
         return;
     }
     char buf[len];
-    err = nvs_get_str(_handle, _keyName, buf, &len);
-    if (err)
+    if (!NVSManager::ReadString(_keyName, buf, &len))
     {
         _storedValue = _defaultValue;
         _currentValue = _defaultValue;
@@ -482,7 +429,7 @@ void StringSetting::setDefault()
     _currentValue = _defaultValue;
     if (_storedValue != _currentValue)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
 }
 
@@ -502,12 +449,12 @@ EError StringSetting::setStringValue(char *s)
     {
         if (_currentValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
             _storedValue = _defaultValue;
         }
         else
         {
-            if (nvs_set_str(_handle, _keyName, _currentValue.c_str()))
+            if (NVSManager::WriteString(_keyName, _currentValue.c_str()) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -532,18 +479,17 @@ typedef std::map<const char *, int8_t, cmp_str> enum_opt_t;
 
 EnumSetting::EnumSetting(const char *description,
                          type_t type,
-                         permissions_t permissions,
                          const char *grblName,
                          const char *name,
                          int8_t defVal,
                          enum_opt_t *opts,
-                         bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker),
+                         bool (*checker)(char *) = NULL) : Setting(description, type, grblName, name, checker),
                                                            _defaultValue(defVal), _options(opts) {}
 
 void EnumSetting::load()
 {
-    esp_err_t err = nvs_get_i8(_handle, _keyName, &_storedValue);
-    if (err)
+    // Read the stored enum value (int8) from NVS
+    if (!NVSManager::ReadInt8(_keyName, &_storedValue))
     {
         _storedValue = -1;
         _currentValue = _defaultValue;
@@ -559,7 +505,7 @@ void EnumSetting::setDefault()
     _currentValue = _defaultValue;
     if (_storedValue != _currentValue)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
 }
 
@@ -609,11 +555,11 @@ EError EnumSetting::setStringValue(char *s)
     {
         if (_currentValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
         else
         {
-            if (nvs_set_i8(_handle, _keyName, _currentValue))
+            if (NVSManager::WriteInt8(_keyName, _currentValue) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -646,17 +592,16 @@ const char *EnumSetting::getStringValue()
 
 FlagSetting::FlagSetting(const char *description,
                          type_t type,
-                         permissions_t permissions,
                          const char *grblName,
                          const char *name,
                          bool defVal,
-                         bool (*checker)(char *) = NULL) : Setting(description, type, permissions, grblName, name, checker),
+                         bool (*checker)(char *) = NULL) : Setting(description, type, grblName, name, checker),
                                                            _defaultValue(defVal) {}
 
 void FlagSetting::load()
 {
-    esp_err_t err = nvs_get_i8(_handle, _keyName, &_storedValue);
-    if (err)
+    // Read the stored flag value (int8) from NVS
+    if (!NVSManager::ReadInt8(_keyName, &_storedValue))
     {
         _storedValue = -1; // Neither well-formed false (0) nor true (1)
         _currentValue = _defaultValue;
@@ -671,7 +616,7 @@ void FlagSetting::setDefault()
     _currentValue = _defaultValue;
     if (_storedValue != _currentValue)
     {
-        nvs_erase_key(_handle, _keyName);
+        NVSManager::EraseKey(_keyName);
     }
 }
 
@@ -691,11 +636,11 @@ EError FlagSetting::setStringValue(char *s)
     {
         if (_currentValue == _defaultValue)
         {
-            nvs_erase_key(_handle, _keyName);
+            NVSManager::EraseKey(_keyName);
         }
         else
         {
-            if (nvs_set_i8(_handle, _keyName, _currentValue))
+            if (NVSManager::WriteInt8(_keyName, _currentValue) != EError::Ok)
             {
                 return EError::NvsSetFailed;
             }
@@ -733,17 +678,14 @@ Coordinates *coords[CoordIndex::End];
 bool Coordinates::load()
 {
     size_t len;
-    switch (nvs_get_blob(Setting::_handle, _name, _currentValue, &len))
+    // Read the coordinate blob from NVS via NVSManager
+    switch (NVSManager::ReadBlob(_name, _currentValue, &len))
     {
     case ESP_OK:
         return true;
     case ESP_ERR_NVS_INVALID_LENGTH:
-        // This could happen if the stored value is longer than the buffer.
-        // That is highly unlikely since we always store MAX_N_AXIS coordinates.
-        // It would indicate that we have decreased MAX_N_AXIS since the
-        // value was stored.  We don't flag it as an error, but rather
-        // accept the initial coordinates and ignore the residue.
-        // We could issue a warning message if we were so inclined.
+        // The stored value may be longer than the buffer if MAX_N_AXIS decreased.
+        // Accept the initial coordinates and ignore the residue.
         return true;
     case ESP_ERR_NVS_INVALID_NAME:
     case ESP_ERR_NVS_INVALID_HANDLE:
@@ -758,5 +700,6 @@ void Coordinates::set(float value[MAX_N_AXIS])
 #ifdef FORCE_BUFFER_SYNC_DURING_NVS_WRITE
     protocol_buffer_synchronize();
 #endif
-    nvs_set_blob(Setting::_handle, _name, _currentValue, sizeof(_currentValue));
+    // Write the coordinate blob to NVS via NVSManager
+    NVSManager::WriteBlob(_name, _currentValue, sizeof(_currentValue));
 }

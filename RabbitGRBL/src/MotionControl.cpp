@@ -61,7 +61,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
 
     ////////////////////////////////////////////////////////////////////
     // Backlash Compensation
-    BacklashManager::CompensateBacklash(target, pl_data);
+    Controller::getBacklashManager().CompensateBacklash(target, pl_data);
     ////////////////////////////////////////////////////////////////////
 
     do
@@ -358,7 +358,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // Sync gcode parser and planner positions to homed position.
     gc_sync_position();
     plan_sync_position();
-    BacklashManager::ResetTargets();
+    Controller::getBacklashManager().ResetTargets();
 
     // If hard limits feature enabled, re-enable hard limits pin change register after homing cycle.
     limits_init();
@@ -391,11 +391,11 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     uint8_t is_probe_away = bit_istrue(parser_flags, GCParserProbeIsAway);
     uint8_t is_no_error = bit_istrue(parser_flags, GCParserProbeIsNoError);
     sys.probe_succeeded = false; // Re-initialize probe history before beginning cycle.
-    Probe::setDirection(is_probe_away == 1);
+    Controller::getProbe().setDirection(is_probe_away == 1);
 
     // After syncing, check if probe is already triggered. If so, halt and issue alarm.
     // NOTE: This probe initialization error applies to all probing cycles.
-    if (Probe::isTriggered() ^ is_probe_away)
+    if (Controller::getProbe().isTriggered() ^ is_probe_away)
     {
         // Check probe pin state.
         sys_rt_exec_alarm = EAlarm::ProbeFailInitial;
@@ -409,7 +409,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     mc_line(target, pl_data);
 
     // Activate the probing state monitor in the stepper module.
-    Probe::setSystemProbeState(true);
+    Controller::getProbe().setSystemProbeState(true);
 
     // Perform probing cycle. Wait here until probe is triggered or motion completes.
     sys_rt_exec_state.bit.cycleStart = true;
@@ -428,7 +428,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
 
     // Probing cycle complete!
     // Set state variables and error out, if the probe failed and cycle with error is enabled.
-    if (Probe::isSystemUsingProbe())
+    if (Controller::getProbe().isSystemUsingProbe())
     {
         if (is_no_error)
         {
@@ -444,18 +444,18 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
         sys.probe_succeeded = true; // Indicate to system the probing cycle completed successfully.
     }
 
-    Probe::setSystemProbeState(false); // Ensure probe state monitor is disabled.
+    Controller::getProbe().setSystemProbeState(false); // Ensure probe state monitor is disabled.
     protocol_execute_realtime();       // Check and execute run-time commands
 
     // Reset the stepper and planner buffers to remove the remainder of the probe motion.
     st_reset();           // Reset step segment buffer.
     plan_reset();         // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position(); // Sync planner position to current machine position.
-    BacklashManager::SynchPositionWhileUsingProbe();
+    Controller::getBacklashManager().SynchPositionWhileUsingProbe();
 
 #ifdef MESSAGE_PROBE_COORDINATES
     // All done! Output the probe position as message.
-    Probe::ReportProbeParameters();
+    Controller::getProbe().ReportProbeParameters();
 #endif
 
     if (sys.probe_succeeded)
@@ -528,8 +528,8 @@ void mc_reset()
         sys_rt_exec_state.bit.reset = true;
 
         // Kill spindle and coolant.
-        fSpindle->Stop();
-        CoolantManager::TurnAllCoolantsOff();
+        Controller::getSpindle()->Stop();
+        Controller::getCoolantManager().TurnAllCoolantsOff();
 
         // Turn off all User I/O immediately
         sys_digital_all_off();

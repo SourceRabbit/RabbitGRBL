@@ -21,10 +21,91 @@
 
 #include "../Grbl.h"
 #include "Controller.h"
+#include "Coolant/CoolantManager.h"
+#include "Probe/Probe.h"
+#include "Backlash/BacklashManager.h"
+#include "Motors/MotorsManager.h"
+#include "Spindles/Spindle.h"
+#include "UserOutputs/UserOutputsManager.h"
+
+static BacklashManager fBacklashManagerInstance;
+static MotorsManager fMotorsManagerInstance;
+static Spindle *fSpindleInstance = nullptr;
+static CoolantManager fCoolantManagerInstance;
+static Probe fProbeInstance;
+static UserOutputsManager fUserOutputsManagerInstance;
 
 /**
  * Initializes the controller
  */
 void Controller::Initialize()
 {
+
+    // Initialize BacklashManager and Motors
+    // Note: BacklashManager has to be initialized before motors!
+    fBacklashManagerInstance.Initialize();
+    fMotorsManagerInstance.Initialize();
+
+    // Select the Spindle !
+    selectSpindle();
+
+    fCoolantManagerInstance.Initialize();
+    fProbeInstance.Initialize();
+    fUserOutputsManagerInstance.Initialize();
+}
+
+/**
+ * Returns the BacklashManager instance
+ */
+BacklashManager &Controller::getBacklashManager()
+{
+    return fBacklashManagerInstance;
+}
+
+/**
+ * Returns the MotorsManager instance
+ */
+MotorsManager &Controller::getMotorsManager()
+{
+    return fMotorsManagerInstance;
+}
+
+/**
+ * Returns the CoolantManager instance
+ */
+CoolantManager &Controller::getCoolantManager()
+{
+    return fCoolantManagerInstance;
+}
+
+/**
+ * Returns the active Spindle instance
+ */
+Spindle *Controller::getSpindle()
+{
+    return fSpindleInstance;
+}
+
+/**
+ * Selects and initializes the spindle based on current settings
+ */
+void Controller::selectSpindle()
+{
+    Spindle::Select(fSpindleInstance);
+}
+
+/**
+ * Returns the Probe instance
+ */
+Probe &Controller::getProbe()
+{
+    return fProbeInstance;
+}
+
+/**
+ * Returns the UserOutputsManager instance
+ */
+UserOutputsManager &Controller::getUserOutputsManager()
+{
+    return fUserOutputsManagerInstance;
 }

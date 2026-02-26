@@ -35,9 +35,6 @@ volatile Percent sys_rt_f_override; // Global realtime executor feedrate overrid
 volatile Percent sys_rt_r_override; // Global realtime executor rapid override percentage
 volatile Percent sys_rt_s_override; // Global realtime executor spindle override percentage
 
-UserOutput::AnalogOutput *myAnalogOutputs[MaxUserDigitalPin];
-UserOutput::DigitalOutput *myDigitalOutputs[MaxUserDigitalPin];
-
 xQueueHandle control_sw_queue; // used by control switch debouncing
 bool debouncing = false;       // debouncing in process
 
@@ -100,18 +97,6 @@ void system_ini()
 #if (GRBL_SPI_SS != -1) || (GRBL_SPI_MISO != -1) || (GRBL_SPI_MOSI != -1) || (GRBL_SPI_SCK != -1)
     SPI.begin(GRBL_SPI_SCK, GRBL_SPI_MISO, GRBL_SPI_MOSI, GRBL_SPI_SS);
 #endif
-
-    // Setup M62,M63,M64,M65 pins
-    myDigitalOutputs[0] = new UserOutput::DigitalOutput(0, USER_DIGITAL_PIN_0);
-    myDigitalOutputs[1] = new UserOutput::DigitalOutput(1, USER_DIGITAL_PIN_1);
-    myDigitalOutputs[2] = new UserOutput::DigitalOutput(2, USER_DIGITAL_PIN_2);
-    myDigitalOutputs[3] = new UserOutput::DigitalOutput(3, USER_DIGITAL_PIN_3);
-
-    // Setup M67 Pins
-    myAnalogOutputs[0] = new UserOutput::AnalogOutput(0, USER_ANALOG_PIN_0, USER_ANALOG_PIN_0_FREQ);
-    myAnalogOutputs[1] = new UserOutput::AnalogOutput(1, USER_ANALOG_PIN_1, USER_ANALOG_PIN_1_FREQ);
-    myAnalogOutputs[2] = new UserOutput::AnalogOutput(2, USER_ANALOG_PIN_2, USER_ANALOG_PIN_2_FREQ);
-    myAnalogOutputs[3] = new UserOutput::AnalogOutput(3, USER_ANALOG_PIN_3, USER_ANALOG_PIN_3_FREQ);
 }
 
 #ifdef ENABLE_CONTROL_SW_DEBOUNCE
@@ -302,31 +287,33 @@ void system_exec_control_pin(ControlPins pins)
 
 void sys_digital_all_off()
 {
+    auto outputs = Controller::getUserOutputsManager().getMyDigitalOutputs();
     for (uint8_t io_num = 0; io_num < MaxUserDigitalPin; io_num++)
     {
-        myDigitalOutputs[io_num]->set_level(LOW);
+        outputs[io_num]->set_level(LOW);
     }
 }
 
 // io_num is the virtual digital pin#
 bool sys_set_digital(uint8_t io_num, bool turnOn)
 {
-    return myDigitalOutputs[io_num]->set_level(turnOn);
+    return Controller::getUserOutputsManager().getMyDigitalOutputs()[io_num]->set_level(turnOn);
 }
 
 // Turn off all analog outputs
 void sys_analog_all_off()
 {
+    auto outputs = Controller::getUserOutputsManager().getMyAnalogOutputs();
     for (uint8_t io_num = 0; io_num < MaxUserDigitalPin; io_num++)
     {
-        myAnalogOutputs[io_num]->set_level(0);
+        outputs[io_num]->set_level(0);
     }
 }
 
 // io_num is the virtual analog pin#
 bool sys_set_analog(uint8_t io_num, float percent)
 {
-    auto analog = myAnalogOutputs[io_num];
+    auto analog = Controller::getUserOutputsManager().getMyAnalogOutputs()[io_num];
     uint32_t numerator = percent / 100.0 * analog->denominator();
     return analog->set_level(numerator);
 }

@@ -403,6 +403,7 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // around 90-100 characters. As long as the serial TX buffer doesn't get continually maxed, Grbl
 // will continue operating efficiently. Size the TX buffer around the size of a worst-case report.
 #define RX_BUFFER_SIZE 256
+
 #ifdef USE_LINE_NUMBERS
 #define TX_BUFFER_SIZE 112
 #else
@@ -413,7 +414,7 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // switch interrupt unblock a waiting task which will recheck the limit switch pins after
 // a short delay. Default disabled
 // #define ENABLE_SOFTWARE_DEBOUNCE // Default disabled. Uncomment to enable.
-const int DEBOUNCE_PERIOD = 32; // in milliseconds default 32 microseconds
+const int DEBOUNCE_PERIOD = 32; // in milliseconds default 32
 
 // Configures the position after a probing cycle during Grbl's check mode. Disabled sets
 // the position to the probe target, when enabled sets the position to the start position.

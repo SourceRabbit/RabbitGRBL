@@ -149,7 +149,7 @@ void report_ngc_parameters()
     ngc_rpt += String(tlo, 3);
     ngc_rpt += "]\r\n";
     ConnectionManager::Active().Write(ngc_rpt.c_str());
-    Probe::ReportProbeParameters();
+    Controller::getProbe().ReportProbeParameters();
 }
 
 // Print current gcode parser mode state
@@ -298,7 +298,7 @@ void report_gcode_modes()
     strcat(modes_rpt, mode);
 
     // report_util_gcode_modes_M();  // optional M7 and M8 should have been dealt with by here
-    if (CoolantManager::AreAllCoolantsOff())
+    if (Controller::getCoolantManager().AreAllCoolantsOff())
     {
         // All coolants are off. Report with M9
         strcat(modes_rpt, " M9");
@@ -306,12 +306,12 @@ void report_gcode_modes()
     else
     {
         // Note: Multiple coolant states may be active at the same time.
-        if (CoolantManager::Mist_Coolant.isOn())
+        if (Controller::getCoolantManager().Mist_Coolant.isOn())
         {
             strcat(modes_rpt, " M7");
         }
 
-        if (CoolantManager::Flood_Coolant.isOn())
+        if (Controller::getCoolantManager().Flood_Coolant.isOn())
         {
             strcat(modes_rpt, " M8");
         }
@@ -495,7 +495,7 @@ void report_realtime_status()
     AxisMask lim_pin_state = limits_get_state();
     ControlPins ctrl_pin_state = system_control_get_state();
 
-    bool isProbeTriggered = Probe::isTriggered();
+    bool isProbeTriggered = Controller::getProbe().isTriggered();
 
     if (lim_pin_state || ctrl_pin_state.value || isProbeTriggered)
     {
@@ -623,9 +623,9 @@ void report_realtime_status()
 
         sprintf(temp, "|Ov:%d,%d,%d", sys.f_override, sys.r_override, sys.spindle_speed_ovr);
         strcat(status, temp);
-        SpindleState sp_state = fSpindle->getState();
+        SpindleState sp_state = Controller::getSpindle()->getState();
 
-        if (sp_state != SpindleState::Disable || CoolantManager::Flood_Coolant.isOn() || CoolantManager::Mist_Coolant.isOn())
+        if (sp_state != SpindleState::Disable || Controller::getCoolantManager().Flood_Coolant.isOn() || Controller::getCoolantManager().Mist_Coolant.isOn())
         {
             strcat(status, "|A:");
             switch (sp_state)
@@ -640,12 +640,12 @@ void report_realtime_status()
                 break;
             }
 
-            if (CoolantManager::Flood_Coolant.isOn())
+            if (Controller::getCoolantManager().Flood_Coolant.isOn())
             {
                 strcat(status, "F");
             }
 
-            if (CoolantManager::Mist_Coolant.isOn())
+            if (Controller::getCoolantManager().Mist_Coolant.isOn())
             {
                 strcat(status, "M");
             }
@@ -656,7 +656,6 @@ void report_realtime_status()
     strcat(status, ">\r\n");
     ConnectionManager::Active().Write(status);
 }
-
 
 void report_gcode_comment(char *comment)
 {
@@ -673,6 +672,24 @@ void report_gcode_comment(char *comment)
         msg[index - offset] = 0; // null terminate
         MessageSender::SendMessage(EMessageLevel::Info, "GCode Comment...%s", msg);
     }
+}
+
+/**
+ * Reports a message with the NVS Usage
+ */
+EError report_nvs_stats(const char *value)
+{
+    nvs_stats_t stats;
+
+    // Retrieve NVS partition usage statistics via NVSManager
+    if (NVSManager::GetStats(&stats) != ESP_OK)
+    {
+        return EError::NvsGetStatsFailed;
+    }
+
+    MessageSender::SendMessage(EMessageLevel::Info, "NVS Used: %d Free: %d Total: %d", stats.used_entries, stats.free_entries, stats.total_entries);
+
+    return EError::Ok;
 }
 
 char *report_state_text()

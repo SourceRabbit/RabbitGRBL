@@ -1,0 +1,68 @@
+#pragma once
+
+/*
+    Spindle_PWM.h
+
+    Copyright (c) 2026 Nikolaos Siatras
+    Twitter: nsiatras
+    Github: https://github.com/nsiatras
+    Website: https://www.sourcerabbit.com
+
+    Rabbit Rabbit GRBL is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Rabbit Rabbit GRBL is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rabbit GRBL. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "Spindle.h"
+
+// This adds support for PWM
+class Spindle_PWM : public Spindle
+{
+public:
+    Spindle_PWM() = default;
+
+    Spindle_PWM(const Spindle_PWM &) = delete;
+    Spindle_PWM(Spindle_PWM &&) = delete;
+    Spindle_PWM &operator=(const Spindle_PWM &) = delete;
+    Spindle_PWM &operator=(Spindle_PWM &&) = delete;
+
+    void Initialize() override;
+    virtual uint32_t setRPM(uint32_t rpm) override;
+    void setState(SpindleState state, uint32_t rpm) override;
+    SpindleState getState() override;
+    void Stop() override;
+
+    virtual void Dispose();
+
+    virtual ~Spindle_PWM() {}
+
+protected:
+    int32_t fCurrentPWMDuty;
+
+    uint8_t fPWMChannelNumber;
+
+    uint32_t fPWMFrequency;
+    uint8_t fPWMPrecision;
+    uint32_t fPWMPeriod; // how many counts in 1 period
+
+    uint32_t fPWMOffValue;
+    uint32_t fPWMMinValue;
+    uint32_t fPWMMaxValue;
+
+    bool fInvertPWM;
+
+    void InitializePWMOutput(uint8_t channelNumber, uint32_t frequency, uint8_t precision, uint32_t period, uint32_t offValue, uint32_t minValue, uint32_t maxValue, bool invert);
+
+    virtual void setPWMOutput(uint32_t duty);
+    virtual void setEnablePinValue(bool active);
+    virtual void setDirectionPinValue(bool Clockwise);
+};

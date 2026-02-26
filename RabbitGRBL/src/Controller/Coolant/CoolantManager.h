@@ -1,8 +1,9 @@
 /*
-  Controller.h
+  CoolantManager.h
 
-  Copyright (c) 2026 Nikolaos Siatras
+  Copyright (c) 2023 Nikolaos Siatras
   Twitter: nsiatras
+  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -21,29 +22,25 @@
 
 #pragma once
 
-#include "../Grbl.h"
+#include "../../Grbl.h"
+#include <cstdint>
+#include "Coolant.h"
 
-class CoolantManager;
-class Probe;
-class BacklashManager;
-class MotorsManager;
-class Spindle;
-class UserOutputsManager;
-
-class Controller
+class CoolantManager
 {
 public:
-    static void Initialize();
+    Coolant Mist_Coolant;
+    Coolant Flood_Coolant;
 
-    static BacklashManager &getBacklashManager();
-    static MotorsManager &getMotorsManager();
-    static CoolantManager &getCoolantManager();
-
-    static Spindle *getSpindle();
-    static void selectSpindle();
-
-    static Probe &getProbe();
-    static UserOutputsManager &getUserOutputsManager();
+    void Initialize();
+    void TurnAllCoolantsOff();
+    void setCoolantState(CoolantState state);
+    bool AreAllCoolantsOff();
 
 private:
+    // Centralized constant - visible to all and type-safe
+    static constexpr int COOLANTS_COUNT = 2; // We can have up to 2 coolants so far (Mist and Flood)
+
+    bool fInitialized = false;
+    Coolant *fCoolants[COOLANTS_COUNT];
 };

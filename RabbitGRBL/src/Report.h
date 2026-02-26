@@ -83,6 +83,8 @@ void report_build_info();
 
 void report_gcode_comment(char *comment);
 
+EError report_nvs_stats(const char *value);
+
 char report_get_axis_letter(uint8_t axis);
 char *reportAxisLimitsMsg(uint8_t axis);
 char *reportAxisNameMsg(uint8_t axis);

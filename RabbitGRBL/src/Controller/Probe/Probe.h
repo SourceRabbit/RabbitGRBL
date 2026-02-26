@@ -1,7 +1,7 @@
 /*
-  Controller.h
+  Probe.h
 
-  Copyright (c) 2026 Nikolaos Siatras
+  Copyright (c) 2024 Nikolaos Siatras
   Twitter: nsiatras
   Website: https://www.sourcerabbit.com
 
@@ -21,29 +21,20 @@
 
 #pragma once
 
-#include "../Grbl.h"
-
-class CoolantManager;
-class Probe;
-class BacklashManager;
-class MotorsManager;
-class Spindle;
-class UserOutputsManager;
-
-class Controller
+class Probe
 {
 public:
-    static void Initialize();
+    void Initialize();
+    void setDirection(bool isAway);
+    bool isTriggered();
+    void StateMonitor();
 
-    static BacklashManager &getBacklashManager();
-    static MotorsManager &getMotorsManager();
-    static CoolantManager &getCoolantManager();
+    void ReportProbeParameters();
 
-    static Spindle *getSpindle();
-    static void selectSpindle();
-
-    static Probe &getProbe();
-    static UserOutputsManager &getUserOutputsManager();
+    bool isSystemUsingProbe();
+    void setSystemProbeState(bool state);
 
 private:
+    bool fIsProbeAway = false;
+    volatile bool fSystemIsUsingProbe = false;
 };

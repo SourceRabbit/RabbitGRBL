@@ -1,8 +1,9 @@
 /*
-  Controller.h
+  BacklashManager.h
 
-  Copyright (c) 2026 Nikolaos Siatras
+  Copyright (c) 2024 Nikolaos Siatras
   Twitter: nsiatras
+  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -21,29 +22,18 @@
 
 #pragma once
 
-#include "../Grbl.h"
+#include "../../Grbl.h"
 
-class CoolantManager;
-class Probe;
-class BacklashManager;
-class MotorsManager;
-class Spindle;
-class UserOutputsManager;
-
-class Controller
+class BacklashManager
 {
 public:
-    static void Initialize();
+    void Initialize();
+    void CompensateBacklash(float *target, plan_line_data_t *pl_data);
 
-    static BacklashManager &getBacklashManager();
-    static MotorsManager &getMotorsManager();
-    static CoolantManager &getCoolantManager();
-
-    static Spindle *getSpindle();
-    static void selectSpindle();
-
-    static Probe &getProbe();
-    static UserOutputsManager &getUserOutputsManager();
+    void ResetTargets();
+    void SynchPositionWhileUsingProbe();
 
 private:
+    float fPreviousTargets[MAX_N_AXIS] = {0.0};
+    uint8_t fAxisDirections[MAX_N_AXIS] = {0};
 };

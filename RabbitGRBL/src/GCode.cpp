@@ -861,7 +861,7 @@ EError gc_execute_line(char *line)
                     gc_block.modal.spindle = SpindleState::Cw;
                     break;
                 case 4: // Supported if SPINDLE_DIR_PIN is defined or laser mode is on.
-                    if (fSpindle->isReversable() || fSpindle->inLaserMode())
+                    if (Controller::getSpindle()->isReversable() || Controller::getSpindle()->inLaserMode())
                     {
                         gc_block.modal.spindle = SpindleState::Ccw;
                     }
@@ -2097,7 +2097,7 @@ EError gc_execute_line(char *line)
         return status;
     }
     // If in laser mode, setup laser power based on current and past parser conditions.
-    if (fSpindle->inLaserMode())
+    if (Controller::getSpindle()->inLaserMode())
     {
         if (!((gc_block.modal.motion == Motion::Linear) || (gc_block.modal.motion == Motion::CwArc) ||
               (gc_block.modal.motion == Motion::CcwArc)))
@@ -2161,11 +2161,11 @@ EError gc_execute_line(char *line)
             {
                 if (bit_istrue(gc_parser_flags, GCParserLaserDisable))
                 {
-                    fSpindle->Synch(gc_state.modal.spindle, 0);
+                    Controller::getSpindle()->Synch(gc_state.modal.spindle, 0);
                 }
                 else
                 {
-                    fSpindle->Synch(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
+                    Controller::getSpindle()->Synch(gc_state.modal.spindle, (uint32_t)gc_block.values.s);
                 }
             }
         }
@@ -2191,7 +2191,7 @@ EError gc_execute_line(char *line)
         // Update spindle control and apply spindle speed when enabling it in this block.
         // NOTE: All spindle state changes are synced, even in laser mode. Also, pl_data,
         // rather than gc_state, is used to manage laser state for non-laser motions.
-        fSpindle->Synch(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
+        Controller::getSpindle()->Synch(gc_block.modal.spindle, (uint32_t)pl_data->spindle_speed);
         gc_state.modal.spindle = gc_block.modal.spindle;
     }
     pl_data->spindle = gc_state.modal.spindle;
@@ -2211,20 +2211,20 @@ EError gc_execute_line(char *line)
         gc_state.modal.coolant.Mist = 1;
         protocol_buffer_synchronize();
         // Ask Mist Coolant to TurnOn
-        CoolantManager::Mist_Coolant.TurnOn();
+        Controller::getCoolantManager().Mist_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M8:
         gc_state.modal.coolant.Flood = 1;
         protocol_buffer_synchronize();
         // Ask Flood Coolant to TurnOn
-        CoolantManager::Flood_Coolant.TurnOn();
+        Controller::getCoolantManager().Flood_Coolant.TurnOn();
         break;
 
     case GCodeCoolant::M9:
         gc_state.modal.coolant = {};
         // Turn all Collants off
-        CoolantManager::TurnAllCoolantsOff();
+        Controller::getCoolantManager().TurnAllCoolantsOff();
         break;
     }
     pl_data->coolant = gc_state.modal.coolant; // Set state for planner use.
@@ -2508,8 +2508,8 @@ EError gc_execute_line(char *line)
         {
             coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
-            fSpindle->setState(SpindleState::Disable, 0);
-            CoolantManager::TurnAllCoolantsOff();
+            Controller::getSpindle()->setState(SpindleState::Disable, 0);
+            Controller::getCoolantManager().TurnAllCoolantsOff();
         }
         MessageSender::SendFeedbackMessage(EFeedbackMessage::ProgramEnd);
 #ifdef USE_M30

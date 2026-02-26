@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 // Grbl error codes. Valid values (0-255)
 enum class EError : uint8_t
 {

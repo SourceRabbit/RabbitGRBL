@@ -1,8 +1,9 @@
 /*
-  Controller.h
+  UserOutputsManager.h
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
+  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -16,34 +17,27 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
+  along with Rabbit GRBL. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include "../Grbl.h"
+#include "../../Grbl.h"
+#include "UserOutputBase.h"
+#include "AnalogOutput.h"
+#include "DigitalOutput.h"
+#include "UserOutputsManager.h"
 
-class CoolantManager;
-class Probe;
-class BacklashManager;
-class MotorsManager;
-class Spindle;
-class UserOutputsManager;
-
-class Controller
+class UserOutputsManager
 {
 public:
-    static void Initialize();
+    void Initialize();
 
-    static BacklashManager &getBacklashManager();
-    static MotorsManager &getMotorsManager();
-    static CoolantManager &getCoolantManager();
-
-    static Spindle *getSpindle();
-    static void selectSpindle();
-
-    static Probe &getProbe();
-    static UserOutputsManager &getUserOutputsManager();
+    AnalogOutput **getMyAnalogOutputs() { return fMyAnalogOutputs; }
+    DigitalOutput **getMyDigitalOutputs() { return fMyDigitalOutputs; }
 
 private:
+    bool fInitialized = false;
+    AnalogOutput *fMyAnalogOutputs[MaxUserDigitalPin];
+    DigitalOutput *fMyDigitalOutputs[MaxUserDigitalPin];
 };

@@ -224,7 +224,7 @@ static void stepper_pulse_func()
 {
     auto n_axis = number_axis->get();
 
-    if (MotorsManager::Direction(st.dir_outbits))
+    if (Controller::getMotorsManager().Direction(st.dir_outbits))
     {
         auto wait_direction = direction_delay_microseconds->get();
         if (wait_direction > 0)
@@ -260,7 +260,7 @@ static void stepper_pulse_func()
     //
     // NOTE: We could use direction_pulse_start_time + wait_direction, but let's play it safe
     uint64_t step_pulse_start_time = esp_timer_get_time();
-    MotorsManager::Step(st.step_outbits);
+    Controller::getMotorsManager().Step(st.step_outbits);
 
     // If there is no step segment, attempt to pop one from the stepper buffer
     if (st.exec_segment == NULL)
@@ -292,7 +292,7 @@ static void stepper_pulse_func()
                 st.steps[axis] = st.exec_block->steps[axis] >> st.exec_segment->amass_level;
             }
             // Set real-time spindle output as segment is loaded, just prior to the first step.
-            fSpindle->setRPM(st.exec_segment->spindle_rpm);
+            Controller::getSpindle()->setRPM(st.exec_segment->spindle_rpm);
         }
         else
         {
@@ -303,7 +303,7 @@ static void stepper_pulse_func()
                 // Ensure pwm is set properly upon completion of rate-controlled motion.
                 if (st.exec_block != NULL && st.exec_block->is_pwm_rate_adjusted)
                 {
-                    fSpindle->setRPM(0);
+                    Controller::getSpindle()->setRPM(0);
                 }
             }
             cycle_stop = true;
@@ -311,9 +311,9 @@ static void stepper_pulse_func()
         }
     }
     // Check probing state.
-    if (Probe::isSystemUsingProbe())
+    if (Controller::getProbe().isSystemUsingProbe())
     {
-        Probe::StateMonitor();
+        Controller::getProbe().StateMonitor();
     }
     // Reset step out bits.
     st.step_outbits = 0;
@@ -365,7 +365,7 @@ static void stepper_pulse_func()
         {
             NOP(); // spin here until time to turn off step
         }
-        MotorsManager::Unstep();
+        Controller::getMotorsManager().Unstep();
         break;
     case ST_RMT:
         break;
@@ -398,10 +398,8 @@ void st_wake_up()
 {
     //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
-    MotorsManager::SetDisable(false);
+    Controller::getMotorsManager().SetDisable(false);
     stepper_idle = false;
-
-    // Initialize step pulse timing from settings. Here to ensure updating after re-writing.
 #ifdef USE_RMT_STEPS
     // Step pulse delay handling is not require with ESP32...the RMT function does it.
     if (direction_delay_microseconds->get() < 1)
@@ -454,7 +452,7 @@ void st_go_idle()
 
         if (sys.state == State::Sleep || sys_rt_exec_alarm != EAlarm::None)
         {
-            MotorsManager::SetDisable(true);
+            Controller::getMotorsManager().SetDisable(true);
         }
         else
         {
@@ -465,10 +463,10 @@ void st_go_idle()
     }
     else
     {
-        MotorsManager::SetDisable(false);
+        Controller::getMotorsManager().SetDisable(false);
     }
 
-    MotorsManager::Unstep();
+    Controller::getMotorsManager().Unstep();
     st.step_outbits = 0;
 }
 
@@ -632,7 +630,7 @@ void st_prep_buffer()
 
                 st_prep_block->is_pwm_rate_adjusted = false; // set default value
                 // prep.inv_rate is only used if is_pwm_rate_adjusted is true
-                if (fSpindle->inLaserMode())
+                if (Controller::getSpindle()->inLaserMode())
                 {
                     if (pl_block->spindle == SpindleState::Ccw)
                     {

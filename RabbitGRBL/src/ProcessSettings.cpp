@@ -418,7 +418,7 @@ EError motor_disable(const char *value)
             }
         }
     }
-    MotorsManager::SetDisable(true, convertedValue);
+    Controller::getMotorsManager().SetDisable(true, convertedValue);
     return EError::Ok;
 }
 
@@ -429,41 +429,41 @@ EError motor_disable(const char *value)
 // for decoding its own value string, if it needs one.
 void make_grbl_commands()
 {
-    new GrblCommand("", "Help", show_grbl_help, anyState);
-    new GrblCommand("I", "BuildInfo", show_grbl_build_info, idleOrAlarm);
-    new GrblCommand("T", "State", showState, anyState);
-    new GrblCommand("J", "Jog", doJog, idleOrJog);
+    new GrblCommand("", "Help", show_grbl_help, grbl_state_any);
+    new GrblCommand("I", "BuildInfo", show_grbl_build_info, grbl_state_idleOrAlarm);
+    new GrblCommand("T", "State", showState, grbl_state_any);
+    new GrblCommand("J", "Jog", doJog, grbl_state_idleOrJog);
 
-    new GrblCommand("$", "GrblSettings/List", report_normal_settings, notCycleOrHold);
-    new GrblCommand("+", "ExtendedSettings/List", report_extended_settings, notCycleOrHold);
-    new GrblCommand("L", "GrblNames/List", list_grbl_names, notCycleOrHold);
-    new GrblCommand("S", "Settings/List", list_settings, notCycleOrHold);
-    new GrblCommand("SC", "Settings/ListChanged", list_changed_settings, notCycleOrHold);
-    new GrblCommand("CMD", "Commands/List", list_commands, notCycleOrHold);
+    new GrblCommand("$", "GrblSettings/List", report_normal_settings, grbl_state_notCycleOrHold);
+    new GrblCommand("+", "ExtendedSettings/List", report_extended_settings, grbl_state_notCycleOrHold);
+    new GrblCommand("L", "GrblNames/List", list_grbl_names, grbl_state_notCycleOrHold);
+    new GrblCommand("S", "Settings/List", list_settings, grbl_state_notCycleOrHold);
+    new GrblCommand("SC", "Settings/ListChanged", list_changed_settings, grbl_state_notCycleOrHold);
+    new GrblCommand("CMD", "Commands/List", list_commands, grbl_state_notCycleOrHold);
 
-    new GrblCommand("A", "Alarms/List", AlarmsManager::ListAlarms, anyState);
-    new GrblCommand("E", "Errors/List", ErrorsManager::ListErrors, anyState);
+    new GrblCommand("A", "Alarms/List", AlarmsManager::ListAlarms, grbl_state_any);
+    new GrblCommand("E", "Errors/List", ErrorsManager::ListErrors, grbl_state_any);
 
-    new GrblCommand("G", "GCode/Modes", report_gcode, anyState);
-    new GrblCommand("C", "GCode/Check", toggle_check_mode, anyState);
-    new GrblCommand("X", "Alarm/Disable", disable_alarm_lock, anyState);
-    new GrblCommand("NVX", "Settings/Erase", Setting::eraseNVS, idleOrAlarm, WA);
-    new GrblCommand("V", "Settings/Stats", Setting::report_nvs_stats, idleOrAlarm);
-    new GrblCommand("#", "GCode/Offsets", report_ngc, idleOrAlarm);
-    new GrblCommand("H", "Home", home_all, idleOrAlarm);
-    new GrblCommand("MD", "Motor/Disable", motor_disable, idleOrAlarm);
+    new GrblCommand("G", "GCode/Modes", report_gcode, grbl_state_any);
+    new GrblCommand("C", "GCode/Check", toggle_check_mode, grbl_state_any);
+    new GrblCommand("X", "Alarm/Disable", disable_alarm_lock, grbl_state_any);
+    new GrblCommand("NVX", "Settings/Erase", NVSManager::EraseNVSUponUserCommand, grbl_state_idleOrAlarm);
+    new GrblCommand("V", "Settings/Stats", report_nvs_stats, grbl_state_idleOrAlarm);
+    new GrblCommand("#", "GCode/Offsets", report_ngc, grbl_state_idleOrAlarm);
+    new GrblCommand("H", "Home", home_all, grbl_state_idleOrAlarm);
+    new GrblCommand("MD", "Motor/Disable", motor_disable, grbl_state_idleOrAlarm);
 
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-    new GrblCommand("HX", "Home/X", home_x, idleOrAlarm);
-    new GrblCommand("HY", "Home/Y", home_y, idleOrAlarm);
-    new GrblCommand("HZ", "Home/Z", home_z, idleOrAlarm);
-    new GrblCommand("HA", "Home/A", home_a, idleOrAlarm);
-    new GrblCommand("HB", "Home/B", home_b, idleOrAlarm);
-    new GrblCommand("HC", "Home/C", home_c, idleOrAlarm);
+    new GrblCommand("HX", "Home/X", home_x, grbl_state_idleOrAlarm);
+    new GrblCommand("HY", "Home/Y", home_y, grbl_state_idleOrAlarm);
+    new GrblCommand("HZ", "Home/Z", home_z, grbl_state_idleOrAlarm);
+    new GrblCommand("HA", "Home/A", home_a, grbl_state_idleOrAlarm);
+    new GrblCommand("HB", "Home/B", home_b, grbl_state_idleOrAlarm);
+    new GrblCommand("HC", "Home/C", home_c, grbl_state_idleOrAlarm);
 #endif
-    new GrblCommand("SLP", "System/Sleep", sleep_grbl, idleOrAlarm);
-    new GrblCommand("N", "GCode/StartupLines", report_startup_lines, idleOrAlarm);
-    new GrblCommand("RST", "Settings/Restore", restore_settings, idleOrAlarm, WA);
+    new GrblCommand("SLP", "System/Sleep", sleep_grbl, grbl_state_idleOrAlarm);
+    new GrblCommand("N", "GCode/StartupLines", report_startup_lines, grbl_state_idleOrAlarm);
+    new GrblCommand("RST", "Settings/Restore", restore_settings, grbl_state_idleOrAlarm);
 };
 
 // normalize_key puts a key string into canonical form -

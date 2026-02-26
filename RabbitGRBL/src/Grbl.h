@@ -31,36 +31,39 @@ const char *const GRBL_VERSION = "1.1h";
 #include <Preferences.h>
 #include <driver/timer.h>
 
+#include "NVS/NVSManager.h"
+
 // Define the Grbl system include files. NOTE: Do not alter organization.
 #include "Config.h"
 #include "NutsBolts.h"
 #include "Defaults.h"
 
-#include "Controller/Controller.h"
-
 #include "Diagnostics/Errors/ErrorsManager.h"
 #include "Diagnostics/Alarms/AlarmsManager.h"
 
-#include "Probe/Probe.h"
 #include "System.h"
 #include "GCode.h"
 #include "Planner.h"
 #include "Limits.h"
-#include "Backlash/BacklashManager.h"
+#include "Controller/Backlash/BacklashManager.h"
 #include "MotionControl.h"
 #include "Protocol.h"
 #include "Connection/ConnectionManager.h"
 #include "Report.h"
 #include "Pins.h"
-#include "Spindles/Spindle.h"
-#include "Motors/MotorsManager.h"
+
 #include "Stepper.h"
 #include "Jog.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
-#include "Coolant/CoolantManager.h"
-#include "UserOutputs/UserOutputs.h"
-#include <Wire.h>
+
+// Controller needs Settings & SettingsDefinitions
+#include "Controller/Controller.h"
+#include "Controller/Spindles/Spindle.h"
+#include "Controller/Motors/MotorsManager.h"
+#include "Controller/Probe/Probe.h"
+#include "Controller/Coolant/CoolantManager.h"
+#include "Controller/UserOutputs/UserOutputsManager.h"
 
 void grbl_init();
 void run_once();
@@ -77,3 +80,11 @@ void user_m30();
 
 // Called if USE_TOOL_CHANGE is defined
 void user_tool_change(uint8_t new_tool);
+
+bool grbl_state_any();
+
+bool grbl_state_idleOrJog();
+
+bool grbl_state_idleOrAlarm();
+
+bool grbl_state_notCycleOrHold();

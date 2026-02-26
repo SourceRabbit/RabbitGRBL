@@ -1,7 +1,9 @@
 #pragma once
 
 #include <map>
-#include <nvs.h>
+
+#include "Connection/MessageSender/MessageSender.h"
+#include "NVS/NVSManager.h"
 
 // Initialize the configuration subsystem
 void settings_init();
@@ -43,17 +45,8 @@ typedef enum : uint8_t
 {
     GRBL = 1, // Classic GRBL settings like $100
     EXTENDED, // Settings added by early versions of Grbl_Esp32
-    WEBSET,   // Settings for ESP3D_WebUI, stored in NVS
     GRBLCMD,  // Non-persistent GRBL commands like $H
-    WEBCMD,   // ESP3D_WebUI commands that are not directly settings
 } type_t;
-
-typedef enum : uint8_t
-{
-    WG, // Readable and writable as guest
-    WU, // Readable and writable as user and admin
-    WA, // Readable as user and admin, writable as admin
-} permissions_t;
 
 typedef uint8_t axis_t;
 
@@ -64,12 +57,10 @@ protected:
     const char *_grblName;
     const char *_fullName;
     type_t _type;
-    permissions_t _permissions;
 
 public:
-    Word(type_t type, permissions_t permissions, const char *description, const char *grblName, const char *fullName);
+    Word(type_t type, const char *description, const char *grblName, const char *fullName);
     type_t getType() { return _type; }
-    permissions_t getPermissions() { return _permissions; }
     const char *getName() { return _fullName; }
     const char *getGrblName() { return _grblName; }
     const char *getDescription() { return _description; }
@@ -86,7 +77,7 @@ public:
     Command *next() { return link; }
 
     ~Command() {}
-    Command(const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*cmdChecker)());
+    Command(const char *description, type_t type, const char *grblName, const char *fullName, bool (*cmdChecker)());
 
     virtual EError action(char *value) = 0;
 };
@@ -103,42 +94,14 @@ protected:
     const char *_keyName;
 
 public:
-    static nvs_handle _handle;
-    static void init();
     static Setting *List;
     Setting *next() { return link; }
 
     EError check(char *s);
 
-    static EError report_nvs_stats(const char *value)
-    {
-        nvs_stats_t stats;
-        if (esp_err_t err = nvs_get_stats(NULL, &stats))
-        {
-            return EError::NvsGetStatsFailed;
-        }
-        ConnectionManager::Active().WriteFormatted("[MSG: NVS Used: %d Free: %d Total: %d]\r\n", stats.used_entries, stats.free_entries, stats.total_entries);
-#if 0 // The SDK we use does not have this yet
-        nvs_iterator_t it = nvs_entry_find(NULL, NULL, NVS_TYPE_ANY);
-        while (it != NULL) {
-            nvs_entry_info_t info;
-            nvs_entry_info(it, &info);
-            it = nvs_entry_next(it);
-            ConnectionManager::Active().WriteFormatted("namespace %s key '%s', type '%d' \n", info.namespace_name, info.key, info.type);
-        }
-#endif
-        return EError::Ok;
-    }
-
-    static EError eraseNVS(const char *value)
-    {
-        nvs_erase_all(_handle);
-        return EError::Ok;
-    }
-
     ~Setting() {}
     // Setting(const char *description, group_t group, const char * grblName, const char* fullName, bool (*checker)(char *));
-    Setting(const char *description, type_t type, permissions_t permissions, const char *grblName, const char *fullName, bool (*checker)(char *));
+    Setting(const char *description, type_t type, const char *grblName, const char *fullName, bool (*checker)(char *));
     axis_t getAxis() { return _axis; }
     void setAxis(axis_t axis) { _axis = axis; }
 
@@ -168,7 +131,6 @@ private:
 public:
     IntSetting(const char *description,
                type_t type,
-               permissions_t permissions,
                const char *grblName,
                const char *name,
                int32_t defVal,
@@ -178,14 +140,13 @@ public:
                bool currentIsNvm = false);
 
     IntSetting(type_t type,
-               permissions_t permissions,
                const char *grblName,
                const char *name,
                int32_t defVal,
                int32_t minVal,
                int32_t maxVal,
                bool (*checker)(char *) = NULL,
-               bool currentIsNvm = false) : IntSetting(NULL, type, permissions, grblName, name, defVal, minVal, maxVal, checker, currentIsNvm) {}
+               bool currentIsNvm = false) : IntSetting(NULL, type, grblName, name, defVal, minVal, maxVal, checker, currentIsNvm) {}
 
     void load();
     void setDefault();
@@ -206,14 +167,13 @@ private:
 public:
     AxisMaskSetting(const char *description,
                     type_t type,
-                    permissions_t permissions,
                     const char *grblName,
                     const char *name,
                     int32_t defVal,
                     bool (*checker)(char *));
 
     AxisMaskSetting(
-        type_t type, permissions_t permissions, const char *grblName, const char *name, int32_t defVal, bool (*checker)(char *) = NULL) : AxisMaskSetting(NULL, type, permissions, grblName, name, defVal, checker) {}
+        type_t type, const char *grblName, const char *name, int32_t defVal, bool (*checker)(char *) = NULL) : AxisMaskSetting(NULL, type, grblName, name, defVal, checker) {}
 
     void load();
     void setDefault();
@@ -264,7 +224,6 @@ private:
 public:
     FloatSetting(const char *description,
                  type_t type,
-                 permissions_t permissions,
                  const char *grblName,
                  const char *name,
                  float defVal,
@@ -273,13 +232,12 @@ public:
                  bool (*checker)(char *));
 
     FloatSetting(type_t type,
-                 permissions_t permissions,
                  const char *grblName,
                  const char *name,
                  float defVal,
                  float minVal,
                  float maxVal,
-                 bool (*checker)(char *) = NULL) : FloatSetting(NULL, type, permissions, grblName, name, defVal, minVal, maxVal, checker) {}
+                 bool (*checker)(char *) = NULL) : FloatSetting(NULL, type, grblName, name, defVal, minVal, maxVal, checker) {}
 
     void load();
     void setDefault();
@@ -305,7 +263,6 @@ private:
 public:
     StringSetting(const char *description,
                   type_t type,
-                  permissions_t permissions,
                   const char *grblName,
                   const char *name,
                   const char *defVal,
@@ -314,7 +271,7 @@ public:
                   bool (*checker)(char *));
 
     StringSetting(
-        type_t type, permissions_t permissions, const char *grblName, const char *name, const char *defVal, bool (*checker)(char *) = NULL) : StringSetting(NULL, type, permissions, grblName, name, defVal, 0, 0, checker) {};
+        type_t type, const char *grblName, const char *name, const char *defVal, bool (*checker)(char *) = NULL) : StringSetting(NULL, type, grblName, name, defVal, 0, 0, checker) {};
 
     void load();
     void setDefault();
@@ -342,7 +299,6 @@ private:
 public:
     EnumSetting(const char *description,
                 type_t type,
-                permissions_t permissions,
                 const char *grblName,
                 const char *name,
                 int8_t defVal,
@@ -350,12 +306,11 @@ public:
                 bool (*checker)(char *));
 
     EnumSetting(type_t type,
-                permissions_t permissions,
                 const char *grblName,
                 const char *name,
                 int8_t defVal,
                 enum_opt_t *opts,
-                bool (*checker)(char *) = NULL) : EnumSetting(NULL, type, permissions, grblName, name, defVal, opts, checker) {}
+                bool (*checker)(char *) = NULL) : EnumSetting(NULL, type, grblName, name, defVal, opts, checker) {}
 
     void load();
     void setDefault();
@@ -376,12 +331,11 @@ private:
 public:
     FlagSetting(const char *description,
                 type_t type,
-                permissions_t permissions,
                 const char *grblName,
                 const char *name,
                 bool defVal,
                 bool (*checker)(char *));
-    FlagSetting(type_t type, permissions_t permissions, const char *grblName, const char *name, bool defVal, bool (*checker)(char *) = NULL) : FlagSetting(NULL, type, permissions, grblName, name, defVal, checker) {}
+    FlagSetting(type_t type, const char *grblName, const char *name, bool defVal, bool (*checker)(char *) = NULL) : FlagSetting(NULL, type, grblName, name, defVal, checker) {}
 
     void load();
     void setDefault();
@@ -413,11 +367,6 @@ public:
     AxisSettings(const char *axisName);
 };
 
-extern bool idleOrJog();
-extern bool idleOrAlarm();
-extern bool anyState();
-extern bool notCycleOrHold();
-
 class GrblCommand : public Command
 {
 private:
@@ -427,14 +376,8 @@ public:
     GrblCommand(const char *grblName,
                 const char *name,
                 EError (*action)(const char *),
-                bool (*cmdChecker)(),
-                permissions_t auth) : Command(NULL, GRBLCMD, auth, grblName, name, cmdChecker),
-                                      _action(action) {}
-
-    GrblCommand(const char *grblName,
-                const char *name,
-                EError (*action)(const char *),
-                bool (*cmdChecker)()) : GrblCommand(grblName, name, action, cmdChecker, WG) {}
+                bool (*cmdChecker)()) : Command(NULL, GRBLCMD, grblName, name, cmdChecker),
+                                        _action(action) {}
 
     EError action(char *value);
 };

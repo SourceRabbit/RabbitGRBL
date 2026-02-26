@@ -22,12 +22,29 @@
 
 void grbl_init()
 {
-    ConnectionManager::Initialize(); // Initialize Connection Manager (Serial, Bluetooth, Wifi etc.)
-    settings_init();                 // Load Grbl settings from non-volatile storage
-    stepper_init();                  // Configure stepper pins and interrupt timers
-    system_ini();                    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
-    BacklashManager::Initialize();
-    MotorsManager::Initialize();
+    // ----------------------------------------------------------------------------------------------------
+    // The Connection Manager in Rabbit GRBL is autonomous and must be initialized first.
+    // Initializing it establishes the communication channel with the control board
+    // (e.g., Serial, Bluetooth, WiFi).
+    ConnectionManager::Initialize(); // Create and initialize the communication interface.
+    // ----------------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------
+    // Delegate NVS initialization to NVSManager
+    if (!NVSManager::Initialize())
+    {
+        // This is a fatal error !
+        ConnectionManager::Active().WriteFormatted("Fatal error! NVSManager::Initialize() failed\r\n");
+        return;
+    }
+    // ----------------------------------------------------------------------------------------------------
+
+    settings_init(); // Load Grbl settings from non-volatile storage (NVS)
+    stepper_init();  // Configure stepper pins and interrupt timers
+    system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
+
+    Controller::Initialize();
+
     memset(sys_position, 0, sizeof(sys_position)); // Clear machine position.
     machine_init();                                // weak definition in Grbl.cpp does nothing
 
@@ -52,12 +69,13 @@ void grbl_init()
         sys.state = State::Alarm;
     }
 #endif
-
-    Spindles::Spindle::Select();
 }
 
 static void reset_variables()
 {
+    // TODO: Implement a Controller::Reset() method
+    // and call it here !
+
     // Reset system variables.
     State prior_state = sys.state;
     memset(&sys, 0, sizeof(system_t)); // Clear system struct variable.
@@ -67,7 +85,7 @@ static void reset_variables()
     sys.spindle_speed_ovr = SpindleSpeedOverride::Default;     // Set to 100%
     memset(sys_probe_position, 0, sizeof(sys_probe_position)); // Clear probe position.
 
-    Probe::setSystemProbeState(false);
+    Controller::getProbe().setSystemProbeState(false);
 
     sys_rt_exec_state.value = 0;
     sys_rt_exec_accessory_override.value = 0;
@@ -83,16 +101,17 @@ static void reset_variables()
     ConnectionManager::Active().ResetReadBuffer();
 
     gc_init(); // Set g-code parser to default state
-    fSpindle->Stop();
-    CoolantManager::Initialize();
+
+    Controller::getSpindle()->Stop();
+    Controller::Initialize();
+
     limits_init();
-    Probe::Initialize();
     plan_reset(); // Clear block buffer and planner variables
     st_reset();   // Clear stepper subsystem variables
 
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
-    BacklashManager::ResetTargets();
+    Controller::getBacklashManager().ResetTargets();
     gc_sync_position();
     report_init_message();
 }
@@ -107,3 +126,23 @@ void run_once()
 }
 
 void __attribute__((weak)) machine_init() {}
+
+bool grbl_state_any()
+{
+    return false;
+}
+
+bool grbl_state_idleOrJog()
+{
+    return sys.state != State::Idle && sys.state != State::Jog;
+}
+
+bool grbl_state_idleOrAlarm()
+{
+    return sys.state != State::Idle && sys.state != State::Alarm;
+}
+
+bool grbl_state_notCycleOrHold()
+{
+    return sys.state == State::Cycle && sys.state == State::Hold;
+}
