@@ -36,6 +36,8 @@ const char *const GRBL_VERSION = "1.1h";
 #include "NutsBolts.h"
 #include "Defaults.h"
 
+#include "Controller/Controller.h"
+
 #include "Diagnostics/Errors/ErrorsManager.h"
 #include "Diagnostics/Alarms/AlarmsManager.h"
 
