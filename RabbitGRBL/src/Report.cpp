@@ -41,7 +41,25 @@ void report_init_message()
 // Grbl help message
 void report_grbl_help()
 {
-    ConnectionManager::Active().Write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E $A ~ ! ? ctrl-x]\r\n");
+    // ConnectionManager::Active().Write("[HLP:$$ $+ $# $S $L $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H $F $E $A ~ ! ? ctrl-x]\r\n");
+
+    // Build the help string dynamically from registered commands.
+    ConnectionManager::Active().Write("[HLP:");
+
+    for (Command *cmd = Command::List; cmd != nullptr; cmd = cmd->next())
+    {
+        const char *grblName = cmd->getGrblName();
+        if (grblName != nullptr && grblName[0] != '\0')
+        {
+            ConnectionManager::Active().Write(" $");
+            ConnectionManager::Active().Write(grblName);
+        }
+    }
+
+    // Append realtime tokens that are not part of the Command registry (if applicable).
+    ConnectionManager::Active().Write(" ~ ! ? ctrl-x");
+
+    ConnectionManager::Active().Write("]\r\n");
 }
 
 /**
