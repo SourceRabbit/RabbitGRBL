@@ -56,6 +56,8 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Jog.h"
 #include "Settings.h"
 #include "SettingsDefinitions.h"
+#include "Settings/SettingsManager.h"
+#include "Commands/GRBLCommandsManager.h"
 
 // Controller needs Settings & SettingsDefinitions
 #include "Controller/Controller.h"

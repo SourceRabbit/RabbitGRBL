@@ -232,7 +232,7 @@ void make_settings()
     make_coordinate(CoordIndex::G28, "G28");
     make_coordinate(CoordIndex::G30, "G30");
 
-    // number_axis = new IntSetting(EXTENDED, NULL, "NumberAxis", N_AXIS, 0, 6, NULL, true);
+    // number_axis = new IntSetting(ERabbitGRBLItemType::EXTENDED, NULL, "NumberAxis", N_AXIS, 0, 6, NULL, true);
     number_axis = new FakeSetting<int>(N_AXIS);
 
     // Create the axis settings in the order that people are
@@ -255,7 +255,7 @@ void make_settings()
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--)
     {
         def = &axis_defaults[axis];
-        auto setting = new FloatSetting(GRBL, makeGrblName(axis, 180), makename(def->name, "Backlash"), def->backlash, 0, 10);
+        auto setting = new FloatSetting(ERabbitGRBLItemType::GRBL, makeGrblName(axis, 180), makename(def->name, "Backlash"), def->backlash, 0, 10);
         setting->setAxis(axis);
         axis_settings[axis]->backlash = setting;
     }
@@ -264,7 +264,7 @@ void make_settings()
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--)
     {
         def = &axis_defaults[axis];
-        auto setting = new FloatSetting(GRBL, makeGrblName(axis, 130), makename(def->name, "MaxTravel"), def->max_travel, 0, 100000.0);
+        auto setting = new FloatSetting(ERabbitGRBLItemType::GRBL, makeGrblName(axis, 130), makename(def->name, "MaxTravel"), def->max_travel, 0, 100000.0);
         setting->setAxis(axis);
         axis_settings[axis]->max_travel = setting;
     }
@@ -274,7 +274,7 @@ void make_settings()
     {
         def = &axis_defaults[axis];
         auto setting =
-            new FloatSetting(GRBL, makeGrblName(axis, 120), makename(def->name, "Acceleration"), def->acceleration, 1.0, 100000.0);
+            new FloatSetting(ERabbitGRBLItemType::GRBL, makeGrblName(axis, 120), makename(def->name, "Acceleration"), def->acceleration, 1.0, 100000.0);
         setting->setAxis(axis);
         axis_settings[axis]->acceleration = setting;
     }
@@ -283,7 +283,7 @@ void make_settings()
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--)
     {
         def = &axis_defaults[axis];
-        auto setting = new FloatSetting(GRBL, makeGrblName(axis, 110), makename(def->name, "MaxRate"), def->max_rate, 1.0, 100000.0);
+        auto setting = new FloatSetting(ERabbitGRBLItemType::GRBL, makeGrblName(axis, 110), makename(def->name, "MaxRate"), def->max_rate, 1.0, 100000.0);
         setting->setAxis(axis);
         axis_settings[axis]->max_rate = setting;
     }
@@ -292,7 +292,7 @@ void make_settings()
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--)
     {
         def = &axis_defaults[axis];
-        auto setting = new FloatSetting(GRBL, makeGrblName(axis, 100), makename(def->name, "StepsPerMm"), def->steps_per_mm, 1.0, 100000.0);
+        auto setting = new FloatSetting(ERabbitGRBLItemType::GRBL, makeGrblName(axis, 100), makename(def->name, "StepsPerMm"), def->steps_per_mm, 1.0, 100000.0);
         setting->setAxis(axis);
         axis_settings[axis]->steps_per_mm = setting;
     }
@@ -301,79 +301,79 @@ void make_settings()
     for (axis = MAX_N_AXIS - 1; axis >= 0; axis--)
     {
         def = &axis_defaults[axis];
-        auto setting = new FloatSetting(EXTENDED, NULL, makename(def->name, "Home/Mpos"), def->home_mpos, -100000.0, 100000.0);
+        auto setting = new FloatSetting(ERabbitGRBLItemType::EXTENDED, NULL, makename(def->name, "Home/Mpos"), def->home_mpos, -100000.0, 100000.0);
         setting->setAxis(axis);
         axis_settings[axis]->home_mpos = setting;
     }
 
     // GRBL Non-numbered settings
-    startup_line_0 = new StringSetting(EXTENDED, "N0", "GCode/Line0", "", checkStartupLine);
-    startup_line_1 = new StringSetting(EXTENDED, "N1", "GCode/Line1", "", checkStartupLine);
+    startup_line_0 = new StringSetting(ERabbitGRBLItemType::EXTENDED, "N0", "GCode/Line0", "", checkStartupLine);
+    startup_line_1 = new StringSetting(ERabbitGRBLItemType::EXTENDED, "N1", "GCode/Line1", "", checkStartupLine);
 
     // Coolant Settings
-    settings_coolant_flood_start_delay = new FloatSetting(GRBL, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
-    settings_coolant_mist_start_delay = new FloatSetting(GRBL, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
+    settings_coolant_flood_start_delay = new FloatSetting(ERabbitGRBLItemType::GRBL, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
+    settings_coolant_mist_start_delay = new FloatSetting(ERabbitGRBLItemType::GRBL, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
 
     // Spindle Settings
-    settings_spindle_type = new EnumSetting(NULL, EXTENDED, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
+    settings_spindle_type = new EnumSetting(NULL, ERabbitGRBLItemType::EXTENDED, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
 
-    settings_spindle_delay_spindown = new FloatSetting(GRBL, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINDOWN, 0, 30, checkSpindleChange);
-    settings_spindle_delay_spinup = new FloatSetting(GRBL, "37", "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
+    settings_spindle_delay_spindown = new FloatSetting(ERabbitGRBLItemType::GRBL, "38", "Spindle/Delay/SpinDown", DEFAULT_SPINDLE_DELAY_SPINDOWN, 0, 30, checkSpindleChange);
+    settings_spindle_delay_spinup = new FloatSetting(ERabbitGRBLItemType::GRBL, "37", "Spindle/Delay/SpinUp", DEFAULT_SPINDLE_DELAY_SPINUP, 0, 30, checkSpindleChange);
 
-    settings_spindle_enable_invert = new FlagSetting(GRBL, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
-    settings_spindle_output_invert = new FlagSetting(GRBL, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
-    settings_spindle_pwm_max_value = new FloatSetting(GRBL, "36", "Spindle/PWM/Max", DEFAULT_SPINDLE_MAX_VALUE, 0.0, 100.0, checkSpindleChange);
-    settings_spindle_pwm_min_value = new FloatSetting(GRBL, "35", "Spindle/PWM/Min", DEFAULT_SPINDLE_MIN_VALUE, 0.0, 100.0, checkSpindleChange);
-    settings_spindle_pwm_off_value = new FloatSetting(GRBL, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
-    settings_spindle_pwm_freq = new FloatSetting(GRBL, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
-    settings_spindle_laser_mode = new FlagSetting(GRBL, "32", "GCode/LaserMode", DEFAULT_LASER_MODE);
-    settings_spindle_rpm_min = new FloatSetting(GRBL, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
-    settings_spindle_rpm_max = new FloatSetting(GRBL, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
+    settings_spindle_enable_invert = new FlagSetting(ERabbitGRBLItemType::GRBL, NULL, "Spindle/Enable/Invert", DEFAULT_INVERT_SPINDLE_ENABLE_PIN, checkSpindleChange);
+    settings_spindle_output_invert = new FlagSetting(ERabbitGRBLItemType::GRBL, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
+    settings_spindle_pwm_max_value = new FloatSetting(ERabbitGRBLItemType::GRBL, "36", "Spindle/PWM/Max", DEFAULT_SPINDLE_MAX_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_min_value = new FloatSetting(ERabbitGRBLItemType::GRBL, "35", "Spindle/PWM/Min", DEFAULT_SPINDLE_MIN_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_off_value = new FloatSetting(ERabbitGRBLItemType::GRBL, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
+    settings_spindle_pwm_freq = new FloatSetting(ERabbitGRBLItemType::GRBL, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
+    settings_spindle_laser_mode = new FlagSetting(ERabbitGRBLItemType::GRBL, "32", "GCode/LaserMode", DEFAULT_LASER_MODE);
+    settings_spindle_rpm_min = new FloatSetting(ERabbitGRBLItemType::GRBL, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
+    settings_spindle_rpm_max = new FloatSetting(ERabbitGRBLItemType::GRBL, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
 
-    homing_pulloff = new FloatSetting(GRBL, "27", "Homing/Pulloff", DEFAULT_HOMING_PULLOFF, 0, 1000);
-    homing_debounce = new FloatSetting(GRBL, "26", "Homing/Debounce", DEFAULT_HOMING_DEBOUNCE_DELAY, 0, 10000);
-    homing_seek_rate = new FloatSetting(GRBL, "25", "Homing/Seek", DEFAULT_HOMING_SEEK_RATE, 0, 10000);
-    homing_feed_rate = new FloatSetting(GRBL, "24", "Homing/Feed", DEFAULT_HOMING_FEED_RATE, 0, 10000);
-    homing_squared_axes = new AxisMaskSetting(EXTENDED, NULL, "Homing/Squared", DEFAULT_HOMING_SQUARED_AXES);
+    homing_pulloff = new FloatSetting(ERabbitGRBLItemType::GRBL, "27", "Homing/Pulloff", DEFAULT_HOMING_PULLOFF, 0, 1000);
+    homing_debounce = new FloatSetting(ERabbitGRBLItemType::GRBL, "26", "Homing/Debounce", DEFAULT_HOMING_DEBOUNCE_DELAY, 0, 10000);
+    homing_seek_rate = new FloatSetting(ERabbitGRBLItemType::GRBL, "25", "Homing/Seek", DEFAULT_HOMING_SEEK_RATE, 0, 10000);
+    homing_feed_rate = new FloatSetting(ERabbitGRBLItemType::GRBL, "24", "Homing/Feed", DEFAULT_HOMING_FEED_RATE, 0, 10000);
+    homing_squared_axes = new AxisMaskSetting(ERabbitGRBLItemType::EXTENDED, NULL, "Homing/Squared", DEFAULT_HOMING_SQUARED_AXES);
 
     // TODO Settings - need to call st_generate_step_invert_masks()
-    homing_dir_mask = new AxisMaskSetting(GRBL, "23", "Homing/DirInvert", DEFAULT_HOMING_DIR_MASK);
+    homing_dir_mask = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "23", "Homing/DirInvert", DEFAULT_HOMING_DIR_MASK);
 
     // TODO Settings - need to call limits_init();
-    homing_enable = new FlagSetting(GRBL, "22", "Homing/Enable", DEFAULT_HOMING_ENABLE);
+    homing_enable = new FlagSetting(ERabbitGRBLItemType::GRBL, "22", "Homing/Enable", DEFAULT_HOMING_ENABLE);
 
     // TODO Settings - need to check for HOMING_ENABLE
-    hard_limits = new FlagSetting(GRBL, "21", "Limits/Hard", DEFAULT_HARD_LIMIT_ENABLE);
-    soft_limits = new FlagSetting(GRBL, "20", "Limits/Soft", DEFAULT_SOFT_LIMIT_ENABLE, NULL);
+    hard_limits = new FlagSetting(ERabbitGRBLItemType::GRBL, "21", "Limits/Hard", DEFAULT_HARD_LIMIT_ENABLE);
+    soft_limits = new FlagSetting(ERabbitGRBLItemType::GRBL, "20", "Limits/Soft", DEFAULT_SOFT_LIMIT_ENABLE, NULL);
 
-    report_inches = new FlagSetting(GRBL, "13", "Report/Inches", DEFAULT_REPORT_INCHES);
+    report_inches = new FlagSetting(ERabbitGRBLItemType::GRBL, "13", "Report/Inches", DEFAULT_REPORT_INCHES);
 
     // TODO Settings - also need to clear, but not set, soft_limits
-    arc_tolerance = new FloatSetting(GRBL, "12", "GCode/ArcTolerance", DEFAULT_ARC_TOLERANCE, 0, 1);
-    junction_deviation = new FloatSetting(GRBL, "11", "GCode/JunctionDeviation", DEFAULT_JUNCTION_DEVIATION, 0, 10);
-    status_mask = new IntSetting(GRBL, "10", "Report/Status", DEFAULT_STATUS_REPORT_MASK, 0, 3);
+    arc_tolerance = new FloatSetting(ERabbitGRBLItemType::GRBL, "12", "GCode/ArcTolerance", DEFAULT_ARC_TOLERANCE, 0, 1);
+    junction_deviation = new FloatSetting(ERabbitGRBLItemType::GRBL, "11", "GCode/JunctionDeviation", DEFAULT_JUNCTION_DEVIATION, 0, 10);
+    status_mask = new IntSetting(ERabbitGRBLItemType::GRBL, "10", "Report/Status", DEFAULT_STATUS_REPORT_MASK, 0, 3);
 
-    probe_invert = new FlagSetting(GRBL, "6", "Probe/Invert", DEFAULT_INVERT_PROBE_PIN);
-    limit_invert = new FlagSetting(GRBL, "5", "Limits/Invert", DEFAULT_INVERT_LIMIT_PINS);
-    step_enable_invert = new FlagSetting(GRBL, "4", "Stepper/EnableInvert", DEFAULT_INVERT_ST_ENABLE);
-    dir_invert_mask = new AxisMaskSetting(GRBL, "3", "Stepper/DirInvert", DEFAULT_DIRECTION_INVERT_MASK, postMotorSetting);
-    step_invert_mask = new AxisMaskSetting(GRBL, "2", "Stepper/StepInvert", DEFAULT_STEPPING_INVERT_MASK, postMotorSetting);
-    stepper_idle_lock_time = new IntSetting(GRBL, "1", "Stepper/IdleTime", DEFAULT_STEPPER_IDLE_LOCK_TIME, 0, 255);
-    pulse_microseconds = new IntSetting(GRBL, "0", "Stepper/Pulse", DEFAULT_STEP_PULSE_MICROSECONDS, 3, 1000);
-    direction_delay_microseconds = new IntSetting(EXTENDED, NULL, "Stepper/Direction/Delay", STEP_PULSE_DELAY, 0, 1000);
-    enable_delay_microseconds = new IntSetting(EXTENDED, NULL, "Stepper/Enable/Delay", DEFAULT_STEP_ENABLE_DELAY, 0, 1000); // microseconds
+    probe_invert = new FlagSetting(ERabbitGRBLItemType::GRBL, "6", "Probe/Invert", DEFAULT_INVERT_PROBE_PIN);
+    limit_invert = new FlagSetting(ERabbitGRBLItemType::GRBL, "5", "Limits/Invert", DEFAULT_INVERT_LIMIT_PINS);
+    step_enable_invert = new FlagSetting(ERabbitGRBLItemType::GRBL, "4", "Stepper/EnableInvert", DEFAULT_INVERT_ST_ENABLE);
+    dir_invert_mask = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "3", "Stepper/DirInvert", DEFAULT_DIRECTION_INVERT_MASK, postMotorSetting);
+    step_invert_mask = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "2", "Stepper/StepInvert", DEFAULT_STEPPING_INVERT_MASK, postMotorSetting);
+    stepper_idle_lock_time = new IntSetting(ERabbitGRBLItemType::GRBL, "1", "Stepper/IdleTime", DEFAULT_STEPPER_IDLE_LOCK_TIME, 0, 255);
+    pulse_microseconds = new IntSetting(ERabbitGRBLItemType::GRBL, "0", "Stepper/Pulse", DEFAULT_STEP_PULSE_MICROSECONDS, 3, 1000);
+    direction_delay_microseconds = new IntSetting(ERabbitGRBLItemType::EXTENDED, NULL, "Stepper/Direction/Delay", STEP_PULSE_DELAY, 0, 1000);
+    enable_delay_microseconds = new IntSetting(ERabbitGRBLItemType::EXTENDED, NULL, "Stepper/Enable/Delay", DEFAULT_STEP_ENABLE_DELAY, 0, 1000); // microseconds
 
-    homing_cycle[5] = new AxisMaskSetting(GRBL, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
-    homing_cycle[4] = new AxisMaskSetting(GRBL, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
-    homing_cycle[3] = new AxisMaskSetting(GRBL, "53", "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
-    homing_cycle[2] = new AxisMaskSetting(GRBL, "52", "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
-    homing_cycle[1] = new AxisMaskSetting(GRBL, "51", "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
-    homing_cycle[0] = new AxisMaskSetting(GRBL, "50", "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
+    homing_cycle[5] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
+    homing_cycle[4] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
+    homing_cycle[3] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "53", "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
+    homing_cycle[2] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "52", "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
+    homing_cycle[1] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "51", "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
+    homing_cycle[0] = new AxisMaskSetting(ERabbitGRBLItemType::GRBL, "50", "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
 
-    user_macro3 = new StringSetting(EXTENDED, NULL, "User/Macro3", DEFAULT_USER_MACRO3);
-    user_macro2 = new StringSetting(EXTENDED, NULL, "User/Macro2", DEFAULT_USER_MACRO2);
-    user_macro1 = new StringSetting(EXTENDED, NULL, "User/Macro1", DEFAULT_USER_MACRO1);
-    user_macro0 = new StringSetting(EXTENDED, NULL, "User/Macro0", DEFAULT_USER_MACRO0);
+    user_macro3 = new StringSetting(ERabbitGRBLItemType::EXTENDED, NULL, "User/Macro3", DEFAULT_USER_MACRO3);
+    user_macro2 = new StringSetting(ERabbitGRBLItemType::EXTENDED, NULL, "User/Macro2", DEFAULT_USER_MACRO2);
+    user_macro1 = new StringSetting(ERabbitGRBLItemType::EXTENDED, NULL, "User/Macro1", DEFAULT_USER_MACRO1);
+    user_macro0 = new StringSetting(ERabbitGRBLItemType::EXTENDED, NULL, "User/Macro0", DEFAULT_USER_MACRO0);
 
-    settings_message_level = +new EnumSetting(NULL, EXTENDED, NULL, "Message/Level", static_cast<int8_t>(EMessageLevel::Info), &messageLevels, NULL);
+    settings_message_level = +new EnumSetting(NULL, ERabbitGRBLItemType::EXTENDED, NULL, "Message/Level", static_cast<int8_t>(EMessageLevel::Info), &messageLevels, NULL);
 }

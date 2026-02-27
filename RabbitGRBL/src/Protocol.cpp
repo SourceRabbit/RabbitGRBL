@@ -84,7 +84,7 @@ EError execute_line(char *line)
     // Grbl '$' system command
     if (line[0] == '$')
     {
-        return system_execute_line(line);
+        return SettingsManager::ExecuteLine(line);
     }
 
     // Everything else is gcode. Block if in alarm or jog mode.
@@ -144,7 +144,7 @@ void protocol_main_loop()
 
         // All systems go!
         char startup_line[LINE_BUFFER_SIZE];
-        system_execute_startup(startup_line); // Execute startup script.
+        SettingsManager::ExecuteStartupLines(startup_line); // Execute startup script.
     }
     // ---------------------------------------------------------------------------------
     // Primary loop! Upon a system abort, this exits back to main() to reset the system.

@@ -36,12 +36,13 @@ const double SOME_LARGE_VALUE = 1.0E+38;
 // Axis array index values. Must start with 0 and be continuous.
 // Note: You set the number of axes used by changing MAX_N_AXIS.
 // Be sure to define pins or servos in the machine definition file.
-constexpr int X_AXIS = 0; // Axis indexing value.
-constexpr int Y_AXIS = 1;
-constexpr int Z_AXIS = 2;
-constexpr int A_AXIS = 3;
-constexpr int B_AXIS = 4;
-constexpr int C_AXIS = 5;
+constexpr uint8_t NO_AXIS = 255;
+constexpr uint8_t X_AXIS = 0; // Axis indexing value.
+constexpr uint8_t Y_AXIS = 1;
+constexpr uint8_t Z_AXIS = 2;
+constexpr uint8_t A_AXIS = 3;
+constexpr uint8_t B_AXIS = 4;
+constexpr uint8_t C_AXIS = 5;
 
 const int MAX_AXES = 6;
 const int MAX_GANGED = 2;

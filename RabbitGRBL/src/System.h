@@ -160,11 +160,6 @@ uint8_t system_check_safety_door_ajar();
 
 void isr_control_inputs();
 
-// Execute the startup script lines stored in non-volatile storage upon initialization
-void system_execute_startup(char *line);
-EError execute_line(char *line);
-EError system_execute_line(char *line);
-EError do_command_or_setting(const char *key, char *value);
 void system_flag_wco_change();
 
 // Returns machine position of axis 'idx'. Must be sent a 'step' array.

@@ -39,9 +39,11 @@ void grbl_init()
     }
     // ----------------------------------------------------------------------------------------------------
 
-    settings_init(); // Load Grbl settings from non-volatile storage (NVS)
-    stepper_init();  // Configure stepper pins and interrupt timers
-    system_ini();    // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
+    SettingsManager::Initialize();
+    GRBLCommandsManager::Initialize();
+
+    stepper_init(); // Configure stepper pins and interrupt timers
+    system_ini();   // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
 
     Controller::Initialize();
 

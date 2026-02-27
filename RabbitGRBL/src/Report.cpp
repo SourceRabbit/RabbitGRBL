@@ -674,24 +674,6 @@ void report_gcode_comment(char *comment)
     }
 }
 
-/**
- * Reports a message with the NVS Usage
- */
-EError report_nvs_stats(const char *value)
-{
-    nvs_stats_t stats;
-
-    // Retrieve NVS partition usage statistics via NVSManager
-    if (NVSManager::GetStats(&stats) != ESP_OK)
-    {
-        return EError::NvsGetStatsFailed;
-    }
-
-    MessageSender::SendMessage(EMessageLevel::Info, "NVS Used: %d Free: %d Total: %d", stats.used_entries, stats.free_entries, stats.total_entries);
-
-    return EError::Ok;
-}
-
 char *report_state_text()
 {
     static char state[10];
