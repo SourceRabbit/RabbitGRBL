@@ -21,7 +21,7 @@
 */
 
 // Grbl versioning system
-const char *const FIRMWARE_NAME = "Rabbit GRBL v1.5.5";
+const char *const FIRMWARE_NAME = "Rabbit GRBL v1.5.6";
 const char *const GRBL_VERSION_BUILD = "20260225";
 const char *const GRBL_VERSION = "1.1h";
 

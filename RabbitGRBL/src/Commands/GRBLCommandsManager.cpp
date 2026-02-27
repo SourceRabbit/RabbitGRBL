@@ -22,7 +22,8 @@
 
 #include "GRBLCommandsManager.h"
 
-// Initialize and register all GRBL commands
+// Initialize and register all GRBL '$' Commands
+// https://github.com/SourceRabbit/RabbitGRBL/wiki/GRBL-'$'-Commands
 void GRBLCommandsManager::Initialize()
 {
     new GrblCommand("", "Help", GRBLCommandsManager::ShowGRBLHelp, grbl_state_any);
