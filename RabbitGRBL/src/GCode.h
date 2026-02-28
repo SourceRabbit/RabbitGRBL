@@ -203,8 +203,9 @@ enum class ToolLengthOffset : uint8_t
 
 enum class ToolChange : uint8_t
 {
-    Disable = 0,
-    Enable = 1,
+    Disable = 0,        // No tool change command in block
+    Enable = 1,         // M6 - perform tool change
+    SetCurrentTool = 2, // M61 - set current tool number without physical change
 };
 
 // Modal Group G12: Active work coordinate system

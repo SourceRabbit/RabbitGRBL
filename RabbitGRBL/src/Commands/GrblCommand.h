@@ -30,11 +30,7 @@ private:
     EError (*_action)(const char *);
 
 public:
-    GrblCommand(const char *grblName,
-                const char *name,
-                EError (*action)(const char *),
-                bool (*cmdChecker)()) : Command(NULL, ERabbitGRBLItemType::GRBLCMD, grblName, name, cmdChecker),
-                                        _action(action) {}
+    GrblCommand(const char *name, const char *description, EError (*action)(const char *), bool (*cmdChecker)());
 
     EError action(char *value);
 };

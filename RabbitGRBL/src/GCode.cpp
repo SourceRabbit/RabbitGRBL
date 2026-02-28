@@ -8,7 +8,7 @@
     2018 -	Bart Dring This file was modifed for use on the ESP32
                     CPU. Do not use this with Grbl for atMega328P
 
-    2026 - Nikos Siatras added G81, G83 & G73 Canned Cycles
+    2026 - Nikos Siatras added G81, G83, G73 Canned Cycles & M61 Set Current Tool
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -877,11 +877,15 @@ EError gc_execute_line(char *line)
                 }
                 mg_word_bit = ModalGroup::MM7;
                 break;
-            case 6: // tool change
+            case 6: // M6 - tool change
                 gc_block.modal.tool_change = ToolChange::Enable;
 #ifdef USE_TOOL_CHANGE
-                // user_tool_change(gc_state.tool);
+                user_tool_change(gc_state.tool);
 #endif
+                mg_word_bit = ModalGroup::MM6;
+                break;
+            case 61: // M61 - set current tool number without physical tool change
+                gc_block.modal.tool_change = ToolChange::SetCurrentTool;
                 mg_word_bit = ModalGroup::MM6;
                 break;
             case 7:
@@ -1275,6 +1279,19 @@ EError gc_execute_line(char *line)
             FAIL(EError::GcodeValueWordMissing); // [P word missing]
         }
         bit_false(value_words, bit(GCodeWord::P));
+    }
+    // [M61 Errors]: Q word missing or out of range.
+    if (gc_block.modal.tool_change == ToolChange::SetCurrentTool)
+    {
+        if (bit_isfalse(value_words, bit(GCodeWord::Q)))
+        {
+            FAIL(EError::GcodeValueWordMissing); // [Q word missing for M61]
+        }
+        if (gc_block.values.q < 0 || gc_block.values.q > MaxToolNumber)
+        {
+            FAIL(EError::GcodeMaxValueExceeded); // [Q out of range for M61]
+        }
+        bit_false(value_words, bit(GCodeWord::Q)); // Consume Q word
     }
     if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync) ||
         (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate))
@@ -2178,12 +2195,19 @@ EError gc_execute_line(char *line)
     } // else { pl_data->spindle_speed = 0.0; } // Initialized as zero already.
     // [5. Select tool ]: NOT SUPPORTED. Only tracks tool value.
     //	gc_state.tool = gc_block.values.t;
-    // [6. Change tool ]: NOT SUPPORTED
+    // [6. Change tool / Set current tool ]:
     if (gc_block.modal.tool_change == ToolChange::Enable)
     {
+        // M6 - physical tool change
 #ifdef USE_TOOL_CHANGE
         user_tool_change(gc_state.tool);
 #endif
+    }
+    else if (gc_block.modal.tool_change == ToolChange::SetCurrentTool)
+    {
+        // M61 Q<n> - set current tool number without physical tool change
+        gc_state.tool = (uint8_t)gc_block.values.q;
+        MessageSender::SendMessage(EMessageLevel::Info, "Tool %u", gc_state.tool);
     }
     // [7. Spindle control ]:
     if (gc_state.modal.spindle != gc_block.modal.spindle)

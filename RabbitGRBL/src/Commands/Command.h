@@ -25,20 +25,15 @@
 #include "../Settings/Word.h"
 #include "../Diagnostics/Errors/EError.h"
 
-// Command::List is a linked list of all commands,
-// so common code can enumerate them.
+// Command is the base class for all GRBL command objects.
 class Command : public Word
 {
 protected:
-    Command *link; // linked list of command objects
     bool (*_cmdChecker)();
 
 public:
-    static Command *List;
-    Command *next() { return link; }
-
     ~Command() {}
-    Command(const char *description, ERabbitGRBLItemType type, const char *grblName, const char *fullName, bool (*cmdChecker)());
+    Command(ERabbitGRBLItemType type, const char *name, const char *description, bool (*cmdChecker)());
 
     virtual EError action(char *value) = 0;
 };

@@ -22,11 +22,7 @@
 
 #include "Command.h"
 
-Command *Command::List = NULL;
-
-Command::Command(const char *description, ERabbitGRBLItemType type, const char *grblName, const char *fullName, bool (*cmdChecker)())
-    : Word(type, description, grblName, fullName), _cmdChecker(cmdChecker)
+Command::Command(ERabbitGRBLItemType type, const char *name, const char *description, bool (*cmdChecker)())
+    : Word(type, description, name, ""), _cmdChecker(cmdChecker)
 {
-  link = List;
-  List = this;
 }

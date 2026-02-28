@@ -171,7 +171,7 @@ EError SettingsManager::ExecuteCommandOrSetting(const char *key, char *value)
     // If we did not find a setting, look for a command.  Commands
     // handle values internally; you cannot determine whether to set
     // or display solely based on the presence of a value.
-    for (Command *cp = Command::List; cp; cp = cp->next())
+    for (GrblCommand *cp : GRBLCommandsManager::getGRBLCommandsList())
     {
         if ((strcasecmp(cp->getName(), key) == 0) || (cp->getGrblName() && strcasecmp(cp->getGrblName(), key) == 0))
         {
@@ -315,17 +315,15 @@ void SettingsManager::ExecuteStartupLines(char *line)
 
 EError SettingsManager::ReportNormalSettings(const char *value)
 {
-    ShowGrblSettings(ERabbitGRBLItemType::GRBL, false); // GRBL non-axis settings
-    ShowGrblSettings(ERabbitGRBLItemType::GRBL, true);  // GRBL axis settings
+    ShowGrblSettings(ERabbitGRBLItemType::SETTING, false); // GRBL non-axis settings
+    ShowGrblSettings(ERabbitGRBLItemType::SETTING, true);  // GRBL axis settings
     return EError::Ok;
 }
 
 EError SettingsManager::ReportExtendedSettings(const char *value)
 {
-    ShowGrblSettings(ERabbitGRBLItemType::GRBL, false);     // GRBL non-axis settings
-    ShowGrblSettings(ERabbitGRBLItemType::EXTENDED, false); // Extended non-axis settings
-    ShowGrblSettings(ERabbitGRBLItemType::GRBL, true);      // GRBL axis settings
-    ShowGrblSettings(ERabbitGRBLItemType::EXTENDED, true);  // Extended axis settings
+    ShowGrblSettings(ERabbitGRBLItemType::EXTENDED_SETTING, false); // Extended non-axis settings
+    ShowGrblSettings(ERabbitGRBLItemType::EXTENDED_SETTING, true);  // Extended axis settings
     return EError::Ok;
 }
 

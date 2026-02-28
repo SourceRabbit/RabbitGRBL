@@ -21,12 +21,21 @@
 */
 
 #include "GrblCommand.h"
+#include "GRBLCommandsManager.h"
+
+GrblCommand::GrblCommand(const char *name, const char *description, EError (*action)(const char *), bool (*cmdChecker)())
+    : Command(ERabbitGRBLItemType::COMMAND, name, description, cmdChecker),
+      _action(action)
+{
+  // Register this GrblCommand into the GRBLCommandsManager list
+  GRBLCommandsManager::getGRBLCommandsList().push_back(this);
+}
 
 EError GrblCommand::action(char *value)
 {
-    if (_cmdChecker && _cmdChecker())
-    {
-        return EError::IdleError;
-    }
-    return _action((const char *)value);
+  if (_cmdChecker && _cmdChecker())
+  {
+    return EError::IdleError;
+  }
+  return _action((const char *)value);
 }

@@ -22,10 +22,15 @@
 
 #pragma once
 
+#include <vector>
 #include "../Grbl.h"
 
 class GRBLCommandsManager
 {
+private:
+  // List of all registered GrblCommand objects
+  static std::vector<GrblCommand *> fList;
+
 public:
   // Register all GrblCommand objects
   static void Initialize();
@@ -58,5 +63,9 @@ public:
 
   static EError SystemSleep(const char *value);
 
-  static EError DisableMotors(const char *value);
+  // Returns the list of all registered GrblCommand objects
+  static std::vector<GrblCommand *> &getGRBLCommandsList()
+  {
+    return fList;
+  }
 };

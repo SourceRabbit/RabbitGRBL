@@ -22,55 +22,56 @@
 
 #include "GRBLCommandsManager.h"
 
+// Static definition of the list of all registered GrblCommand objects
+std::vector<GrblCommand *> GRBLCommandsManager::fList;
+
 // Initialize and register all GRBL '$' Commands
 // https://github.com/SourceRabbit/RabbitGRBL/wiki/GRBL-'$'-Commands
 void GRBLCommandsManager::Initialize()
 {
     new GrblCommand("", "Help", GRBLCommandsManager::ShowGRBLHelp, grbl_state_any);
-    new GrblCommand("I", "BuildInfo", GRBLCommandsManager::ShowGRBLBuildInfo, grbl_state_idleOrAlarm);
-    new GrblCommand("J", "Jog", GRBLCommandsManager::DoJog, grbl_state_idleOrJog);
+    new GrblCommand("I", "Build Info", GRBLCommandsManager::ShowGRBLBuildInfo, grbl_state_idleOrAlarm);
+    new GrblCommand("J", "Jog Command", GRBLCommandsManager::DoJog, grbl_state_idleOrJog);
 
-    new GrblCommand("$", "GrblSettings/List", SettingsManager::ReportNormalSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("+", "ExtendedSettings/List", SettingsManager::ReportExtendedSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("L", "GrblNames/List", SettingsManager::ListGrblNames, grbl_state_notCycleOrHold);
-    new GrblCommand("S", "Settings/List", SettingsManager::ListSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("SC", "Settings/ListChanged", SettingsManager::ListChangedSettings, grbl_state_notCycleOrHold);
+    new GrblCommand("$", "Report Settings", SettingsManager::ReportNormalSettings, grbl_state_notCycleOrHold);
+    new GrblCommand("+", "Report Extended Settings", SettingsManager::ReportExtendedSettings, grbl_state_notCycleOrHold);
+    new GrblCommand("L", "List Grbl Names", SettingsManager::ListGrblNames, grbl_state_notCycleOrHold);
+    new GrblCommand("S", "List Settings", SettingsManager::ListSettings, grbl_state_notCycleOrHold);
+    new GrblCommand("SC", "List Changed Settings", SettingsManager::ListChangedSettings, grbl_state_notCycleOrHold);
 
-    new GrblCommand("CMD", "Commands/List", GRBLCommandsManager::ListCommands, grbl_state_notCycleOrHold);
+    new GrblCommand("CMD", "Commands List", GRBLCommandsManager::ListCommands, grbl_state_notCycleOrHold);
 
-    new GrblCommand("A", "Alarms/List", AlarmsManager::ListAlarms, grbl_state_any);
-    new GrblCommand("E", "Errors/List", ErrorsManager::ListErrors, grbl_state_any);
+    new GrblCommand("A", "Alarms List", AlarmsManager::ListAlarms, grbl_state_any);
+    new GrblCommand("E", "Errors List", ErrorsManager::ListErrors, grbl_state_any);
 
-    new GrblCommand("G", "GCode/Modes", GRBLCommandsManager::Execute_ReportGCodeModes, grbl_state_any);
-    new GrblCommand("C", "GCode/Check", GRBLCommandsManager::ToggleCheckMode, grbl_state_any);
-    new GrblCommand("X", "Alarm/Disable", GRBLCommandsManager::DisableAlarmLock, grbl_state_any);
-    new GrblCommand("NVX", "Settings/Erase", NVSManager::EraseNVSUponUserCommand, grbl_state_idleOrAlarm);
-    new GrblCommand("V", "Settings/Stats", GRBLCommandsManager::ReportNVSStats, grbl_state_idleOrAlarm);
-    new GrblCommand("#", "GCode/Offsets", GRBLCommandsManager::Execute_ReportNGCParameters, grbl_state_idleOrAlarm);
+    new GrblCommand("G", "GCode Modes", GRBLCommandsManager::Execute_ReportGCodeModes, grbl_state_any);
+    new GrblCommand("C", "Toggle Check Mode", GRBLCommandsManager::ToggleCheckMode, grbl_state_any);
+    new GrblCommand("X", "Disable Alarm Lock", GRBLCommandsManager::DisableAlarmLock, grbl_state_any);
+    new GrblCommand("NVX", "Erase NVS", NVSManager::EraseNVSUponUserCommand, grbl_state_idleOrAlarm);
+    new GrblCommand("V", "Report NVS Stats", GRBLCommandsManager::ReportNVSStats, grbl_state_idleOrAlarm);
+    new GrblCommand("#", "Report NGC Parameters", GRBLCommandsManager::Execute_ReportNGCParameters, grbl_state_idleOrAlarm);
 
-    new GrblCommand("MD", "Motor/Disable", GRBLCommandsManager::DisableMotors, grbl_state_idleOrAlarm);
-
-    new GrblCommand("H", "Home", GRBLCommandsManager::HomeAll, grbl_state_idleOrAlarm);
+    new GrblCommand("H", "Home All Axis", GRBLCommandsManager::HomeAll, grbl_state_idleOrAlarm);
 
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
     // Each axis gets its own $H<axis> command, all routing through Home() with the correct bitmask
-    new GrblCommand("HX", "Home/X", [](const char *v)
+    new GrblCommand("HX", "Home X Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(X_AXIS)); }, grbl_state_idleOrAlarm);
-    new GrblCommand("HY", "Home/Y", [](const char *v)
+    new GrblCommand("HY", "Home Y Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(Y_AXIS)); }, grbl_state_idleOrAlarm);
-    new GrblCommand("HZ", "Home/Z", [](const char *v)
+    new GrblCommand("HZ", "Home Z Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(Z_AXIS)); }, grbl_state_idleOrAlarm);
-    new GrblCommand("HA", "Home/A", [](const char *v)
+    new GrblCommand("HA", "Home A Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(A_AXIS)); }, grbl_state_idleOrAlarm);
-    new GrblCommand("HB", "Home/B", [](const char *v)
+    new GrblCommand("HB", "HomeB Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(B_AXIS)); }, grbl_state_idleOrAlarm);
-    new GrblCommand("HC", "Home/C", [](const char *v)
+    new GrblCommand("HC", "Home C Axis", [](const char *v)
                     { return GRBLCommandsManager::Home(bit(C_AXIS)); }, grbl_state_idleOrAlarm);
 #endif
 
-    new GrblCommand("SLP", "System/Sleep", GRBLCommandsManager::SystemSleep, grbl_state_idleOrAlarm);
-    new GrblCommand("N", "GCode/StartupLines", GRBLCommandsManager::ReportStartupLines, grbl_state_idleOrAlarm);
-    new GrblCommand("RST", "Settings/Restore", SettingsManager::RestoreSettingsCommand, grbl_state_idleOrAlarm);
+    new GrblCommand("SLP", "Sleep", GRBLCommandsManager::SystemSleep, grbl_state_idleOrAlarm);
+    new GrblCommand("N", "Report Startup Lines", GRBLCommandsManager::ReportStartupLines, grbl_state_idleOrAlarm);
+    new GrblCommand("RST", "Restore Settings", SettingsManager::RestoreSettingsCommand, grbl_state_idleOrAlarm);
 }
 
 EError GRBLCommandsManager::ShowGRBLHelp(const char *value)
@@ -125,45 +126,31 @@ EError GRBLCommandsManager::ToggleCheckMode(const char *value)
 
 EError GRBLCommandsManager::ListCommands(const char *value)
 {
-    for (Command *cp = Command::List; cp; cp = cp->next())
+    for (GrblCommand *cp : GRBLCommandsManager::fList)
     {
         // Build the full command line into a local buffer before sending.
         // This avoids multiple fragmented Write calls per line,
         // which is critical for Bluetooth compatibility.
         char line[RX_BUFFER_SIZE];
 
-        const char *name = cp->getName();
-        const char *oldName = cp->getGrblName();
+        const char *name = cp->getGrblName();
         const char *description = cp->getDescription();
 
-        if (oldName)
+        // Format: "$name = description\r\n"
+        if (description)
         {
-            // Format: "$name or $oldName =description\r\n"
-            if (description)
-            {
-                snprintf(line, sizeof(line), "$%s or $%s =%s\r\n", name, oldName, description);
-            }
-            else
-            {
-                snprintf(line, sizeof(line), "$%s or $%s\r\n", name, oldName);
-            }
+            snprintf(line, sizeof(line), "$%s = %s\r\n", name, description);
         }
         else
         {
-            // Format: "$name =description\r\n"
-            if (description)
-            {
-                snprintf(line, sizeof(line), "$%s =%s\r\n", name, description);
-            }
-            else
-            {
-                snprintf(line, sizeof(line), "$%s\r\n", name);
-            }
+            snprintf(line, sizeof(line), "$%s\r\n", name);
         }
 
         // Single Write per line — safe for Serial and Bluetooth
         ConnectionManager::Active().Write(line);
     }
+
+    delay_ms(100);
     return EError::Ok;
 }
 
@@ -260,45 +247,5 @@ EError GRBLCommandsManager::ReportStartupLines(const char *value)
 EError GRBLCommandsManager::SystemSleep(const char *value)
 {
     sys_rt_exec_state.bit.sleep = true;
-    return EError::Ok;
-}
-
-EError GRBLCommandsManager::DisableMotors(const char *value)
-{
-    char *s;
-    if (value == NULL)
-    {
-        value = "\0";
-    }
-
-    s = strdup(value);
-    s = trim(s);
-
-    int32_t convertedValue;
-    char *endptr;
-    if (*s == '\0')
-    {
-        convertedValue = 255; // all axes
-    }
-    else
-    {
-        convertedValue = strtol(s, &endptr, 10);
-        if (endptr == s || *endptr != '\0')
-        {
-            // Try to convert as an axis list
-            convertedValue = 0;
-            auto axisNames = String("XYZABC");
-            while (*s)
-            {
-                int index = axisNames.indexOf(toupper(*s++));
-                if (index < 0)
-                {
-                    return EError::BadNumberFormat;
-                }
-                convertedValue |= bit(index);
-            }
-        }
-    }
-    Controller::getMotorsManager().SetDisable(true, convertedValue);
     return EError::Ok;
 }
