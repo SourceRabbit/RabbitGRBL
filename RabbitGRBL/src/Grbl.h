@@ -57,6 +57,7 @@ const char *const GRBL_VERSION = "1.1h";
 #include "Settings.h"
 #include "SettingsDefinitions.h"
 #include "Settings/SettingsManager.h"
+#include "CoordinatesManager/CoordinatesManager.h"
 #include "Commands/GRBLCommandsManager.h"
 
 // Controller needs Settings & SettingsDefinitions
@@ -82,11 +83,3 @@ void user_m30();
 
 // Called if USE_TOOL_CHANGE is defined
 void user_tool_change(uint8_t new_tool);
-
-bool grbl_state_any();
-
-bool grbl_state_idleOrJog();
-
-bool grbl_state_idleOrAlarm();
-
-bool grbl_state_notCycleOrHold();

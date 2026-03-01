@@ -14,14 +14,13 @@ enum SettingsRestore
     Parameters = bit(1),
     StartupLines = bit(2),
     // BuildInfo = bit(3), // Obsolete
-    Wifi = bit(4),
+
     All = 0xff,
 };
 
 #include "Setting.h"
 #include "IntSetting.h"
 #include "AxisMaskSetting.h"
-#include "Coordinates.h"
 #include "FloatSetting.h"
 #include "StringSetting.h"
 #include "EnumSetting.h"

@@ -22,7 +22,8 @@
 
 #include "Command.h"
 
+// Initialize all Command fields directly (no base class inheritance)
 Command::Command(ERabbitGRBLItemType type, const char *name, const char *description, bool (*cmdChecker)())
-    : Word(type, description, name, ""), _cmdChecker(cmdChecker)
+	: fType(type), fName(name), fDescription(description), fCommandCheckerBoolean(cmdChecker)
 {
 }

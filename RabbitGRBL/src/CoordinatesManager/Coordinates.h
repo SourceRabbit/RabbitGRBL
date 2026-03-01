@@ -1,9 +1,8 @@
 /*
-  Command.h
+  Coordinates.h
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
-  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -22,25 +21,32 @@
 
 #pragma once
 
-#include "../Settings/Word.h"
-#include "../Diagnostics/Errors/EError.h"
-
-// Command is the base class for all GRBL command objects.
-class Command
+class Coordinates
 {
-protected:
-    ERabbitGRBLItemType fType;
+private:
+    float fCurrentValue[MAX_N_AXIS];
     const char *fName;
-    const char *fDescription;
-    bool (*fCommandCheckerBoolean)();
 
 public:
-    ~Command() {}
-    Command(ERabbitGRBLItemType type, const char *name, const char *description, bool (*fCommandCheckerBoolean)());
+    Coordinates(const char *name) : fName(name) {}
 
-    ERabbitGRBLItemType getType() { return fType; }
+    bool LoadFromNVS();
+
     const char *getName() { return fName; }
-    const char *getDescription() { return fDescription; }
 
-    virtual EError action(char *value) = 0;
+    void setDefault()
+    {
+        float zeros[MAX_N_AXIS] = {
+            0.0,
+        };
+        set(zeros);
+    };
+
+    // Copy the value to an array
+    void get(float *value) { memcpy(value, fCurrentValue, sizeof(fCurrentValue)); }
+
+    // Return a pointer to the array
+    const float *get() { return fCurrentValue; }
+
+    void set(float *value);
 };

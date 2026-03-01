@@ -46,7 +46,7 @@ void report_grbl_help()
 
     for (GrblCommand *cmd : GRBLCommandsManager::getGRBLCommandsList())
     {
-        const char *grblName = cmd->getGrblName();
+        const char *grblName = cmd->getName();
         if (grblName != nullptr && grblName[0] != '\0')
         {
             ConnectionManager::Active().Write(" $");
@@ -145,12 +145,12 @@ void report_ngc_parameters()
     String ngc_rpt = "";
 
     // Print persistent offsets G54 - G59, G28, and G30
-    for (auto coord_select = CoordIndex::Begin; coord_select < CoordIndex::End; ++coord_select)
+    for (auto coord_select = ECoordinatesIndex::Begin; coord_select < ECoordinatesIndex::End; ++coord_select)
     {
         ngc_rpt += "[";
-        ngc_rpt += coords[coord_select]->getName();
+        ngc_rpt += CoordinatesManager::getCoordinates(coord_select)->getName();
         ngc_rpt += ":";
-        ngc_rpt += report_util_axis_values(coords[coord_select]->get());
+        ngc_rpt += report_util_axis_values(CoordinatesManager::getCoordinates(coord_select)->get());
         ngc_rpt += "]\r\n";
     }
     ngc_rpt += "[G92:"; // Print non-persistent G92,G92.1
@@ -166,6 +166,8 @@ void report_ngc_parameters()
     ngc_rpt += "]\r\n";
     ConnectionManager::Active().Write(ngc_rpt.c_str());
     Controller::getProbe().ReportProbeParameters();
+
+    delay_ms(100);
 }
 
 // Print current gcode parser mode state

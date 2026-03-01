@@ -1,5 +1,3 @@
-#pragma once
-
 /*
   GCode.h - rs274/ngc parser.
   Part of Grbl
@@ -23,6 +21,10 @@
   You should have received a copy of the GNU General Public License
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#pragma once
+
+#include "CoordinatesManager/ECoordinatesIndex.h"
 
 // Modal group internal numbers for checking multiple command violations and tracking the
 // type of command that is called in the block. A modal group is a group of g-code commands that are
@@ -78,18 +80,18 @@ enum class NonModal : uint8_t
 // Modal Group G1: Motion modes
 enum class Motion : uint8_t
 {
-    Seek = 0,                     // G0 (Default: Must be zero)
-    Linear = 1,                   // G1 (Do not alter value)
-    CwArc = 2,                    // G2 (Do not alter value)
-    CcwArc = 3,                   // G3 (Do not alter value)
-    PeckDrill_ChipBreaking = 73,  // G73 - peck drilling canned cycle (Chip Breaking)
-    Drill = 81,                   // G81 - drilling canned cycle
-    PeckDrill_ChipRemoving = 83,  // G83 - peck drilling canned cycle (Chip Removing)
-    ProbeToward = 140,            // G38.2 (Do not alter value)
-    ProbeTowardNoError = 141,     // G38.3 (Do not alter value)
-    ProbeAway = 142,              // G38.4 (Do not alter value)
-    ProbeAwayNoError = 143,       // G38.5 (Do not alter value)
-    None = 80,                    // G80 (Do not alter value)
+    Seek = 0,                    // G0 (Default: Must be zero)
+    Linear = 1,                  // G1 (Do not alter value)
+    CwArc = 2,                   // G2 (Do not alter value)
+    CcwArc = 3,                  // G3 (Do not alter value)
+    PeckDrill_ChipBreaking = 73, // G73 - peck drilling canned cycle (Chip Breaking)
+    Drill = 81,                  // G81 - drilling canned cycle
+    PeckDrill_ChipRemoving = 83, // G83 - peck drilling canned cycle (Chip Removing)
+    ProbeToward = 140,           // G38.2 (Do not alter value)
+    ProbeTowardNoError = 141,    // G38.3 (Do not alter value)
+    ProbeAway = 142,             // G38.4 (Do not alter value)
+    ProbeAwayNoError = 143,      // G38.5 (Do not alter value)
+    None = 80,                   // G80 (Do not alter value)
 };
 
 // Modal Group G2: Plane select
@@ -192,8 +194,6 @@ enum class IoControl : uint8_t
     SetAnalogImmediate = 6,  // M68
 };
 
-
-
 // Modal Group G8: Tool length offset
 enum class ToolLengthOffset : uint8_t
 {
@@ -256,33 +256,6 @@ enum GCParserFlags
     GCParserLaserIsMotion = bit(7),
 };
 
-// Various places in the code access saved coordinate system data
-// by a small integer index according to the values below.
-enum CoordIndex : uint8_t
-{
-    Begin = 0,
-    G54 = Begin,
-    G55,
-    G56,
-    G57,
-    G58,
-    G59,
-    // To support 9 work coordinate systems it would be necessary to define
-    // the following 3 and modify GCode.cpp to support G59.1, G59.2, G59.3
-    // G59_1,
-    // G59_2,
-    // G59_3,
-    NWCSystems,
-    G28 = NWCSystems,
-    G30,
-    // G92_2,
-    // G92_3,
-    End,
-};
-
-// Allow iteration over CoordIndex values
-CoordIndex &operator++(CoordIndex &i);
-
 // Canned cycle type — which G-code cycle is currently active.
 enum class CannedCycleType : uint8_t
 {
@@ -314,8 +287,8 @@ typedef struct
     // ArcDistance distance_arc; // {G91.1} NOTE: Don't track. Only default supported.
     Plane plane_select; // {G17,G18,G19}
     // CutterCompensation cutter_comp;  // {G40} NOTE: Don't track. Only default supported.
-    ToolLengthOffset tool_length; // {G43.1,G49}
-    CoordIndex coord_select;      // {G54,G55,G56,G57,G58,G59}
+    ToolLengthOffset tool_length;   // {G43.1,G49}
+    ECoordinatesIndex coord_select; // {G54,G55,G56,G57,G58,G59}
     // uint8_t control;      // {G61} NOTE: Don't track. Only default supported.
     ProgramFlow program_flow; // {M0,M1,M2,M30}
     CoolantState coolant;     // {M7,M8,M9}

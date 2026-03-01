@@ -17,8 +17,8 @@ public:
                     int32_t defVal,
                     bool (*checker)(char *));
 
-    AxisMaskSetting(
-        ERabbitGRBLItemType type, const char *grblName, const char *name, int32_t defVal, bool (*checker)(char *) = NULL) : AxisMaskSetting(NULL, type, grblName, name, defVal, checker) {}
+    AxisMaskSetting(ERabbitGRBLItemType type, const char *grblName, const char *name, int32_t defVal, bool (*checker)(char *) = NULL)
+        : AxisMaskSetting(NULL, type, grblName, name, defVal, checker) {}
 
     void load();
     void setDefault();

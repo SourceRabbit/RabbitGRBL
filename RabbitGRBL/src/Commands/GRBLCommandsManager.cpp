@@ -29,49 +29,49 @@ std::vector<GrblCommand *> GRBLCommandsManager::fList;
 // https://github.com/SourceRabbit/RabbitGRBL/wiki/GRBL-'$'-Commands
 void GRBLCommandsManager::Initialize()
 {
-    new GrblCommand("", "Help", GRBLCommandsManager::ShowGRBLHelp, grbl_state_any);
-    new GrblCommand("I", "Build Info", GRBLCommandsManager::ShowGRBLBuildInfo, grbl_state_idleOrAlarm);
-    new GrblCommand("J", "Jog Command", GRBLCommandsManager::DoJog, grbl_state_idleOrJog);
+    new GrblCommand("", "Help", GRBLCommandsManager::ShowGRBLHelp, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("I", "Build Info", GRBLCommandsManager::ShowGRBLBuildInfo, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
+    new GrblCommand("J", "Jog Command", GRBLCommandsManager::DoJog, GRBLCommandsManager::CommandChecker_IdleOrJog);
 
-    new GrblCommand("$", "Report Settings", SettingsManager::ReportNormalSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("+", "Report Extended Settings", SettingsManager::ReportExtendedSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("L", "List Grbl Names", SettingsManager::ListGrblNames, grbl_state_notCycleOrHold);
-    new GrblCommand("S", "List Settings", SettingsManager::ListSettings, grbl_state_notCycleOrHold);
-    new GrblCommand("SC", "List Changed Settings", SettingsManager::ListChangedSettings, grbl_state_notCycleOrHold);
+    new GrblCommand("$", "Report Settings", SettingsManager::ReportNormalSettings, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
+    new GrblCommand("+", "Report Extended Settings", SettingsManager::ReportExtendedSettings, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
+    new GrblCommand("L", "List Grbl Names", SettingsManager::ListGrblNames, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
+    new GrblCommand("S", "List Settings", SettingsManager::ListSettings, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
+    new GrblCommand("SC", "List Changed Settings", SettingsManager::ListChangedSettings, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
 
-    new GrblCommand("CMD", "Commands List", GRBLCommandsManager::ListCommands, grbl_state_notCycleOrHold);
+    new GrblCommand("CMD", "Commands List", GRBLCommandsManager::ListCommands, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
 
-    new GrblCommand("A", "Alarms List", AlarmsManager::ListAlarms, grbl_state_any);
-    new GrblCommand("E", "Errors List", ErrorsManager::ListErrors, grbl_state_any);
+    new GrblCommand("A", "Alarms List", AlarmsManager::ListAlarms, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("E", "Errors List", ErrorsManager::ListErrors, GRBLCommandsManager::CommandChecker_AnyState);
 
-    new GrblCommand("G", "GCode Modes", GRBLCommandsManager::Execute_ReportGCodeModes, grbl_state_any);
-    new GrblCommand("C", "Toggle Check Mode", GRBLCommandsManager::ToggleCheckMode, grbl_state_any);
-    new GrblCommand("X", "Disable Alarm Lock", GRBLCommandsManager::DisableAlarmLock, grbl_state_any);
-    new GrblCommand("NVX", "Erase NVS", NVSManager::EraseNVSUponUserCommand, grbl_state_idleOrAlarm);
-    new GrblCommand("V", "Report NVS Stats", GRBLCommandsManager::ReportNVSStats, grbl_state_idleOrAlarm);
-    new GrblCommand("#", "Report NGC Parameters", GRBLCommandsManager::Execute_ReportNGCParameters, grbl_state_idleOrAlarm);
+    new GrblCommand("G", "GCode Modes", GRBLCommandsManager::Execute_ReportGCodeModes, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("C", "Toggle Check Mode", GRBLCommandsManager::ToggleCheckMode, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("X", "Disable Alarm Lock", GRBLCommandsManager::DisableAlarmLock, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("NVX", "Erase NVS", NVSManager::EraseNVSUponUserCommand, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
+    new GrblCommand("V", "Report NVS Stats", GRBLCommandsManager::ReportNVSStats, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
+    new GrblCommand("#", "Report NGC Parameters", GRBLCommandsManager::Execute_ReportNGCParameters, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
 
-    new GrblCommand("H", "Home All Axis", GRBLCommandsManager::HomeAll, grbl_state_idleOrAlarm);
+    new GrblCommand("H", "Home All Axis", GRBLCommandsManager::HomeAll, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
 
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
     // Each axis gets its own $H<axis> command, all routing through Home() with the correct bitmask
     new GrblCommand("HX", "Home X Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(X_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(X_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
     new GrblCommand("HY", "Home Y Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(Y_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(Y_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
     new GrblCommand("HZ", "Home Z Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(Z_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(Z_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
     new GrblCommand("HA", "Home A Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(A_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(A_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
     new GrblCommand("HB", "HomeB Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(B_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(B_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
     new GrblCommand("HC", "Home C Axis", [](const char *v)
-                    { return GRBLCommandsManager::Home(bit(C_AXIS)); }, grbl_state_idleOrAlarm);
+                    { return GRBLCommandsManager::Home(bit(C_AXIS)); }, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
 #endif
 
-    new GrblCommand("SLP", "Sleep", GRBLCommandsManager::SystemSleep, grbl_state_idleOrAlarm);
-    new GrblCommand("N", "Report Startup Lines", GRBLCommandsManager::ReportStartupLines, grbl_state_idleOrAlarm);
-    new GrblCommand("RST", "Restore Settings", SettingsManager::RestoreSettingsCommand, grbl_state_idleOrAlarm);
+    new GrblCommand("SLP", "Sleep", GRBLCommandsManager::SystemSleep, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
+    new GrblCommand("N", "Report Startup Lines", GRBLCommandsManager::ReportStartupLines, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
+    new GrblCommand("RST", "Restore Settings", SettingsManager::RestoreSettingsCommand, GRBLCommandsManager::CommandChecker_IdleOrAlarm);
 }
 
 EError GRBLCommandsManager::ShowGRBLHelp(const char *value)
@@ -133,7 +133,7 @@ EError GRBLCommandsManager::ListCommands(const char *value)
         // which is critical for Bluetooth compatibility.
         char line[RX_BUFFER_SIZE];
 
-        const char *name = cp->getGrblName();
+        const char *name = cp->getName();
         const char *description = cp->getDescription();
 
         // Format: "$name = description\r\n"

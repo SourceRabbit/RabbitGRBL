@@ -26,10 +26,10 @@
 
 #include "Grbl.h"
 
-// Allow iteration over CoordIndex values
-CoordIndex &operator++(CoordIndex &i)
+// Allow iteration over ECoordinatesIndex values
+ECoordinatesIndex &operator++(ECoordinatesIndex &i)
 {
-    i = static_cast<CoordIndex>(static_cast<uint8_t>(i) + 1);
+    i = static_cast<ECoordinatesIndex>(static_cast<uint8_t>(i) + 1);
     return i;
 }
 
@@ -53,8 +53,8 @@ void gc_init()
     // Reset canned cycle state:
     memset(&gc_canned_cycle, 0, sizeof(gc_canned_cycle_t));
     // Load default G54 coordinate system.
-    gc_state.modal.coord_select = CoordIndex::G54;
-    coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
+    gc_state.modal.coord_select = ECoordinatesIndex::G54;
+    CoordinatesManager::getCoordinates(gc_state.modal.coord_select)->get(gc_state.coord_system);
 }
 
 // Sets g-code parser position in mm. Input in steps. Called by the system abort and hard
@@ -444,7 +444,7 @@ EError gc_execute_line(char *line)
     memcpy(&gc_block.modal, &gc_state.modal, sizeof(gc_modal_t)); // Copy current modes
     AxisCommand axis_command = AxisCommand::None;
     uint8_t axis_0, axis_1, axis_linear;
-    CoordIndex coord_select = CoordIndex::G54; // Tracks G10 P coordinate selection for execution
+    ECoordinatesIndex coord_select = ECoordinatesIndex::G54; // Tracks G10 P coordinate selection for execution
     // Initialize bitflag tracking variables for axis indices compatible operations.
     uint8_t axis_words = 0; // XYZ tracking
     uint8_t ijk_words = 0;  // IJK tracking
@@ -777,27 +777,27 @@ EError gc_execute_line(char *line)
                 mg_word_bit = ModalGroup::MG8;
                 break;
             case 54:
-                gc_block.modal.coord_select = CoordIndex::G54;
+                gc_block.modal.coord_select = ECoordinatesIndex::G54;
                 mg_word_bit = ModalGroup::MG12;
                 break;
             case 55:
-                gc_block.modal.coord_select = CoordIndex::G55;
+                gc_block.modal.coord_select = ECoordinatesIndex::G55;
                 mg_word_bit = ModalGroup::MG12;
                 break;
             case 56:
-                gc_block.modal.coord_select = CoordIndex::G56;
+                gc_block.modal.coord_select = ECoordinatesIndex::G56;
                 mg_word_bit = ModalGroup::MG12;
                 break;
             case 57:
-                gc_block.modal.coord_select = CoordIndex::G57;
+                gc_block.modal.coord_select = ECoordinatesIndex::G57;
                 mg_word_bit = ModalGroup::MG12;
                 break;
             case 58:
-                gc_block.modal.coord_select = CoordIndex::G58;
+                gc_block.modal.coord_select = ECoordinatesIndex::G58;
                 mg_word_bit = ModalGroup::MG12;
                 break;
             case 59:
-                gc_block.modal.coord_select = CoordIndex::G59;
+                gc_block.modal.coord_select = ECoordinatesIndex::G59;
                 mg_word_bit = ModalGroup::MG12;
                 break;
                 // NOTE: G59.x are not supported.
@@ -1374,13 +1374,13 @@ EError gc_execute_line(char *line)
     { // Check if called in block
         // This error probably cannot happen because preceding code sets
         // gc_block.modal.coord_select only to specific supported values
-        if (gc_block.modal.coord_select >= CoordIndex::NWCSystems)
+        if (gc_block.modal.coord_select >= ECoordinatesIndex::NWCSystems)
         {
             FAIL(EError::GcodeUnsupportedCoordSys); // [Greater than N sys]
         }
         if (gc_state.modal.coord_select != gc_block.modal.coord_select)
         {
-            coords[gc_block.modal.coord_select]->get(block_coord_system);
+            CoordinatesManager::getCoordinates(gc_block.modal.coord_select)->get(block_coord_system);
         }
     }
     // [16. Set path control mode ]: N/A. Only G61. G61.1 and G64 NOT SUPPORTED.
@@ -1424,19 +1424,19 @@ EError gc_execute_line(char *line)
         if (pValue > 0)
         {
             // P1 means G54, P2 means G55, etc.
-            coord_select = static_cast<CoordIndex>(pValue - 1 + CoordIndex::G54);
+            coord_select = static_cast<ECoordinatesIndex>(pValue - 1 + ECoordinatesIndex::G54);
         }
         else
         {
             // P0 means use currently-selected system
             coord_select = gc_block.modal.coord_select;
         }
-        if (coord_select >= CoordIndex::NWCSystems)
+        if (coord_select >= ECoordinatesIndex::NWCSystems)
         {
             FAIL(EError::GcodeUnsupportedCoordSys); // [Greater than N sys]
         }
         bit_false(value_words, (bit(GCodeWord::L) | bit(GCodeWord::P)));
-        coords[coord_select]->get(coord_data);
+        CoordinatesManager::getCoordinates(coord_select)->get(coord_data);
 
         // Pre-calculate the coordinate data changes.
         for (idx = 0; idx < n_axis; idx++)
@@ -1535,11 +1535,11 @@ EError gc_execute_line(char *line)
             // Retreive G28/30 go-home position data (in machine coordinates) from non-volatile storage
             if (gc_block.non_modal_command == NonModal::GoHome0)
             {
-                coords[CoordIndex::G28]->get(coord_data);
+                CoordinatesManager::getCoordinates(ECoordinatesIndex::G28)->get(coord_data);
             }
             else
             { // == NonModal::GoHome1
-                coords[CoordIndex::G30]->get(coord_data);
+                CoordinatesManager::getCoordinates(ECoordinatesIndex::G30)->get(coord_data);
             }
             if (axis_words)
             {
@@ -2350,7 +2350,7 @@ EError gc_execute_line(char *line)
     switch (gc_block.non_modal_command)
     {
     case NonModal::SetCoordinateData:
-        coords[coord_select]->set(coord_data);
+        CoordinatesManager::getCoordinates(coord_select)->set(coord_data);
         // Update system coordinate system if currently active.
         if (gc_state.modal.coord_select == coord_select)
         {
@@ -2371,10 +2371,10 @@ EError gc_execute_line(char *line)
         memcpy(gc_state.position, coord_data, sizeof(gc_state.position));
         break;
     case NonModal::SetHome0:
-        coords[CoordIndex::G28]->set(gc_state.position);
+        CoordinatesManager::getCoordinates(ECoordinatesIndex::G28)->set(gc_state.position);
         break;
     case NonModal::SetHome1:
-        coords[CoordIndex::G30]->set(gc_state.position);
+        CoordinatesManager::getCoordinates(ECoordinatesIndex::G30)->set(gc_state.position);
         break;
     case NonModal::SetCoordinateOffset:
         memcpy(gc_state.coord_offset, gc_block.values.xyz, sizeof(gc_block.values.xyz));
@@ -2511,7 +2511,7 @@ EError gc_execute_line(char *line)
         gc_state.modal.distance = Distance::Absolute;
         gc_state.modal.feed_rate = FeedRate::UnitsPerMin;
         // gc_state.modal.cutter_comp = CutterComp::Disable; // Not supported.
-        gc_state.modal.coord_select = CoordIndex::G54;
+        gc_state.modal.coord_select = ECoordinatesIndex::G54;
         gc_state.modal.spindle = SpindleState::Disable;
         gc_state.modal.coolant = {};
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
@@ -2530,7 +2530,7 @@ EError gc_execute_line(char *line)
         // Execute coordinate change and spindle/coolant stop.
         if (sys.state != State::CheckMode)
         {
-            coords[gc_state.modal.coord_select]->get(gc_state.coord_system);
+            CoordinatesManager::getCoordinates(gc_state.modal.coord_select)->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
             Controller::getSpindle()->setState(SpindleState::Disable, 0);
             Controller::getCoolantManager().TurnAllCoolantsOff();

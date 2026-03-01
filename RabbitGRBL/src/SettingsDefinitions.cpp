@@ -209,30 +209,8 @@ static const char *makeGrblName(int axisNum, int base)
     return strcpy(retval, buf);
 }
 
-void make_coordinate(CoordIndex index, const char *name)
-{
-    float coord_data[MAX_N_AXIS] = {0.0};
-    auto coord = new Coordinates(name);
-    coords[index] = coord;
-    if (!coord->load())
-    {
-        coords[index]->setDefault();
-    }
-}
 void make_settings()
 {
-    // Propagate old coordinate system data to the new format if necessary.
-    // G54 - G59 work coordinate systems, G28, G30 reference positions, etc
-    make_coordinate(CoordIndex::G54, "G54");
-    make_coordinate(CoordIndex::G55, "G55");
-    make_coordinate(CoordIndex::G56, "G56");
-    make_coordinate(CoordIndex::G57, "G57");
-    make_coordinate(CoordIndex::G58, "G58");
-    make_coordinate(CoordIndex::G59, "G59");
-    make_coordinate(CoordIndex::G28, "G28");
-    make_coordinate(CoordIndex::G30, "G30");
-
-    // number_axis = new IntSetting(ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "NumberAxis", N_AXIS, 0, 6, NULL, true);
     number_axis = new FakeSetting<int>(N_AXIS);
 
     // Create the axis settings in the order that people are

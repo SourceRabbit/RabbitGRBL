@@ -25,17 +25,17 @@
 
 GrblCommand::GrblCommand(const char *name, const char *description, EError (*action)(const char *), bool (*cmdChecker)())
     : Command(ERabbitGRBLItemType::COMMAND, name, description, cmdChecker),
-      _action(action)
+      fAction(action)
 {
-  // Register this GrblCommand into the GRBLCommandsManager list
-  GRBLCommandsManager::getGRBLCommandsList().push_back(this);
+    // Register this GrblCommand into the GRBLCommandsManager list
+    GRBLCommandsManager::getGRBLCommandsList().push_back(this);
 }
 
 EError GrblCommand::action(char *value)
 {
-  if (_cmdChecker && _cmdChecker())
-  {
-    return EError::IdleError;
-  }
-  return _action((const char *)value);
+    if (fCommandCheckerBoolean && !fCommandCheckerBoolean())
+    {
+        return EError::IdleError;
+    }
+    return fAction((const char *)value);
 }

@@ -28,44 +28,65 @@
 class GRBLCommandsManager
 {
 private:
-  // List of all registered GrblCommand objects
-  static std::vector<GrblCommand *> fList;
+    // List of all registered GrblCommand objects
+    static std::vector<GrblCommand *> fList;
 
 public:
-  // Register all GrblCommand objects
-  static void Initialize();
+    // Register all GrblCommand objects
+    static void Initialize();
 
-  // List all registered commands
-  static EError ListCommands(const char *value);
+    // List all registered commands
+    static EError ListCommands(const char *value);
 
-  static EError ShowGRBLHelp(const char *value);
+    static EError ShowGRBLHelp(const char *value);
 
-  static EError ShowGRBLBuildInfo(const char *value);
+    static EError ShowGRBLBuildInfo(const char *value);
 
-  static EError DoJog(const char *value);
+    static EError DoJog(const char *value);
 
-  static EError ToggleCheckMode(const char *value);
+    static EError ToggleCheckMode(const char *value);
 
-  // Home a specific cycle (by cycle bitmask or HOMING_CYCLE_ALL)
-  static EError Home(int cycle);
+    // Home a specific cycle (by cycle bitmask or HOMING_CYCLE_ALL)
+    static EError Home(int cycle);
 
-  // Home all axes
-  static EError HomeAll(const char *value);
+    // Home all axes
+    static EError HomeAll(const char *value);
 
-  static EError Execute_ReportNGCParameters(const char *value);
-  static EError Execute_ReportGCodeModes(const char *value);
+    static EError Execute_ReportNGCParameters(const char *value);
+    static EError Execute_ReportGCodeModes(const char *value);
 
-  static EError DisableAlarmLock(const char *value);
+    static EError DisableAlarmLock(const char *value);
 
-  static EError ReportNVSStats(const char *value);
+    static EError ReportNVSStats(const char *value);
 
-  static EError ReportStartupLines(const char *value);
+    static EError ReportStartupLines(const char *value);
 
-  static EError SystemSleep(const char *value);
+    static EError SystemSleep(const char *value);
 
-  // Returns the list of all registered GrblCommand objects
-  static std::vector<GrblCommand *> &getGRBLCommandsList()
-  {
-    return fList;
-  }
+    // Command Checkers
+    static bool CommandChecker_AnyState()
+    {
+        return true;
+    }
+
+    static bool CommandChecker_IdleOrJog()
+    {
+        return sys.state == State::Idle || sys.state == State::Jog;
+    }
+
+    static bool CommandChecker_IdleOrAlarm()
+    {
+        return sys.state == State::Idle || sys.state == State::Alarm;
+    }
+
+    static bool CommandChecker_NotCycleOrHold()
+    {
+        return sys.state != State::Cycle && sys.state != State::Hold;
+    }
+
+    // Returns the list of all registered GrblCommand objects
+    static std::vector<GrblCommand *> &getGRBLCommandsList()
+    {
+        return fList;
+    }
 };

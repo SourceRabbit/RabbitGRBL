@@ -1,9 +1,8 @@
 /*
-  Command.h
+  ECoordinatesIndex.h
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
-  Github: https://github.com/nsiatras
   Website: https://www.sourcerabbit.com
 
   Rabbit GRBL is free software: you can redistribute it and/or modify
@@ -22,25 +21,29 @@
 
 #pragma once
 
-#include "../Settings/Word.h"
-#include "../Diagnostics/Errors/EError.h"
-
-// Command is the base class for all GRBL command objects.
-class Command
+// Various places in the code access saved coordinate system data
+// by a small integer index according to the values below.
+enum ECoordinatesIndex : uint8_t
 {
-protected:
-    ERabbitGRBLItemType fType;
-    const char *fName;
-    const char *fDescription;
-    bool (*fCommandCheckerBoolean)();
-
-public:
-    ~Command() {}
-    Command(ERabbitGRBLItemType type, const char *name, const char *description, bool (*fCommandCheckerBoolean)());
-
-    ERabbitGRBLItemType getType() { return fType; }
-    const char *getName() { return fName; }
-    const char *getDescription() { return fDescription; }
-
-    virtual EError action(char *value) = 0;
+    Begin = 0,
+    G54 = Begin,
+    G55,
+    G56,
+    G57,
+    G58,
+    G59,
+    // To support 9 work coordinate systems it would be necessary to define
+    // the following 3 and modify GCode.cpp to support G59.1, G59.2, G59.3
+    // G59_1,
+    // G59_2,
+    // G59_3,
+    NWCSystems,
+    G28 = NWCSystems,
+    G30,
+    // G92_2,
+    // G92_3,
+    End,
 };
+
+// Allow iteration over ECoordinatesIndex values
+ECoordinatesIndex &operator++(ECoordinatesIndex &i);

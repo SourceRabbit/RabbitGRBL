@@ -39,6 +39,7 @@ void grbl_init()
     }
     // ----------------------------------------------------------------------------------------------------
 
+    CoordinatesManager::Initialize();
     SettingsManager::Initialize();
     GRBLCommandsManager::Initialize();
 
@@ -129,22 +130,3 @@ void run_once()
 
 void __attribute__((weak)) machine_init() {}
 
-bool grbl_state_any()
-{
-    return false;
-}
-
-bool grbl_state_idleOrJog()
-{
-    return sys.state != State::Idle && sys.state != State::Jog;
-}
-
-bool grbl_state_idleOrAlarm()
-{
-    return sys.state != State::Idle && sys.state != State::Alarm;
-}
-
-bool grbl_state_notCycleOrHold()
-{
-    return sys.state == State::Cycle && sys.state == State::Hold;
-}

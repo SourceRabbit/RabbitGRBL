@@ -81,7 +81,9 @@ EError execute_line(char *line)
         return EError::Ok;
     }
 
-    // Grbl '$' system command
+    // Grbl '$' system command !
+    // This can be a '$' command for
+    // example '$H' or '$0=5'
     if (line[0] == '$')
     {
         return SettingsManager::ExecuteLine(line);

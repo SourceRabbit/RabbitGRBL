@@ -27,7 +27,7 @@
 class GrblCommand : public Command
 {
 private:
-    EError (*_action)(const char *);
+    EError (*fAction)(const char *);
 
 public:
     GrblCommand(const char *name, const char *description, EError (*action)(const char *), bool (*cmdChecker)());

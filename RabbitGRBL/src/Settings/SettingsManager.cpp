@@ -23,24 +23,24 @@
 #include "SettingsManager.h"
 
 #include <map>
-#include "../Regex.h"
 
 static std::map<const char *, uint8_t, cmp_str> fRestoreCommands =
     {
+
 #ifdef ENABLE_RESTORE_DEFAULT_SETTINGS
         {"$", SettingsRestore::Defaults},
         {"settings", SettingsRestore::Defaults},
 #endif
+
 #ifdef ENABLE_RESTORE_CLEAR_PARAMETERS
         {"#", SettingsRestore::Parameters},
         {"gcode", SettingsRestore::Parameters},
 #endif
+
 #ifdef ENABLE_RESTORE_WIPE_ALL
         {"*", SettingsRestore::All},
         {"all", SettingsRestore::All},
 #endif
-        {"@", SettingsRestore::Wifi},
-        {"wifi", SettingsRestore::Wifi},
 };
 
 void SettingsManager::Initialize()
@@ -92,31 +92,18 @@ void SettingsManager::ShowGrblSettings(ERabbitGRBLItemType type, bool wantAxis)
 // Case is unchanged because comparisons are case-insensitive.
 char *SettingsManager::NormalizeKey(char *start)
 {
-    char c;
-
-    // In the usual case, this loop will exit on the very first test,
-    // because the first character is likely to be non-white.
-    // Null ('\0') is not considered to be a space character.
-    while (isspace(c = *start) && c != '\0')
+    // Skip leading whitespace
+    while (*start != '\0' && isspace(*start))
     {
         ++start;
     }
 
-    // start now points to either a printable character or end of string
-    if (c == '\0')
+    // Terminate at the first trailing whitespace
+    char *end = start;
+    while (*end != '\0' && !isspace(*end))
     {
-        return start;
+        ++end;
     }
-
-    // Having found the beginning of the printable string,
-    // we now scan forward until we find a space character.
-    char *end;
-    for (end = start; (c = *end) != '\0' && !isspace(c); end++)
-    {
-    }
-
-    // end now points to either a whitespace character or end of string.
-    // In either case it is okay to place a null there.
     *end = '\0';
 
     return start;
@@ -173,38 +160,13 @@ EError SettingsManager::ExecuteCommandOrSetting(const char *key, char *value)
     // or display solely based on the presence of a value.
     for (GrblCommand *cp : GRBLCommandsManager::getGRBLCommandsList())
     {
-        if ((strcasecmp(cp->getName(), key) == 0) || (cp->getGrblName() && strcasecmp(cp->getGrblName(), key) == 0))
+        // if ((strcasecmp(cp->getName(), key) == 0) || (cp->getGrblName() && strcasecmp(cp->getGrblName(), key) == 0))
+        if (cp->getName() && strcasecmp(cp->getName(), key) == 0)
         {
             return cp->action(value);
         }
     }
 
-    // If we did not find an exact match and there is no value,
-    // indicating a display operation, we allow partial matches
-    // and display every possibility.  This only applies to the
-    // text form of the name, not to the nnn and ESPnnn forms.
-    if (!value)
-    {
-        auto lcKey = String(key);
-        lcKey.toLowerCase();
-        bool found = false;
-        for (Setting *s = Setting::List; s; s = s->next())
-        {
-            auto lcTest = String(s->getName());
-            lcTest.toLowerCase();
-
-            if (regexMatch(lcKey.c_str(), lcTest.c_str()))
-            {
-                const char *displayValue = s->getStringValue();
-                ShowSetting(s->getName(), displayValue, NULL);
-                found = true;
-            }
-        }
-        if (found)
-        {
-            return EError::Ok;
-        }
-    }
     return EError::InvalidStatement;
 }
 
@@ -245,53 +207,37 @@ void SettingsManager::RestoreSettings(uint8_t restore_flag)
         }
         MessageSender::SendMessage(EMessageLevel::Info, "Settings reset done");
     }
+
     if (restore_flag & SettingsRestore::Parameters)
     {
-        for (auto idx = CoordIndex::Begin; idx < CoordIndex::End; ++idx)
-        {
-            coords[idx]->setDefault();
-        }
+        CoordinatesManager::Reset();
     }
-    MessageSender::SendMessage(EMessageLevel::Info, "Position offsets reset done");
 }
 
 EError SettingsManager::ExecuteLine(char *line)
 {
     char *value;
-    if (*line++ == '[')
-    { // [ESPxxx] form
-        value = strrchr(line, ']');
-        if (!value)
-        {
-            // Missing ] is an error in this form
-            return EError::InvalidStatement;
-        }
-        // ']' was found; replace it with null and set value to the rest of the line.
-        *value++ = '\0';
-        // If the rest of the line is empty, replace value with NULL.
-        if (*value == '\0')
-        {
-            value = NULL;
-        }
-    }
-    else
+
+    // Skip the leading '$' character
+    if (*line == '$')
     {
-        // $xxx form
-        value = strchr(line, '=');
-        if (value)
-        {
-            // $xxx=yyy form.
-            *value++ = '\0';
-        }
+        line++;
+    }
+
+    // Find the '=' separator between key and value
+    value = strchr(line, '=');
+    if (value)
+    {
+        // $xxx=yyy form: split the string into key and value
+        *value++ = '\0';
     }
 
     char *key = NormalizeKey(line);
 
-    // At this point there are three possibilities for value
-    // NULL - $xxx without =
-    // NULL - [ESPxxx] with nothing after ]
-    // empty string - $xxx= with nothing after
-    // non-empty string - [ESPxxx]yyy or $xxx=yyy
+    // At this point there are three possibilities for value:
+    // NULL         - $xxx without =    (display current value)
+    // empty string - $xxx=             (set empty value)
+    // non-empty    - $xxx=yyy          (set value)
     return ExecuteCommandOrSetting(key, value);
 }
 
