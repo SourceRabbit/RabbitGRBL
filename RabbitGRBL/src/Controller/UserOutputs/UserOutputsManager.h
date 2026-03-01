@@ -28,6 +28,8 @@
 #include "DigitalOutput.h"
 #include "UserOutputsManager.h"
 
+const int MaxUserOutputsByType = 4;
+
 class UserOutputsManager
 {
 public:
@@ -36,8 +38,14 @@ public:
     AnalogOutput **getMyAnalogOutputs() { return fMyAnalogOutputs; }
     DigitalOutput **getMyDigitalOutputs() { return fMyDigitalOutputs; }
 
+    void TurnAllAnalogOutputsOff();
+    void TurnAllDigitalOutputsOff();
+
+    bool SetDigitalOutput(uint8_t io_num, bool turnOn);
+    bool SetAnalogOutput(uint8_t io_num, float percent);
+
 private:
     bool fInitialized = false;
-    AnalogOutput *fMyAnalogOutputs[MaxUserDigitalPin];
-    DigitalOutput *fMyDigitalOutputs[MaxUserDigitalPin];
+    AnalogOutput *fMyAnalogOutputs[MaxUserOutputsByType];
+    DigitalOutput *fMyDigitalOutputs[MaxUserOutputsByType];
 };

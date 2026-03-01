@@ -445,7 +445,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     }
 
     Controller::getProbe().setSystemProbeState(false); // Ensure probe state monitor is disabled.
-    protocol_execute_realtime();       // Check and execute run-time commands
+    protocol_execute_realtime();                       // Check and execute run-time commands
 
     // Reset the stepper and planner buffers to remove the remainder of the probe motion.
     st_reset();           // Reset step segment buffer.
@@ -532,8 +532,9 @@ void mc_reset()
         Controller::getCoolantManager().TurnAllCoolantsOff();
 
         // Turn off all User I/O immediately
-        sys_digital_all_off();
-        sys_analog_all_off();
+        Controller::getUserOutputsManager().TurnAllAnalogOutputsOff();
+        Controller::getUserOutputsManager().TurnAllDigitalOutputsOff();
+
 
         // Kill steppers only if in any motion state, i.e. cycle, actively holding, or homing.
         // NOTE: If steppers are kept enabled via the step idle delay setting, this also keeps

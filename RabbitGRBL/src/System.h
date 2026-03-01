@@ -172,10 +172,5 @@ void system_convert_array_steps_to_mpos(float *position, int32_t *steps);
 void controlCheckTask(void *pvParameters);
 void system_exec_control_pin(ControlPins pins);
 
-bool sys_set_digital(uint8_t io_num, bool turnOn);
-void sys_digital_all_off();
-bool sys_set_analog(uint8_t io_num, float percent);
-void sys_analog_all_off();
-
 int8_t sys_get_next_PWM_chan_num();
 uint8_t system_calculate_pwm_precision(uint32_t freq); // Calculate the highest precision of a PWM based on the frequency in bits.

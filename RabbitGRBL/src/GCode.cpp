@@ -2257,14 +2257,14 @@ EError gc_execute_line(char *line)
     if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync) ||
         (gc_block.modal.io_control == IoControl::DigitalOnImmediate) || (gc_block.modal.io_control == IoControl::DigitalOffImmediate))
     {
-        if (gc_block.values.p < MaxUserDigitalPin)
+        if (gc_block.values.p < MaxUserOutputsByType)
         {
             if ((gc_block.modal.io_control == IoControl::DigitalOnSync) || (gc_block.modal.io_control == IoControl::DigitalOffSync))
             {
                 protocol_buffer_synchronize();
             }
             bool turnOn = gc_block.modal.io_control == IoControl::DigitalOnSync || gc_block.modal.io_control == IoControl::DigitalOnImmediate;
-            if (!sys_set_digital((int)gc_block.values.p, turnOn))
+            if (!Controller::getUserOutputsManager().SetDigitalOutput((int)gc_block.values.p, turnOn))
             {
                 FAIL(EError::PParamMaxExceeded);
             }
@@ -2277,7 +2277,7 @@ EError gc_execute_line(char *line)
 
     if ((gc_block.modal.io_control == IoControl::SetAnalogSync) || (gc_block.modal.io_control == IoControl::SetAnalogImmediate))
     {
-        if (gc_block.values.e < MaxUserDigitalPin)
+        if (gc_block.values.e < MaxUserOutputsByType)
         {
             gc_block.values.q = constrain(gc_block.values.q, 0.0, 100.0); // force into valid range
 
@@ -2286,7 +2286,7 @@ EError gc_execute_line(char *line)
                 protocol_buffer_synchronize();
             }
 
-            if (!sys_set_analog((int)gc_block.values.e, gc_block.values.q))
+            if (!Controller::getUserOutputsManager().SetAnalogOutput((int)gc_block.values.e, gc_block.values.q))
             {
                 FAIL(EError::PParamMaxExceeded);
             }

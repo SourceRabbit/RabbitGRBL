@@ -285,39 +285,6 @@ void system_exec_control_pin(ControlPins pins)
     }
 }
 
-void sys_digital_all_off()
-{
-    auto outputs = Controller::getUserOutputsManager().getMyDigitalOutputs();
-    for (uint8_t io_num = 0; io_num < MaxUserDigitalPin; io_num++)
-    {
-        outputs[io_num]->set_level(LOW);
-    }
-}
-
-// io_num is the virtual digital pin#
-bool sys_set_digital(uint8_t io_num, bool turnOn)
-{
-    return Controller::getUserOutputsManager().getMyDigitalOutputs()[io_num]->set_level(turnOn);
-}
-
-// Turn off all analog outputs
-void sys_analog_all_off()
-{
-    auto outputs = Controller::getUserOutputsManager().getMyAnalogOutputs();
-    for (uint8_t io_num = 0; io_num < MaxUserDigitalPin; io_num++)
-    {
-        outputs[io_num]->set_level(0);
-    }
-}
-
-// io_num is the virtual analog pin#
-bool sys_set_analog(uint8_t io_num, float percent)
-{
-    auto analog = Controller::getUserOutputsManager().getMyAnalogOutputs()[io_num];
-    uint32_t numerator = percent / 100.0 * analog->denominator();
-    return analog->set_level(numerator);
-}
-
 /*
     This returns an unused pwm channel.
     The 8 channels share 4 timers, so pairs 0,1 & 2,3 , etc
