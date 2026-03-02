@@ -93,7 +93,7 @@ void limits_go_home(uint8_t cycle_mask)
     // Put motors on axes listed in cycle_mask in homing mode and
     // replace cycle_mask with the list of motors that are ready for homing.
     // Motors with non standard homing can home during motors_set_homing_mode(...)
-    cycle_mask = Controller::getMotorsManager().SetHomingMode(cycle_mask, true); // Tell motors homing is about to start
+    cycle_mask = Controller::getMotorsManager().setHomingMode(cycle_mask, true); // Tell motors homing is about to start
 
     // See if any motors are left
     if (cycle_mask == 0)
@@ -241,7 +241,7 @@ void limits_go_home(uint8_t cycle_mask)
 
                 if (sys_rt_exec_alarm != EAlarm::None)
                 {
-                    Controller::getMotorsManager().SetHomingMode(cycle_mask, false); // Tell motors homing is done (failed)
+                    Controller::getMotorsManager().setHomingMode(cycle_mask, false); // Tell motors homing is done (failed)
                     MessageSender::SendMessage(EMessageLevel::Debug, "Homing fail");
                     mc_reset(); // Stop motors, if they are running.
                     protocol_execute_realtime();
@@ -300,7 +300,7 @@ void limits_go_home(uint8_t cycle_mask)
     }
 
     sys.step_control = {};                           // Return step control to normal operation.
-    Controller::getMotorsManager().SetHomingMode(cycle_mask, false); // Tell motors homing is done
+    Controller::getMotorsManager().setHomingMode(cycle_mask, false); // Tell motors homing is done
 }
 
 uint8_t limit_pins[MAX_N_AXIS][2] = {{X_LIMIT_PIN, X2_LIMIT_PIN}, {Y_LIMIT_PIN, Y2_LIMIT_PIN}, {Z_LIMIT_PIN, Z2_LIMIT_PIN}, {A_LIMIT_PIN, A2_LIMIT_PIN}, {B_LIMIT_PIN, B2_LIMIT_PIN}, {C_LIMIT_PIN, C2_LIMIT_PIN}};

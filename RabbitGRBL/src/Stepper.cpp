@@ -131,8 +131,6 @@ typedef struct
 } st_prep_t;
 static st_prep_t prep;
 
-stepper_id_t current_stepper = DEFAULT_STEPPER;
-
 /* "The Stepper Driver Interrupt" - This timer interrupt is the workhorse of Grbl. Grbl employs
    the venerable Bresenham line algorithm to manage and exactly synchronize multi-axis moves.
    Unlike the popular DDA algorithm, the Bresenham algorithm is not susceptible to numerical
@@ -224,33 +222,7 @@ static void stepper_pulse_func()
 {
     auto n_axis = number_axis->get();
 
-    if (Controller::getMotorsManager().Direction(st.dir_outbits))
-    {
-        auto wait_direction = direction_delay_microseconds->get();
-        if (wait_direction > 0)
-        {
-            // Stepper drivers need some time between changing direction and doing a pulse.
-            switch (current_stepper)
-            {
-            case ST_TIMED:
-            {
-                // wait for step pulse time to complete...some time expired during code above
-                //
-                // If we are using GPIO stepping as opposed to RMT, record the
-                // time that we turned on the direction pins so we can delay a bit.
-                // If we are using RMT, we can't delay here.
-                auto direction_pulse_start_time = esp_timer_get_time() + wait_direction;
-                while ((esp_timer_get_time() - direction_pulse_start_time) < 0)
-                {
-                    NOP(); // spin here until time to turn off step
-                }
-                break;
-            }
-            case ST_RMT:
-                break;
-            }
-        }
-    }
+    Controller::getMotorsManager().setMotorsDirection(st.dir_outbits);
 
     // Ask the MotorsManager to Step the motors!
     Controller::getMotorsManager().Step(st.step_outbits);
@@ -364,23 +336,13 @@ void stepper_init()
     Stepper_Timer_Init();
 }
 
-void stepper_switch(stepper_id_t new_stepper)
-{
-    if (current_stepper == new_stepper)
-    {
-        // do not need to change
-        return;
-    }
-
-    current_stepper = new_stepper;
-}
 
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
 void st_wake_up()
 {
     //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
     //  Enable stepper drivers.
-    Controller::getMotorsManager().SetDisable(false);
+    Controller::getMotorsManager().setDisable(false);
     stepper_idle = false;
 #ifdef USE_RMT_STEPS
     // Step pulse delay handling is not require with ESP32...the RMT function does it.
@@ -434,7 +396,7 @@ void st_go_idle()
 
         if (sys.state == State::Sleep || sys_rt_exec_alarm != EAlarm::None)
         {
-            Controller::getMotorsManager().SetDisable(true);
+            Controller::getMotorsManager().setDisable(true);
         }
         else
         {
@@ -445,7 +407,7 @@ void st_go_idle()
     }
     else
     {
-        Controller::getMotorsManager().SetDisable(false);
+        Controller::getMotorsManager().setDisable(false);
     }
 
     Controller::getMotorsManager().Unstep();

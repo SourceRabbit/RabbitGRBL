@@ -209,7 +209,7 @@ void protocol_main_loop()
         {
             if (esp_timer_get_time() > stepper_idle_counter)
             {
-                Controller::getMotorsManager().SetDisable(true);
+                Controller::getMotorsManager().setDisable(true);
             }
         }
     }

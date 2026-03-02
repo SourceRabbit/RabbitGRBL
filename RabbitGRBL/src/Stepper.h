@@ -70,28 +70,11 @@ extern bool stepper_idle;
 
 // extern uint8_t ganged_mode;
 
-enum stepper_id_t
-{
-  ST_TIMED = 0,
-  ST_RMT,
-};
-
-#ifndef DEFAULT_STEPPER
-#if defined(USE_RMT_STEPS)
-#define DEFAULT_STEPPER ST_RMT
-#else
-#define DEFAULT_STEPPER ST_TIMED
-#endif
-#endif
-
-extern stepper_id_t current_stepper;
-
 // -- Task handles for use in the notifications
 void IRAM_ATTR onSteppertimer();
 void IRAM_ATTR onStepperOffTimer();
 
 void stepper_init();
-void stepper_switch(stepper_id_t new_stepper);
 
 // Enable steppers, but cycle does not start unless called by motion control or realtime command.
 void st_wake_up();

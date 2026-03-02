@@ -200,7 +200,7 @@ void MotorsManager::Initialize()
     fInitialized = true;
 }
 
-void MotorsManager::SetDisable(bool disable, uint8_t mask)
+void MotorsManager::setDisable(bool disable, uint8_t mask)
 {
     if ((disable == fLastMotorsState) && (mask == fLastStateMask))
     {
@@ -247,7 +247,7 @@ void MotorsManager::SetDisable(bool disable, uint8_t mask)
 
 // use this to tell all the motors what the current homing mode is
 // They can use this to setup things like Stall
-uint8_t MotorsManager::SetHomingMode(uint8_t homing_mask, bool isHoming)
+uint8_t MotorsManager::setHomingMode(uint8_t homing_mask, bool isHoming)
 {
     uint8_t can_home = 0;
     auto n_axis = number_axis->get();
@@ -265,7 +265,7 @@ uint8_t MotorsManager::SetHomingMode(uint8_t homing_mask, bool isHoming)
     return can_home;
 }
 
-bool MotorsManager::Direction(uint8_t dir_mask)
+bool MotorsManager::setMotorsDirection(uint8_t dir_mask)
 {
     auto n_axis = number_axis->get();
     // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
@@ -283,6 +283,25 @@ bool MotorsManager::Direction(uint8_t dir_mask)
             fMotors[axis][0]->setDirection(thisDir);
             fMotors[axis][1]->setDirection(thisDir);
         }
+
+#ifndef USE_RMT_STEPS
+        // Steppers are propably software !
+        auto wait_direction = direction_delay_microseconds->get();
+
+        if (wait_direction > 0)
+        {
+            // Wait for step pulse time to complete...some time expired during code above
+            //
+            // If we are using GPIO stepping as opposed to RMT, record the
+            // time that we turned on the direction pins so we can delay a bit.
+            // If we are using RMT, we can't delay here.
+            auto direction_pulse_start_time = esp_timer_get_time() + wait_direction;
+            while ((esp_timer_get_time() - direction_pulse_start_time) < 0)
+            {
+                NOP(); // spin here until time to turn off step
+            }
+        }
+#endif
 
         return true;
     }

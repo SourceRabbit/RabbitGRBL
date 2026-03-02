@@ -35,9 +35,9 @@ public:
 	void Initialize();
 
 	// The return value is a bitmask of axes that can home
-	uint8_t SetHomingMode(uint8_t homing_mask, bool isHoming);
-	void SetDisable(bool disable, uint8_t mask = B11111111); // default is all axes
-	bool Direction(uint8_t dir_mask);
+	uint8_t setHomingMode(uint8_t homing_mask, bool isHoming);
+	void setDisable(bool disable, uint8_t mask = B11111111); // default is all axes
+	bool setMotorsDirection(uint8_t dir_mask);
 	void Step(uint8_t step_mask);
 	void Unstep();
 
