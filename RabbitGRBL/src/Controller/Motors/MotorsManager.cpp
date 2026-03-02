@@ -23,8 +23,11 @@
 #include "../../Grbl.h"
 #include "MotorsManager.h"
 
-// RMT or Software...
-#ifdef USE_SOFTWARE_STEPS
+
+// Select stepper implementation based on compile-time configuration
+#ifdef USE_I2S_STEPS
+using StepperImpl = Stepper_I2S;
+#elif defined(USE_SOFTWARE_STEPS)
 using StepperImpl = Stepper_Software;
 #else
 using StepperImpl = Stepper_RMT;
@@ -36,6 +39,10 @@ void MotorsManager::Initialize()
     {
         return;
     }
+
+#ifdef USE_I2S_STEPS
+    i2sOutInit();
+#endif
 
     // MessageSender::SendMessage(EMessageLevel::Info, "Init Motors");
 

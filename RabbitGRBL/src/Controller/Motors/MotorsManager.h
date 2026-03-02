@@ -26,8 +26,16 @@
 // Include Motors
 #include "Motor.h"
 #include "MotorsByType/NullMotor.h"
-#include "MotorsByType/Stepper_RMT.h"
+
+// Select stepper implementation based on compile-time configuration
+#ifdef USE_I2S_STEPS
+#include "../../I2SOut.h"
+#include "MotorsByType/Stepper_I2S.h"
+#elif defined(USE_SOFTWARE_STEPS)
 #include "MotorsByType/Stepper_Software.h"
+#else
+#include "MotorsByType/Stepper_RMT.h"
+#endif
 
 class MotorsManager
 {

@@ -360,7 +360,13 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // Dir Pin  ____|--------------------
 // Step Pin _______|--|____________
 // Uncomment the following line to use software/timer-based stepping instead.
-//#define USE_SOFTWARE_STEPS
+// #define USE_SOFTWARE_STEPS
+
+// Uncomment the following line to use I2S-based stepping.
+// Uses the ESP32's I2S peripheral with DMA to generate step pulses via a
+// 74HC595 shift register. Provides precise, jitter-free pulse timing at
+// high step rates without burdening the CPU.
+//#define USE_I2S_STEPS
 
 // STEP_PULSE_DELAY is now a setting...$Stepper/Direction/Delay
 
