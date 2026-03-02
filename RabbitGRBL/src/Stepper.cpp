@@ -252,14 +252,7 @@ static void stepper_pulse_func()
         }
     }
 
-    // If we are using GPIO stepping as opposed to RMT, record the
-    // time that we turned on the step pins so we can turn them off
-    // at the end of this routine without incurring another interrupt.
-    // This is unnecessary with RMT and I2S stepping since both of
-    // those methods time the turn off automatically.
-    //
-    // NOTE: We could use direction_pulse_start_time + wait_direction, but let's play it safe
-    uint64_t step_pulse_start_time = esp_timer_get_time();
+    // Ask the MotorsManager to Step the motors!
     Controller::getMotorsManager().Step(st.step_outbits);
 
     // If there is no step segment, attempt to pop one from the stepper buffer
@@ -357,19 +350,8 @@ static void stepper_pulse_func()
         }
     }
 
-    switch (current_stepper)
-    {
-    case ST_TIMED:
-        // wait for step pulse time to complete...some time expired during code above
-        while (esp_timer_get_time() - step_pulse_start_time < pulse_microseconds->get())
-        {
-            NOP(); // spin here until time to turn off step
-        }
-        Controller::getMotorsManager().Unstep();
-        break;
-    case ST_RMT:
-        break;
-    }
+    // Ask the MotorsManager to Unstep the motors!
+    Controller::getMotorsManager().Unstep();
 }
 
 void stepper_init()

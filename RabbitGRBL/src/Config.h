@@ -360,7 +360,7 @@ const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 // Dir Pin  ____|--------------------
 // Step Pin _______|--|____________
 // While this is experimental, it is intended to be the future default method after testing
-#define USE_RMT_STEPS
+//#define USE_RMT_STEPS
 
 // STEP_PULSE_DELAY is now a setting...$Stepper/Direction/Delay
 

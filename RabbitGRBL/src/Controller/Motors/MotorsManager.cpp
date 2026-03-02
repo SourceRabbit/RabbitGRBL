@@ -295,6 +295,12 @@ bool MotorsManager::Direction(uint8_t dir_mask)
 void MotorsManager::Step(uint8_t step_mask)
 {
     auto n_axis = number_axis->get();
+
+#ifndef USE_RMT_STEPS
+    // Steppers are propably software !
+    fStepPulseTimeStart = esp_timer_get_time();
+#endif
+
     // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
     // Turn on step pulses for motors that are supposed to step now
@@ -317,6 +323,16 @@ void MotorsManager::Step(uint8_t step_mask)
 // Turn all stepper pins off
 void MotorsManager::Unstep()
 {
+
+#ifndef USE_RMT_STEPS
+    // Steppers are propably software !
+    // Wait for step pulse time to complete...some time expired during code above
+    while (esp_timer_get_time() - fStepPulseTimeStart < pulse_microseconds->get())
+    {
+        NOP(); // spin here until time to turn off step
+    }
+#endif
+
     auto n_axis = number_axis->get();
     for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
     {

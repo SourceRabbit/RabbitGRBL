@@ -47,4 +47,6 @@ private:
 	uint8_t fLastStateMask = 0;
 
 	Motor *fMotors[MAX_AXES][MAX_GANGED];
+
+	uint64_t fStepPulseTimeStart = esp_timer_get_time();
 };
