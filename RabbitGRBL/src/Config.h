@@ -354,12 +354,13 @@ const double ARC_ANGULAR_TRAVEL_EPSILON = 5E-7; // Float (radians)
 // time step. Also, keep in mind that the Arduino delay timer is not very accurate for long delays.
 const int DWELL_TIME_STEP = 50; // Integer (1-255) (milliseconds)
 
-// This uses the ESP32's RMT peripheral to generate step pulses
-// It allows the use of the STEP_PULSE_DELAY (see below) and it automatically ends the
-// pulse in one operation.
+// Default stepper method: uses the ESP32's RMT peripheral to generate step pulses.
+// It automatically handles pulse timing and direction delay in hardware,
+// ending the pulse in one operation without software busy-waiting.
 // Dir Pin  ____|--------------------
 // Step Pin _______|--|____________
-#define USE_RMT_STEPS
+// Uncomment the following line to use software/timer-based stepping instead.
+//#define USE_SOFTWARE_STEPS
 
 // STEP_PULSE_DELAY is now a setting...$Stepper/Direction/Delay
 

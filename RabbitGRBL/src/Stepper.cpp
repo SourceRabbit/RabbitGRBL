@@ -336,23 +336,17 @@ void stepper_init()
     Stepper_Timer_Init();
 }
 
-
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
 void st_wake_up()
 {
-    //  MessageSender::SendMessage(EMessageLevel::Info, "st_wake_up");
-    //  Enable stepper drivers.
+    // Enable stepper drivers
     Controller::getMotorsManager().setDisable(false);
     stepper_idle = false;
-#ifdef USE_RMT_STEPS
-    // Step pulse delay handling is not require with ESP32...the RMT function does it.
-    if (direction_delay_microseconds->get() < 1)
-    {
-        // Set step pulse time. Ad hoc computation from oscilloscope. Uses two's complement.
-        st.step_pulse_time = -(((pulse_microseconds->get() - 2) * ticksPerMicrosecond) >> 3);
-    }
-#else // Normal operation
+
+#ifdef USE_SOFTWARE_STEPS
     // Set step pulse time. Ad hoc computation from oscilloscope. Uses two's complement.
+    // Only needed for software/timer-based stepping. RMT handles pulse timing in hardware.
+    // Notice: The pulse_microseconds cannot be < 3
     st.step_pulse_time = -(((pulse_microseconds->get() - 2) * ticksPerMicrosecond) >> 3);
 #endif
 
@@ -363,9 +357,6 @@ void st_wake_up()
 // Reset and clear stepper subsystem variables
 void st_reset()
 {
-#ifdef ESP_DEBUG
-    // Serial.println("st_reset()");
-#endif
     // Initialize stepper driver idle state.
     st_go_idle();
     // Initialize stepper algorithm variables.
@@ -388,8 +379,7 @@ void st_go_idle()
     Stepper_Timer_Stop();
 
     // Set stepper driver idle state, disabled or enabled, depending on settings and circumstances.
-    if (((stepper_idle_lock_time->get() != 0xff) || sys_rt_exec_alarm != EAlarm::None || sys.state == State::Sleep) &&
-        sys.state != State::Homing)
+    if (((stepper_idle_lock_time->get() != 0xff) || sys_rt_exec_alarm != EAlarm::None || sys.state == State::Sleep) && sys.state != State::Homing)
     {
         // Force stepper dwell to lock axes for a defined amount of time to ensure the axes come to a complete
         // stop and not drift from residual inertial forces at the end of the last movement.

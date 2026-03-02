@@ -292,6 +292,13 @@ void make_settings()
     settings_coolant_flood_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
     settings_coolant_mist_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
 
+    homing_cycle[5] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
+    homing_cycle[4] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
+    homing_cycle[3] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "53", "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
+    homing_cycle[2] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "52", "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
+    homing_cycle[1] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "51", "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
+    homing_cycle[0] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "50", "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
+
     // Spindle Settings
     settings_spindle_type = new EnumSetting(NULL, ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
 
@@ -304,9 +311,9 @@ void make_settings()
     settings_spindle_pwm_min_value = new FloatSetting(ERabbitGRBLItemType::SETTING, "35", "Spindle/PWM/Min", DEFAULT_SPINDLE_MIN_VALUE, 0.0, 100.0, checkSpindleChange);
     settings_spindle_pwm_off_value = new FloatSetting(ERabbitGRBLItemType::SETTING, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);
     settings_spindle_pwm_freq = new FloatSetting(ERabbitGRBLItemType::SETTING, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
-    settings_spindle_laser_mode = new FlagSetting(ERabbitGRBLItemType::SETTING, "32", "GCode/LaserMode", DEFAULT_LASER_MODE);
-    settings_spindle_rpm_min = new FloatSetting(ERabbitGRBLItemType::SETTING, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
-    settings_spindle_rpm_max = new FloatSetting(ERabbitGRBLItemType::SETTING, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
+    settings_spindle_laser_mode = new FlagSetting(ERabbitGRBLItemType::SETTING, "32", "Spindle/LaserMode", DEFAULT_LASER_MODE);
+    settings_spindle_rpm_min = new FloatSetting(ERabbitGRBLItemType::SETTING, "31", "Spindle/RPM/Min", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
+    settings_spindle_rpm_max = new FloatSetting(ERabbitGRBLItemType::SETTING, "30", "Spindle/RPM/Max", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
 
     homing_pulloff = new FloatSetting(ERabbitGRBLItemType::SETTING, "27", "Homing/Pulloff", DEFAULT_HOMING_PULLOFF, 0, 1000);
     homing_debounce = new FloatSetting(ERabbitGRBLItemType::SETTING, "26", "Homing/Debounce", DEFAULT_HOMING_DEBOUNCE_DELAY, 0, 10000);
@@ -340,13 +347,6 @@ void make_settings()
     pulse_microseconds = new IntSetting(ERabbitGRBLItemType::SETTING, "0", "Stepper/Pulse", DEFAULT_STEP_PULSE_MICROSECONDS, 3, 1000);
     direction_delay_microseconds = new IntSetting(ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "Stepper/Direction/Delay", STEP_PULSE_DELAY, 0, 1000);
     enable_delay_microseconds = new IntSetting(ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "Stepper/Enable/Delay", DEFAULT_STEP_ENABLE_DELAY, 0, 1000); // microseconds
-
-    homing_cycle[5] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "55", "Homing/Cycle5", DEFAULT_HOMING_CYCLE_5);
-    homing_cycle[4] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "54", "Homing/Cycle4", DEFAULT_HOMING_CYCLE_4);
-    homing_cycle[3] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "53", "Homing/Cycle3", DEFAULT_HOMING_CYCLE_3);
-    homing_cycle[2] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "52", "Homing/Cycle2", DEFAULT_HOMING_CYCLE_2);
-    homing_cycle[1] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "51", "Homing/Cycle1", DEFAULT_HOMING_CYCLE_1);
-    homing_cycle[0] = new AxisMaskSetting(ERabbitGRBLItemType::SETTING, "50", "Homing/Cycle0", DEFAULT_HOMING_CYCLE_0);
 
     user_macro3 = new StringSetting(ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "User/Macro3", DEFAULT_USER_MACRO3);
     user_macro2 = new StringSetting(ERabbitGRBLItemType::EXTENDED_SETTING, NULL, "User/Macro2", DEFAULT_USER_MACRO2);

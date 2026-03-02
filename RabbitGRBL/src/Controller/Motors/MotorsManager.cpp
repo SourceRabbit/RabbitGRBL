@@ -23,11 +23,11 @@
 #include "../../Grbl.h"
 #include "MotorsManager.h"
 
-// RMT or Not...
-#ifdef USE_RMT_STEPS
-using StepperImpl = Stepper_RMT;
-#else
+// RMT or Software...
+#ifdef USE_SOFTWARE_STEPS
 using StepperImpl = Stepper_Software;
+#else
+using StepperImpl = Stepper_RMT;
 #endif
 
 void MotorsManager::Initialize()
@@ -268,10 +268,7 @@ uint8_t MotorsManager::setHomingMode(uint8_t homing_mask, bool isHoming)
 bool MotorsManager::setMotorsDirection(uint8_t dir_mask)
 {
     auto n_axis = number_axis->get();
-    // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
 
-    // Set the direction pins, but optimize for the common
-    // situation where the direction bits haven't changed.
     static uint8_t previous_dir = 255; // should never be this value
     if (dir_mask != previous_dir)
     {
@@ -284,17 +281,12 @@ bool MotorsManager::setMotorsDirection(uint8_t dir_mask)
             fMotors[axis][1]->setDirection(thisDir);
         }
 
-#ifndef USE_RMT_STEPS
-        // Steppers are propably software !
+#ifdef USE_SOFTWARE_STEPS
+        // Software steppers need manual direction delay handling
         auto wait_direction = direction_delay_microseconds->get();
 
         if (wait_direction > 0)
         {
-            // Wait for step pulse time to complete...some time expired during code above
-            //
-            // If we are using GPIO stepping as opposed to RMT, record the
-            // time that we turned on the direction pins so we can delay a bit.
-            // If we are using RMT, we can't delay here.
             auto direction_pulse_start_time = esp_timer_get_time() + wait_direction;
             while ((esp_timer_get_time() - direction_pulse_start_time) < 0)
             {
@@ -315,14 +307,11 @@ void MotorsManager::Step(uint8_t step_mask)
 {
     auto n_axis = number_axis->get();
 
-#ifndef USE_RMT_STEPS
-    // Steppers are propably software !
+#ifdef USE_SOFTWARE_STEPS
+    // Software steppers: record step start time for manual pulse timing
     fStepPulseTimeStart = esp_timer_get_time();
 #endif
 
-    // MessageSender::SendMessage(EMessageLevel::Info, "motors_set_direction_pins:0x%02X", onMask);
-
-    // Turn on step pulses for motors that are supposed to step now
     for (uint8_t axis = X_AXIS; axis < n_axis; axis++)
     {
         if (bitnum_istrue(step_mask, axis))
@@ -342,10 +331,8 @@ void MotorsManager::Step(uint8_t step_mask)
 // Turn all stepper pins off
 void MotorsManager::Unstep()
 {
-
-#ifndef USE_RMT_STEPS
-    // Steppers are propably software !
-    // Wait for step pulse time to complete...some time expired during code above
+#ifdef USE_SOFTWARE_STEPS
+    // Software steppers: busy-wait until step pulse duration has elapsed
     while (esp_timer_get_time() - fStepPulseTimeStart < pulse_microseconds->get())
     {
         NOP(); // spin here until time to turn off step
