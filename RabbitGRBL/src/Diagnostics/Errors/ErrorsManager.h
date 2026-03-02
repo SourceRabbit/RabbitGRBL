@@ -22,15 +22,18 @@
 
 #pragma once
 
-#include <map>
+#include <vector>
+#include <algorithm>
 #include "../../Grbl.h"
 #include "EError.h"
+#include "../Diagnostic.h"
 
 class ErrorsManager
 {
 
 private:
-    static std::map<EError, const char *> fErrorNames;
+    // List of all error Diagnostics
+    static std::vector<Diagnostic> fErrors;
 
 public:
     static EError ListErrors(const char *value);

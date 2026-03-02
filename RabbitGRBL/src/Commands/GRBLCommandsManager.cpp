@@ -41,8 +41,8 @@ void GRBLCommandsManager::Initialize()
 
     new GrblCommand("CMD", "Commands List", GRBLCommandsManager::ListCommands, GRBLCommandsManager::CommandChecker_NotCycleOrHold);
 
-    new GrblCommand("A", "Alarms List", AlarmsManager::ListAlarms, GRBLCommandsManager::CommandChecker_AnyState);
-    new GrblCommand("E", "Errors List", ErrorsManager::ListErrors, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("EA", "Alarms List", AlarmsManager::ListAlarms, GRBLCommandsManager::CommandChecker_AnyState);
+    new GrblCommand("EE", "Errors List", ErrorsManager::ListErrors, GRBLCommandsManager::CommandChecker_AnyState);
 
     new GrblCommand("G", "GCode Modes", GRBLCommandsManager::Execute_ReportGCodeModes, GRBLCommandsManager::CommandChecker_AnyState);
     new GrblCommand("C", "Toggle Check Mode", GRBLCommandsManager::ToggleCheckMode, GRBLCommandsManager::CommandChecker_AnyState);

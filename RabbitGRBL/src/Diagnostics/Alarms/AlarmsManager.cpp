@@ -22,18 +22,19 @@
 
 #include "AlarmsManager.h"
 
-std::map<EAlarm, const char *> AlarmsManager::fAlarmNames = {
-    {EAlarm::None, "No alarm"},
-    {EAlarm::HardLimit, "Hard limit"},
-    {EAlarm::SoftLimit, "Soft limit"},
-    {EAlarm::AbortCycle, "Abort during cycle"},
-    {EAlarm::ProbeFailInitial, "Probe fail initial"},
-    {EAlarm::ProbeFailContact, "Probe fail contact"},
-    {EAlarm::HomingFailReset, "Homing fail reset"},
-    {EAlarm::HomingFailDoor, "Homing fail door"},
-    {EAlarm::HomingFailPulloff, "Homing fail pulloff"},
-    {EAlarm::HomingFailApproach, "Homing fail approach"},
-    {EAlarm::SpindleControl, "Spindle control"},
+// List of all alarm Diagnostics (id derived from EAlarm enum, title, description)
+std::vector<Diagnostic> AlarmsManager::fAlarms = {
+    Diagnostic(EAlarm::None, "No alarm", "No alarm has been triggered."),
+    Diagnostic(EAlarm::HardLimit, "Hard limit", "Hard limit has been triggered. Machine position is likely lost due to sudden halt. Re-homing is highly recommended."),
+    Diagnostic(EAlarm::SoftLimit, "Soft limit", "Soft limit alarm. G-code motion target exceeds machine travel. Machine position retained. Alarm may be safely unlocked."),
+    Diagnostic(EAlarm::AbortCycle, "Abort during cycle", "Reset while in motion. Machine position is likely lost due to sudden halt. Re-homing is highly recommended."),
+    Diagnostic(EAlarm::ProbeFailInitial, "Probe fail initial", "Probe fail. The probe is not in the expected initial state before starting probe cycle when G38.2 and G38.3 is not triggered and G38.4 and G38.5 is triggered."),
+    Diagnostic(EAlarm::ProbeFailContact, "Probe fail contact", "Probe fail. Probe did not contact the workpiece within the programmed travel for G38.2 and G38.4."),
+    Diagnostic(EAlarm::HomingFailReset, "Homing fail reset", "Homing fail. The active homing cycle was reset."),
+    Diagnostic(EAlarm::HomingFailDoor, "Homing fail door", "Homing fail. Safety door was opened during active homing cycle."),
+    Diagnostic(EAlarm::HomingFailPulloff, "Homing fail pulloff", "Homing fail. Homing requires pull-off distance to clear the switch, but none was set in settings."),
+    Diagnostic(EAlarm::HomingFailApproach, "Homing fail approach", "Homing fail. Could not find limit switch within search distances. Try increasing max travel, decreasing pull-off distance, or check wiring."),
+    Diagnostic(EAlarm::SpindleControl, "Spindle control", "Homing fail. On dual axis machines, could not find the second limit switch for self-squaring."),
 };
 
 /**
@@ -41,12 +42,13 @@ std::map<EAlarm, const char *> AlarmsManager::fAlarmNames = {
  */
 void AlarmsManager::ReportAlarmMessage(EAlarm alarm_code)
 {
-    ConnectionManager::Active().WriteFormatted("ALARM:%d\r\n", static_cast<int>(alarm_code)); // OK to send to all clients
-    delay_ms(500);                                            // Force delay to ensure message clears serial write buffer.
+    // Send alarm code to all connected clients
+    ConnectionManager::Active().WriteFormatted("ALARM:%d\r\n", static_cast<int>(alarm_code));
+    delay_ms(500); // Force delay to ensure message clears serial write buffer
 }
 
 /**
- * Sends a list with the Rabbit GRBL alarm codes and titles.
+ * Sends a list with the Rabbit GRBL alarm codes using the ALARMCODE format.
  * If a value is provided, it looks up and prints the specific alarm.
  * If no value is provided, it prints all available alarms.
  *
@@ -68,11 +70,14 @@ EError AlarmsManager::ListAlarms(const char *value)
             return EError::InvalidValue;
         }
 
-        // Look up the alarm description
-        const char *alarmName = getAlarmTitle(static_cast<EAlarm>(alarmNumber));
-        if (alarmName)
+        // Search the list for the matching alarm ID
+        auto it = std::find_if(fAlarms.begin(), fAlarms.end(), [alarmNumber](const Diagnostic &d)
+                               { return d.getID() == alarmNumber; });
+
+        if (it != fAlarms.end())
         {
-            ConnectionManager::Active().WriteFormatted("%d: %s\r\n", alarmNumber, alarmName);
+            // Print single alarm in ALARMCODE format
+            ConnectionManager::Active().WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", it->getID(), it->getTitle(), it->getDescription());
             return EError::Ok;
         }
         else
@@ -81,21 +86,37 @@ EError AlarmsManager::ListAlarms(const char *value)
             return EError::InvalidValue;
         }
     }
-
-    // No value provided — print all alarms
-    for (auto it = AlarmsManager::fAlarmNames.begin(); it != fAlarmNames.end(); it++)
+    else
     {
-        ConnectionManager::Active().WriteFormatted("%d: %s\r\n", static_cast<uint8_t>(it->first), it->second);
+        // Print all alarms in ALARMCODE format
+        for (const auto &entry : fAlarms)
+        {
+            ConnectionManager::Active().WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", entry.getID(), entry.getTitle(), entry.getDescription());
+        }
     }
-    delay_ms(100); // Wait 100ms before sending the "OK"
+
+    delay_ms(100);
+    ConnectionManager::Active().Write("ok\r\n");
     return EError::Ok;
 }
 
 /**
- * Returns the alarm Title string for the given alarm code, or NULL if not found
+ * Returns the title string for a given alarm code.
+ *
+ * @param alarmNumber The alarm enum value.
+ * @return The alarm title, or NULL if not found.
  */
 const char *AlarmsManager::getAlarmTitle(EAlarm alarmNumber)
 {
-    auto it = AlarmsManager::fAlarmNames.find(alarmNumber);
-    return it == AlarmsManager::fAlarmNames.end() ? NULL : it->second;
+    uint8_t id = static_cast<uint8_t>(alarmNumber);
+
+    // Search the list for the matching alarm ID
+    auto it = std::find_if(fAlarms.begin(), fAlarms.end(), [id](const Diagnostic &d)
+                           { return d.getID() == id; });
+
+    if (it != fAlarms.end())
+    {
+        return it->getTitle();
+    }
+    return NULL;
 }

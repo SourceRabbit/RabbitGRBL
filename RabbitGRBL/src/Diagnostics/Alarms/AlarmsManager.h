@@ -22,19 +22,22 @@
 
 #pragma once
 
-#include <map>
+#include <vector>
+#include <algorithm>
 #include "../../Grbl.h"
 #include "EAlarm.h"
 #include "../Errors/EError.h"
+#include "../Diagnostic.h"
 
 class AlarmsManager
 {
 
 private:
-  static std::map<EAlarm, const char *> fAlarmNames;
+    // List of all alarm Diagnostics
+    static std::vector<Diagnostic> fAlarms;
 
 public:
-  static void ReportAlarmMessage(EAlarm alarm_code);
-  static EError ListAlarms(const char *value);
-  static const char *getAlarmTitle(EAlarm alarmNumber);
+    static void ReportAlarmMessage(EAlarm alarm_code);
+    static EError ListAlarms(const char *value);
+    static const char *getAlarmTitle(EAlarm alarmNumber);
 };
