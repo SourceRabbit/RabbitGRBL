@@ -28,7 +28,8 @@
 
 enum class Cmd : uint8_t;
 
-// Holds the currently active connection (Serial now, WiFi/BT later).
+// Manages all active connections.
+// Broadcasts writes to every registered connection and muxes reads.
 class ConnectionManager
 {
 public:
@@ -37,31 +38,61 @@ public:
      *
      * Notes:
      * - This should be called once during system startup.
-     * - By default, no active connection is selected; the caller must call SetActive().
      */
     static void Initialize();
 
     /**
-     * Sets the active connection used by the system.
+     * Initializes the WiFi connection using runtime settings ($73/$74/$75).
      *
      * Notes:
-     * - This class does NOT take ownership of the pointer.
-     * - The caller is responsible for ensuring the provided object remains valid
-     *   for as long as it is set as active.
+     * - Must be called AFTER SettingsManager::Initialize() so that WiFi settings
+     *   have been loaded from NVS.
+     * - If WiFi mode ($73) is 0 or SSID ($74) is empty, this is a no-op.
+     * - $73=1: Station mode - the ESP32 connects to an existing Access Point.
+     * - $73=2: Access Point mode - the ESP32 creates its own WiFi network.
+     * - On success the WiFi connection is added alongside Serial so that both
+     *   connections coexist.
+     * - The actual connection attempt runs in a dedicated FreeRTOS task so that
+     *   this call returns immediately and does not block system startup.
      */
-    static void SetActive(Connection *connection);
+    static void InitializeWiFi();
 
     /**
-     * Returns a reference to the currently active connection.
-     *
-     * Preconditions:
-     * - An active connection must have been set via SetActive() before calling this.
-     *
-     * Notes:
-     * - This function dereferences the stored pointer, so calling it while no
-     *   connection is set will result in undefined behavior (null dereference).
+     * Registers a connection.  Must already be initialized before being added.
+     * This class does NOT take ownership of the pointer.
+     * Silent no-op if the limit is exceeded or conn is null.
      */
-    static Connection &Active();
+    static void AddConnection(Connection *conn);
+
+    // -------------------------------------------------------------------------
+    // I/O – every operation is forwarded to all registered connections.
+    // -------------------------------------------------------------------------
+
+    /** Returns the first available byte from any registered connection, or -1. */
+    static int Read();
+
+    /** Pushes data into the RX buffer of all registered connections. */
+    static bool Push(const char *data);
+
+    /** Returns the minimum available RX buffer space across all connections. */
+    static uint8_t GetRxBufferAvailable();
+
+    /** Writes raw bytes to all registered connections.
+     *  Returns the byte count from the first connection (typically Serial). */
+    static size_t Write(const uint8_t *data, size_t len);
+
+    /** Writes a null-terminated string to all registered connections.
+     *  Returns the byte count from the first connection (typically Serial). */
+    static size_t Write(const char *text);
+
+    /** Formats a printf-style message and writes it to all registered connections.
+     *  Returns the byte count from the first connection (typically Serial). */
+    static size_t WriteFormatted(const char *format, ...);
+
+    /** Resets the RX buffer of all registered connections. */
+    static void ResetReadBuffer();
+
+    // -------------------------------------------------------------------------
 
     /**
      * Executes a GRBL realtime command.
@@ -83,6 +114,13 @@ public:
     static bool IsRealtimeCommand(uint8_t data);
 
 private:
-    // Non-owning pointer to the active connection instance.
-    static Connection *fActiveConnectionPointer;
+    // 4 slots covers the practical maximum: Serial + WiFi + Bluetooth + one spare.
+    // AddConnection silently ignores any attempt to exceed this limit.
+    static const int MAX_CONNECTIONS = 4;
+    static Connection *fConnections[MAX_CONNECTIONS];
+    static int fConnectionCount;
+
+    // FreeRTOS task entry point for InitializeWiFi().
+    // Performs the actual WiFi connection attempt in the background.
+    static void InitializeWiFiTask(void *pvParameters);
 };

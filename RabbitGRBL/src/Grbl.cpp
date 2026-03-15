@@ -34,7 +34,7 @@ void grbl_init()
     if (!NVSManager::Initialize())
     {
         // This is a fatal error !
-        ConnectionManager::Active().WriteFormatted("Fatal error! NVSManager::Initialize() failed\r\n");
+        ConnectionManager::WriteFormatted("Fatal error! NVSManager::Initialize() failed\r\n");
         return;
     }
     // ----------------------------------------------------------------------------------------------------
@@ -42,6 +42,11 @@ void grbl_init()
     CoordinatesManager::Initialize();
     SettingsManager::Initialize();
     GRBLCommandsManager::Initialize();
+
+    // Initialize WiFi using runtime settings ($73/$74/$75) now that settings
+    // have been loaded from NVS.  Serial remains active regardless of the
+    // outcome, so Serial and WiFi can coexist.
+    ConnectionManager::InitializeWiFi();
 
     stepper_init(); // Configure stepper pins and interrupt timers
     system_ini();   // Configure pinout pins and pin-change interrupt (Renamed due to conflict with esp32 files)
@@ -101,7 +106,7 @@ static void reset_variables()
     sys_rt_s_override = SpindleSpeedOverride::Default;
 
     // Reset Grbl primary systems.
-    ConnectionManager::Active().ResetReadBuffer();
+    ConnectionManager::ResetReadBuffer();
 
     gc_init(); // Set g-code parser to default state
 

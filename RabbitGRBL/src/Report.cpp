@@ -35,29 +35,29 @@
 // Welcome message
 void report_init_message()
 {
-    ConnectionManager::Active().WriteFormatted("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
+    ConnectionManager::WriteFormatted("\r\n%s Build %s  \r\n", FIRMWARE_NAME, GRBL_VERSION_BUILD);
 }
 
 // Grbl help message
 void report_grbl_help()
 {
     // Build the help string dynamically from registered commands.
-    ConnectionManager::Active().Write("[HLP:");
+    ConnectionManager::Write("[HLP:");
 
     for (GrblCommand *cmd : GRBLCommandsManager::getGRBLCommandsList())
     {
         const char *grblName = cmd->getName();
         if (grblName != nullptr && grblName[0] != '\0')
         {
-            ConnectionManager::Active().Write(" $");
-            ConnectionManager::Active().Write(grblName);
+            ConnectionManager::Write(" $");
+            ConnectionManager::Write(grblName);
         }
     }
 
     // Append realtime tokens that are not part of the Command registry (if applicable).
-    ConnectionManager::Active().Write(" ~ ! ? ctrl-x");
+    ConnectionManager::Write(" ~ ! ? ctrl-x");
 
-    ConnectionManager::Active().Write("]\r\n");
+    ConnectionManager::Write("]\r\n");
 }
 
 /**
@@ -129,13 +129,13 @@ void report_status_message(EError status_code)
     {
 
     case EError::Ok: // EError::Ok
-        ConnectionManager::Active().Write("ok\r\n");
+        ConnectionManager::Write("ok\r\n");
         break;
 
     default:
         // Grbl 0.9 reported errors as text, Grbl 1.1 switched to numeric codes.
         // RabbitGRBL follows the Grbl 1.1 standard, so the error number is reported.
-        ConnectionManager::Active().WriteFormatted("error:%d\r\n", static_cast<int>(status_code));
+        ConnectionManager::WriteFormatted("error:%d\r\n", static_cast<int>(status_code));
     }
 }
 
@@ -164,7 +164,7 @@ void report_ngc_parameters()
     }
     ngc_rpt += String(tlo, 3);
     ngc_rpt += "]\r\n";
-    ConnectionManager::Active().Write(ngc_rpt.c_str());
+    ConnectionManager::Write(ngc_rpt.c_str());
     Controller::getProbe().ReportProbeParameters();
 
     delay_ms(100);
@@ -349,26 +349,26 @@ void report_gcode_modes()
     sprintf(temp, " S%d", uint32_t(gc_state.spindle_speed));
     strcat(modes_rpt, temp);
     strcat(modes_rpt, "]\r\n");
-    ConnectionManager::Active().Write(modes_rpt);
+    ConnectionManager::Write(modes_rpt);
 }
 
 // Prints specified startup line
 void report_startup_line(uint8_t n, const char *line)
 {
-    ConnectionManager::Active().WriteFormatted("$N%d=%s\r\n", n, line); // OK to send to all
+    ConnectionManager::WriteFormatted("$N%d=%s\r\n", n, line); // OK to send to all
 }
 
 void report_execute_startup_message(const char *line, EError status_code)
 {
-    ConnectionManager::Active().WriteFormatted(">%s:", line); // OK to send to all
+    ConnectionManager::WriteFormatted(">%s:", line); // OK to send to all
     report_status_message(status_code);
 }
 
 // Prints build info line
 void report_build_info()
 {
-    ConnectionManager::Active().WriteFormatted("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
-    ConnectionManager::Active().Write("[OPT:"
+    ConnectionManager::WriteFormatted("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
+    ConnectionManager::Write("[OPT:"
 #ifdef COOLANT_MIST_PIN
                                       "M"
 #endif
@@ -409,7 +409,7 @@ void report_build_info()
 // and has been sent into protocol_execute_line() routine to be executed by Grbl.
 void report_echo_line_received(char *line)
 {
-    ConnectionManager::Active().WriteFormatted("[echo: %s]\r\n", line);
+    ConnectionManager::WriteFormatted("[echo: %s]\r\n", line);
 }
 
 // Calculate the position for status reports.
@@ -476,7 +476,7 @@ void report_realtime_status()
     if (bit_istrue(status_mask->get(), RtStatus::Buffer))
     {
         // Report available planner blocks and RX buffer space.
-        sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), ConnectionManager::Active().GetRxBufferAvailable());
+        sprintf(temp, "|Bf:%d,%d", plan_get_block_buffer_available(), ConnectionManager::GetRxBufferAvailable());
         strcat(status, temp);
     }
 #endif
@@ -672,7 +672,7 @@ void report_realtime_status()
 #endif
 
     strcat(status, ">\r\n");
-    ConnectionManager::Active().Write(status);
+    ConnectionManager::Write(status);
 }
 
 void report_gcode_comment(char *comment)

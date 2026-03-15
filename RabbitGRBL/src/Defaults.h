@@ -37,6 +37,11 @@
     machine. The rest will be pulled from here.
     */
 
+// Default WiFi TCP Server port (can be overridden by machine config).
+#ifndef DEFAULT_WIFI_SERVER_PORT
+#define DEFAULT_WIFI_SERVER_PORT 5001
+#endif
+
 // Grbl generic default settings. Should work across different machines.
 #ifndef DEFAULT_STEP_PULSE_MICROSECONDS
 #define DEFAULT_STEP_PULSE_MICROSECONDS 3 // $0
@@ -588,4 +593,3 @@
 #ifndef DEFAULT_USER_MACRO3
 #define DEFAULT_USER_MACRO3 ""
 #endif
-

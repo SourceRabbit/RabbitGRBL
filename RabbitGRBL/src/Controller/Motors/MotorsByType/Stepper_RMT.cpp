@@ -75,13 +75,13 @@ void Stepper_RMT::Initialize()
 
     pinMode(_disable_pin, OUTPUT);
 
-    MessageSender::SendMessage(EMessageLevel::Info,
+    /*MessageSender::SendMessage(EMessageLevel::Info,
                                "%s RMT Stepper Step:%s Dir:%s Disable:%s %s",
                                reportAxisNameMsg(fAxisIndex, fDualAxisIndex),
                                pinName(_step_pin).c_str(),
                                pinName(_dir_pin).c_str(),
                                pinName(_disable_pin).c_str(),
-                               reportAxisLimitsMsg(fAxisIndex));
+                               reportAxisLimitsMsg(fAxisIndex));*/
 }
 
 // FIX #1: get_next_RMT_chan_num() - Fixed off-by-one bug.

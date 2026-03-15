@@ -58,6 +58,31 @@ FloatSetting *settings_coolant_mist_start_delay;
 
 EnumSetting *settings_message_level;
 
+// WiFi Settings
+IntSetting *settings_wifi_mode;
+StringSetting *settings_wifi_ssid;
+StringSetting *settings_wifi_password;
+
+// Default WiFi values: fall back to machine-config #defines when present,
+// otherwise use safe no-WiFi defaults.
+#ifdef ENABLE_WIFI
+#define DEFAULT_WIFI_MODE 1
+#else
+#define DEFAULT_WIFI_MODE 0
+#endif
+
+#ifdef SSID_NAME
+#define DEFAULT_WIFI_SSID SSID_NAME
+#else
+#define DEFAULT_WIFI_SSID ""
+#endif
+
+#ifdef SSID_PASSWORD
+#define DEFAULT_WIFI_PASSWORD SSID_PASSWORD
+#else
+#define DEFAULT_WIFI_PASSWORD ""
+#endif
+
 enum_opt_t spindleTypes = {
     // clang-format off
     { "NONE", int8_t(ESpindleType::NONE) },
@@ -287,6 +312,12 @@ void make_settings()
     // GRBL Non-numbered settings
     startup_line_0 = new StringSetting(ERabbitGRBLItemType::EXTENDED_SETTING, "N0", "GCode/Line0", "", checkStartupLine);
     startup_line_1 = new StringSetting(ERabbitGRBLItemType::EXTENDED_SETTING, "N1", "GCode/Line1", "", checkStartupLine);
+
+    // WiFi Settings
+    // $73 - WiFi Mode (0 = Off, 1 = Station mode, 2 = Access Point mode)
+    settings_wifi_mode = new IntSetting(ERabbitGRBLItemType::SETTING, "73", "WiFi/Mode", DEFAULT_WIFI_MODE, 0, 2);
+    settings_wifi_ssid = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "74", "WiFi/SSID", DEFAULT_WIFI_SSID, 0, 32, NULL);
+    settings_wifi_password = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "75", "WiFi/Password", DEFAULT_WIFI_PASSWORD, 0, 64, NULL);
 
     // Coolant Settings
     settings_coolant_flood_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);

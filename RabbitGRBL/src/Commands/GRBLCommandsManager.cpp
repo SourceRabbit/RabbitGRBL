@@ -147,7 +147,7 @@ EError GRBLCommandsManager::ListCommands(const char *value)
         }
 
         // Single Write per line — safe for Serial and Bluetooth
-        ConnectionManager::Active().Write(line);
+        ConnectionManager::Write(line);
     }
 
     delay_ms(100);

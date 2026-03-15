@@ -43,7 +43,7 @@ std::vector<Diagnostic> AlarmsManager::fAlarms = {
 void AlarmsManager::ReportAlarmMessage(EAlarm alarm_code)
 {
     // Send alarm code to all connected clients
-    ConnectionManager::Active().WriteFormatted("ALARM:%d\r\n", static_cast<int>(alarm_code));
+    ConnectionManager::WriteFormatted("ALARM:%d\r\n", static_cast<int>(alarm_code));
     delay_ms(500); // Force delay to ensure message clears serial write buffer
 }
 
@@ -66,7 +66,7 @@ EError AlarmsManager::ListAlarms(const char *value)
         // Check if the value is a valid number
         if (*endptr)
         {
-            ConnectionManager::Active().WriteFormatted("Malformed alarm number: %s\r\n", value);
+            ConnectionManager::WriteFormatted("Malformed alarm number: %s\r\n", value);
             return EError::InvalidValue;
         }
 
@@ -77,12 +77,12 @@ EError AlarmsManager::ListAlarms(const char *value)
         if (it != fAlarms.end())
         {
             // Print single alarm in ALARMCODE format
-            ConnectionManager::Active().WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", it->getID(), it->getTitle(), it->getDescription());
+            ConnectionManager::WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", it->getID(), it->getTitle(), it->getDescription());
             return EError::Ok;
         }
         else
         {
-            ConnectionManager::Active().WriteFormatted("Unknown alarm number: %d\r\n", alarmNumber);
+            ConnectionManager::WriteFormatted("Unknown alarm number: %d\r\n", alarmNumber);
             return EError::InvalidValue;
         }
     }
@@ -91,7 +91,7 @@ EError AlarmsManager::ListAlarms(const char *value)
         // Print all alarms in ALARMCODE format
         for (const auto &entry : fAlarms)
         {
-            ConnectionManager::Active().WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", entry.getID(), entry.getTitle(), entry.getDescription());
+            ConnectionManager::WriteFormatted("[ALARMCODE:%d|%s|%s]\r\n", entry.getID(), entry.getTitle(), entry.getDescription());
         }
     }
 

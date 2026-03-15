@@ -66,7 +66,7 @@ void SettingsManager::ShowSetting(const char *name, const char *value, const cha
         snprintf(setting, sizeof(setting), "$%s=%s\r\n", name, value);
     }
 
-    ConnectionManager::Active().Write(setting);
+    ConnectionManager::Write(setting);
 }
 
 void SettingsManager::ShowGrblSettings(ERabbitGRBLItemType type, bool wantAxis)
@@ -280,7 +280,7 @@ EError SettingsManager::ListGrblNames(const char *value)
         const char *gn = s->getGrblName();
         if (gn)
         {
-            ConnectionManager::Active().WriteFormatted("$%s => $%s\r\n", gn, s->getName());
+            ConnectionManager::WriteFormatted("$%s => $%s\r\n", gn, s->getName());
         }
     }
     return EError::Ok;

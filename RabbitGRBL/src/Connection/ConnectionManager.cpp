@@ -23,42 +23,278 @@
 #include "../Grbl.h"
 #include "ConnectionManager.h"
 #include "SerialConnection/SerialConnection.h"
+#include "WiFiConnection/WiFiConnectionStationMode.h"
+#include "WiFiConnection/WiFiConnectionAccessPointMode.h"
 
 #ifdef ENABLE_BLUETOOTH
 #include "BluetoothConnection/BluetoothConnection.h"
 #endif
 
-// Default to null; must be set during init.
-Connection *ConnectionManager::fActiveConnectionPointer = nullptr;
+// ---------------------------------------------------------------------------
+// Static member definitions
+// ---------------------------------------------------------------------------
+Connection *ConnectionManager::fConnections[ConnectionManager::MAX_CONNECTIONS] = {};
+int ConnectionManager::fConnectionCount = 0;
+
+// Static storage for the concrete connection objects.
+// These pointers are kept so we can manage their lifetime; they are also
+// registered via AddConnection() during initialization.
+static SerialConnection *fSerialConnection = nullptr;
+static Connection *fWifiConnection = nullptr;
+
+// ---------------------------------------------------------------------------
+// Initialization
+// ---------------------------------------------------------------------------
 
 void ConnectionManager::Initialize()
 {
-    // Reset to a known state during startup.
-    fActiveConnectionPointer = nullptr;
+    // Reset to a known state.
+    fConnectionCount = 0;
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        fConnections[i] = nullptr;
+    }
 
 #ifdef ENABLE_BLUETOOTH
-    // Bluetooth-only mode: create and initialize the Bluetooth connection.
-    // The device name is defined by BT_DEVICE_NAME in the machine config file.
+    // Bluetooth-only mode (legacy compile-time path).
     auto *btConnection = new BluetoothConnection(BT_DEVICE_NAME);
     btConnection->Init();
-    SetActive(btConnection);
+    AddConnection(btConnection);
 #else
-    // Serial-only mode: create and initialize the Serial connection.
-    auto *serialConnection = new SerialConnection();
-    serialConnection->Init();
-    SetActive(serialConnection);
+    // Serial is always initialized first so that there is always a working
+    // communication channel, even before WiFi settings are loaded.
+    fSerialConnection = new SerialConnection();
+    fSerialConnection->Init();
+    AddConnection(fSerialConnection);
 #endif
 }
 
-void ConnectionManager::SetActive(Connection *connection)
+void ConnectionManager::InitializeWiFi()
 {
-    // Non-owning pointer: lifetime is managed by the caller.
-    fActiveConnectionPointer = connection;
+#ifdef ENABLE_BLUETOOTH
+    MessageSender::SendMessage(EMessageLevel::Warning, "Cannot initialize WiFi while Bluetooth is on!");
+    // Never Initialize Wifi while using Bluetooth
+    return;
+#endif
+
+    // WiFi mode is controlled by setting $73:
+    //   0 -> Off (default)
+    //   1 -> Station mode (connect to the configured Access Point)
+    //   2 -> Access Point mode (ESP32 creates its own WiFi network)
+    if (settings_wifi_mode == nullptr || settings_wifi_mode->get() == 0)
+    {
+        return;
+    }
+
+    const char *ssid = settings_wifi_ssid ? settings_wifi_ssid->get() : "";
+    if (ssid[0] == '\0')
+    {
+        MessageSender::SendMessage(EMessageLevel::Warning, "WiFi SSID ($74) is not set - WiFi disabled");
+        return;
+    }
+
+    // Spawn WiFi initialization in its own task so it does not block system startup.
+    BaseType_t result = xTaskCreatePinnedToCore(
+        ConnectionManager::InitializeWiFiTask,
+        "wifiInitTask",
+        4096,
+        nullptr,
+        1,
+        nullptr,
+        SUPPORT_TASK_CORE);
+
+    if (result != pdPASS)
+    {
+        MessageSender::SendMessage(EMessageLevel::Error, "WiFi init task creation failed");
+    }
 }
 
-Connection &ConnectionManager::Active()
+void ConnectionManager::InitializeWiFiTask(void *pvParameters)
 {
-    return *fActiveConnectionPointer;
+    const char *ssid = settings_wifi_ssid ? settings_wifi_ssid->get() : "";
+    const char *password = settings_wifi_password ? settings_wifi_password->get() : "";
+    int wifiMode = settings_wifi_mode ? settings_wifi_mode->get() : 0;
+
+    if (wifiMode == 2)
+    {
+        // Access Point mode: the ESP32 creates its own WiFi network.
+        MessageSender::SendMessage(EMessageLevel::Info, "Starting WiFi Access Point: %s", ssid);
+
+        auto *apConnection = new WiFiConnectionAccessPointMode(ssid, password, DEFAULT_WIFI_SERVER_PORT);
+        apConnection->Init();
+        fWifiConnection = apConnection;
+
+        if (!apConnection->IsWifiConnected())
+        {
+            MessageSender::SendMessage(EMessageLevel::Error, "WiFi Access Point failed to start");
+            delete fWifiConnection;
+            fWifiConnection = nullptr;
+        }
+        else
+        {
+            // AP started: register it so Serial and WiFi coexist.
+            AddConnection(fWifiConnection);
+            MessageSender::SendMessage(EMessageLevel::Info, "WiFi Access Point started - IP: %s:%d", WiFi.softAPIP().toString().c_str(), DEFAULT_WIFI_SERVER_PORT);
+        }
+    }
+    else
+    {
+        // Station mode: the ESP32 connects to an existing Access Point.
+        MessageSender::SendMessage(EMessageLevel::Info, "Connecting to WiFi network: %s", ssid);
+
+        auto *staConnection = new WiFiConnectionStationMode(ssid, password, DEFAULT_WIFI_SERVER_PORT);
+        staConnection->Init();
+        fWifiConnection = staConnection;
+
+        if (!staConnection->IsWifiConnected())
+        {
+            MessageSender::SendMessage(EMessageLevel::Error, "WiFi connection failed");
+            delete fWifiConnection;
+            fWifiConnection = nullptr;
+        }
+        else
+        {
+            // WiFi connected: register it so Serial and WiFi coexist.
+            AddConnection(fWifiConnection);
+            MessageSender::SendMessage(EMessageLevel::Info, "WiFi connected - IP: %s:%d", WiFi.localIP().toString().c_str(), DEFAULT_WIFI_SERVER_PORT);
+        }
+    }
+
+    vTaskDelete(nullptr);
+}
+
+// ---------------------------------------------------------------------------
+// Connection registry
+// ---------------------------------------------------------------------------
+
+void ConnectionManager::AddConnection(Connection *conn)
+{
+    if (fConnectionCount < MAX_CONNECTIONS && conn != nullptr)
+    {
+        fConnections[fConnectionCount++] = conn;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// I/O -- forwarded to all registered connections
+// ---------------------------------------------------------------------------
+
+int ConnectionManager::Read()
+{
+    // Return the first available byte from any registered connection.
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        int data = fConnections[i]->Read();
+        if (data != -1)
+        {
+            return data;
+        }
+    }
+    return -1;
+}
+
+bool ConnectionManager::Push(const char *data)
+{
+    bool result = false;
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        result |= fConnections[i]->Push(data);
+    }
+    return result;
+}
+
+uint8_t ConnectionManager::GetRxBufferAvailable()
+{
+    if (fConnectionCount == 0)
+    {
+        return 0;
+    }
+    uint8_t minAvailable = 255;
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        uint8_t available = fConnections[i]->GetRxBufferAvailable();
+        if (available < minAvailable)
+        {
+            minAvailable = available;
+        }
+    }
+    return minAvailable;
+}
+
+size_t ConnectionManager::Write(const uint8_t *data, size_t len)
+{
+    // Write to all registered connections.
+    // Return the byte count from the first connection (typically Serial); writes to
+    // subsequent connections (e.g. WiFi when no client is connected) may silently
+    // return 0 and that is not treated as an error.
+    size_t written = 0;
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        size_t n = fConnections[i]->Write(data, len);
+        if (i == 0)
+        {
+            written = n;
+        }
+    }
+    return written;
+}
+
+size_t ConnectionManager::Write(const char *text)
+{
+    size_t written = 0;
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        size_t n = fConnections[i]->Write(text);
+        if (i == 0)
+        {
+            written = n;
+        }
+    }
+    return written;
+}
+
+size_t ConnectionManager::WriteFormatted(const char *format, ...)
+{
+    char loc_buf[TX_BUFFER_SIZE];
+    char *temp = loc_buf;
+
+    va_list arg;
+    va_start(arg, format);
+
+    va_list copy;
+    va_copy(copy, arg);
+    size_t len = vsnprintf(NULL, 0, format, copy);
+    va_end(copy);
+
+    if (len >= sizeof(loc_buf))
+    {
+        temp = new char[len + 1];
+        if (temp == NULL)
+        {
+            va_end(arg);
+            return 0;
+        }
+    }
+
+    vsnprintf(temp, len + 1, format, arg);
+    va_end(arg);
+
+    size_t written = ConnectionManager::Write(temp);
+
+    if (temp != loc_buf)
+    {
+        delete[] temp;
+    }
+
+    return written;
+}
+
+void ConnectionManager::ResetReadBuffer()
+{
+    for (int i = 0; i < fConnectionCount; i++)
+    {
+        fConnections[i]->ResetReadBuffer();
+    }
 }
 
 /**

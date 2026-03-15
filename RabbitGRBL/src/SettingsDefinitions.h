@@ -64,3 +64,8 @@ extern StringSetting *user_macro2;
 extern StringSetting *user_macro3;
 
 extern EnumSetting *settings_message_level;
+
+// WiFi Settings
+extern IntSetting *settings_wifi_mode;
+extern StringSetting *settings_wifi_ssid;
+extern StringSetting *settings_wifi_password;

@@ -67,14 +67,14 @@ void Spindle_PWM::Initialize()
     // Display config message only for pure PWM spindle (not for derived types like BESC or Laser)
     if (static_cast<ESpindleType>(settings_spindle_type->get()) == ESpindleType::PWM)
     {
-        MessageSender::SendMessage(EMessageLevel::Info,
+        /*MessageSender::SendMessage(EMessageLevel::Info,
                                    "PWM spindle on Pin:%d Off:%.1f%% Min:%.1f%% Max:%.1f%% Freq:%dHz Res:%dbits",
                                    fOutputPin,
                                    settings_spindle_pwm_off_value->get(),
                                    settings_spindle_pwm_min_value->get(),
                                    settings_spindle_pwm_max_value->get(),
                                    fPWMFrequency,
-                                   fPWMPrecision);
+                                   fPWMPrecision);*/
     }
 }
 

@@ -63,7 +63,7 @@ void CoolantManager::Initialize()
     // Finally mark the CoolantManager as Initialized !
     fInitialized = true;
 
-    MessageSender::SendMessage(EMessageLevel::Info, "Coolant Manager Initialized");
+    //MessageSender::SendMessage(EMessageLevel::Info, "Coolant Manager Initialized");
 }
 
 /**

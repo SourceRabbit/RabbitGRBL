@@ -90,7 +90,7 @@ EError ErrorsManager::ListErrors(const char *value)
         // Check if the value is a valid number
         if (*endptr)
         {
-            ConnectionManager::Active().WriteFormatted("Malformed error number: %s\r\n", value);
+            ConnectionManager::WriteFormatted("Malformed error number: %s\r\n", value);
             return EError::InvalidValue;
         }
 
@@ -101,12 +101,12 @@ EError ErrorsManager::ListErrors(const char *value)
         if (it != fErrors.end())
         {
             // Print single error in ERRORCODE format
-            ConnectionManager::Active().WriteFormatted("[ERRORCODE:%d|%s|%s]\r\n", it->getID(), it->getTitle(), it->getDescription());
+            ConnectionManager::WriteFormatted("[ERRORCODE:%d|%s|%s]\r\n", it->getID(), it->getTitle(), it->getDescription());
             return EError::Ok;
         }
         else
         {
-            ConnectionManager::Active().WriteFormatted("Unknown error number: %d\r\n", errorNumber);
+            ConnectionManager::WriteFormatted("Unknown error number: %d\r\n", errorNumber);
             return EError::InvalidValue;
         }
     }
@@ -115,7 +115,7 @@ EError ErrorsManager::ListErrors(const char *value)
         // Print all errors in ERRORCODE format
         for (const auto &entry : fErrors)
         {
-            ConnectionManager::Active().WriteFormatted("[ERRORCODE:%d|%s|%s]\r\n", entry.getID(), entry.getTitle(), entry.getDescription());
+            ConnectionManager::WriteFormatted("[ERRORCODE:%d|%s|%s]\r\n", entry.getID(), entry.getTitle(), entry.getDescription());
         }
     }
 

@@ -151,7 +151,7 @@ bool can_park()
 */
 void protocol_main_loop()
 {
-    ConnectionManager::Active().ResetReadBuffer();
+    ConnectionManager::ResetReadBuffer();
 
     empty_lines();
 
@@ -200,7 +200,7 @@ void protocol_main_loop()
         // filtering is the same with serial and file input.
         char *received_line;
 
-        while ((c = ConnectionManager::Active().Read()) != -1)
+        while ((c = ConnectionManager::Read()) != -1)
         {
             EError res = add_char_to_line(c);
             switch (res)
