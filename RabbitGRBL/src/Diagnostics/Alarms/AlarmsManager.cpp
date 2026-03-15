@@ -96,7 +96,6 @@ EError AlarmsManager::ListAlarms(const char *value)
     }
 
     delay_ms(100);
-    ConnectionManager::Active().Write("ok\r\n");
     return EError::Ok;
 }
 

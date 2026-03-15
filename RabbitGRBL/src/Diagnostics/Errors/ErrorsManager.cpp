@@ -120,7 +120,6 @@ EError ErrorsManager::ListErrors(const char *value)
     }
 
     delay_ms(100);
-    ConnectionManager::Active().Write("ok\r\n");
     return EError::Ok;
 }
 

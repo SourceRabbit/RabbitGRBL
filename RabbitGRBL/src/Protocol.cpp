@@ -31,6 +31,16 @@ typedef struct
     char buffer[LINE_BUFFER_SIZE];
     int len;
     int line_number;
+
+    // Added for Bluetooth compatibility.
+    // Android and Windows Bluetooth clients send \r\n (CRLF) as line endings.
+    // Without this flag, both \r and \n would each trigger an Eol event,
+    // causing execute_line() to be called twice per command and producing
+    // a duplicate 'ok' response that confuses GCode senders.
+    // When \r is received, this flag is set to true so that the following
+    // \n is silently ignored. Standalone \n (Unix line endings) still work
+    // correctly because last_was_cr will be false in that case.
+    bool last_was_cr;
 } client_line_t;
 
 client_line_t client_lines;
@@ -45,10 +55,10 @@ static void empty_lines()
 EError add_char_to_line(char c)
 {
     client_line_t *cl = &client_lines;
-    // Simple editing for interactive input
+
+    // Backspace: remove the last character from the buffer.
     if (c == '\b')
     {
-        // Backspace erases
         if (cl->len)
         {
             --cl->len;
@@ -56,16 +66,46 @@ EError add_char_to_line(char c)
         }
         return EError::Ok;
     }
+
+    // Overflow: buffer is full, reject the character.
     if (cl->len == (LINE_BUFFER_SIZE - 1))
     {
         return EError::Overflow;
     }
-    if (c == '\r' || c == '\n')
+
+    // CRLF handling added for Bluetooth compatibility.
+    // Original GRBL 1.1 treated both \r and \n identically as Eol,
+    // which works fine for USB Serial (where only one is sent at a time).
+    // However, Bluetooth clients (Android, Windows) send \r\n pairs,
+    // causing two Eol events per command and a duplicate 'ok' response.
+    // Fix: \r triggers Eol and sets last_was_cr. The subsequent \n is
+    // then suppressed. Standalone \n (Unix) still triggers Eol normally.
+    if (c == '\r')
     {
+        // Carriage return: treat as end of line.
+        cl->len = 0;
+        cl->line_number++;
+        cl->last_was_cr = true;
+        return EError::Eol;
+    }
+
+    if (c == '\n')
+    {
+        if (cl->last_was_cr)
+        {
+            // This \n is the second byte of a \r\n sequence - ignore it.
+            cl->last_was_cr = false;
+            return EError::Ok;
+        }
+
+        // Standalone \n (Unix line ending): treat as end of line.
         cl->len = 0;
         cl->line_number++;
         return EError::Eol;
     }
+
+    // Any other character resets the CR flag and is appended to the buffer.
+    cl->last_was_cr = false;
     cl->buffer[cl->len++] = c;
     cl->buffer[cl->len] = '\0';
     return EError::Ok;
@@ -544,7 +584,7 @@ void protocol_exec_rt_system()
         sys.step_control.updateSpindleRpm = true;
         sys.spindle_speed_ovr = sys_rt_s_override;
         sys.report_ovr_counter = 0; // Set to report change immediately
-        // If spinlde is on, tell it the rpm has been overridden
+        // If spindle is on, tell it the rpm has been overridden
         if (gc_state.modal.spindle != SpindleState::Disable)
         {
             Controller::getSpindle()->setRPM(gc_state.spindle_speed);
