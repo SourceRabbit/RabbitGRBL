@@ -37,7 +37,6 @@ void ConnectionManager::Initialize()
     fActiveConnectionPointer = nullptr;
 
 #ifdef ENABLE_BLUETOOTH
-    // Bluetooth is currently experimental !!!!
     // Bluetooth-only mode: create and initialize the Bluetooth connection.
     // The device name is defined by BT_DEVICE_NAME in the machine config file.
     auto *btConnection = new BluetoothConnection(BT_DEVICE_NAME);
