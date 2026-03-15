@@ -96,7 +96,7 @@
 
 #define STEPPERS_DISABLE_PIN            GPIO_NUM_12
 
-#define SPINDLE_TYPE                    SpindleType::PWM
+#define SPINDLE_TYPE                    ESpindleType::PWM
 #define DEFAULT_SPINDLE_RPM_MAX         25000
 #define DEFAULT_SPINDLE_FREQ            3000
 #define SPINDLE_PWM_PIN                 GPIO_NUM_19 // Laser PWM is Spindle Enable on Shield

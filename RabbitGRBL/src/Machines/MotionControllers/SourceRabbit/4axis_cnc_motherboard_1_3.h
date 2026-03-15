@@ -59,7 +59,7 @@
 #define A_DIRECTION_PIN         			GPIO_NUM_13
 #define STEPPERS_DISABLE_PIN    			GPIO_NUM_15
 
-#define SPINDLE_TYPE            			SpindleType::PWM 
+#define SPINDLE_TYPE            			ESpindleType::PWM 
 #define	DEFAULT_SPINDLE_RPM_MAX 			25000
 #define DEFAULT_SPINDLE_FREQ 				3000
 #define SPINDLE_OUTPUT_PIN      			GPIO_NUM_21
