@@ -210,7 +210,7 @@ void SettingsManager::RestoreSettings(uint8_t restore_flag)
 
     if (restore_flag & SettingsRestore::Parameters)
     {
-        CoordinatesManager::Reset();
+        CoordinatesManager::ResetPersistentOffsets();
     }
 }
 

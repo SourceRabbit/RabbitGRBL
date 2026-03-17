@@ -54,7 +54,7 @@ const char *const GRBL_VERSION = "1.1h";
 
 #include "Stepper.h"
 #include "Jog.h"
-#include "Settings.h"
+#include "Settings/Settings.h"
 #include "SettingsDefinitions.h"
 #include "Settings/SettingsManager.h"
 #include "CoordinatesManager/CoordinatesManager.h"

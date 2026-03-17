@@ -110,8 +110,6 @@ void mc_arc(float *target,
     float rt_axis0 = target[axis_0] - center_axis0;
     float rt_axis1 = target[axis_1] - center_axis1;
 
-    float previous_position[MAX_N_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
     // CCW angle between position and target from circle center. Only one atan2() trig computation required.
     float angular_travel = atan2(r_axis0 * rt_axis1 - r_axis1 * rt_axis0, r_axis0 * rt_axis0 + r_axis1 * rt_axis1);
     if (is_clockwise_arc)
@@ -356,7 +354,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // Homing cycle complete! Setup system for normal operation.
     // -------------------------------------------------------------------------------------
     // Sync gcode parser and planner positions to homed position.
-    gc_sync_position();
+    CoordinatesManager::UpdateWorkPositionFromSystemPosition();
     plan_sync_position();
     Controller::getBacklashManager().ResetTargets();
 

@@ -21,27 +21,30 @@
 
 #pragma once
 
-// Various places in the code access saved coordinate system data
-// by a small integer index according to the values below.
 enum ECoordinatesIndex : uint8_t
 {
     Begin = 0,
-    G54 = Begin,
+
+    // Persistent Coordinate Offsets
+    G54 = Begin, // G54 always takes value 0
     G55,
     G56,
     G57,
     G58,
     G59,
-    // To support 9 work coordinate systems it would be necessary to define
+
+    // TODO : To support 9 work coordinate systems it would be necessary to define
     // the following 3 and modify GCode.cpp to support G59.1, G59.2, G59.3
     // G59_1,
     // G59_2,
     // G59_3,
+
+    G92, // Non-Persistent Coordinate Offset
+
     NWCSystems,
     G28 = NWCSystems,
     G30,
-    // G92_2,
-    // G92_3,
+
     End,
 };
 

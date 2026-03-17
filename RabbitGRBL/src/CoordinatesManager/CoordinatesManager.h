@@ -24,20 +24,28 @@
  * all Work Coordinate Systems (WCS) and reference positions used by the
  * CNC controller.
  *
- * It owns and controls access to the fCoordinates array, which holds Coordinates
+ * It owns and controls access to the fOffsets array, which holds Coordinates
  * objects for G54-G59 (Work Coordinate Systems) and G28/G30 (Home Positions).
  *
- * All coordinate data is persisted in NVS (Non-Volatile Storage), ensuring
- * that coordinate values survive power cycles and reboots.
+ * Persistent coordinates (G54-G59, G28, G30) are stored as PersistentCoordinates
+ * instances, which save and load their values to/from NVS automatically.
+ *
+ * Non-persistent coordinates (e.g. G92) are stored as plain Coordinates instances
+ * and are not saved to NVS.
+ *
+ * fWorkPositionCoordinates holds the current work position as tracked by the
+ * G-code interpreter. It is non-persistent and never saved to NVS.
  *
  * Usage:
- *   CoordinatesManager::Initialize();                        // Call once at startup
- *   CoordinatesManager::getCoordinates()[CoordIndex::G54];   // Access a WCS
+ *   CoordinatesManager::Initialize();                   // Call once at startup
+ *   CoordinatesManager::getOffset()[CoordIndex::G54];   // Access a WCS
+ *   CoordinatesManager::getWorkPositionCoordinates();   // Access the work position
  */
 
 #pragma once
 
-#include "Coordinates.h"
+#include "../Core/Coordinates/Coordinates.h"
+#include "../Core/Coordinates/PersistentCoordinates.h"
 #include "ECoordinatesIndex.h"
 
 class CoordinatesManager
@@ -45,12 +53,16 @@ class CoordinatesManager
 public:
     static void Initialize();
 
-    static void Reset();
+    static void ResetPersistentOffsets();
 
-    static Coordinates *getCoordinates(ECoordinatesIndex index);
+    static Coordinates *getOffset(ECoordinatesIndex index);
+    static Coordinates *getWorkPositionCoordinates(); // Returns the non-persistent work position
+
+    static void UpdateWorkPositionFromSystemPosition(); // Sets work position in mm from system position (steps)
 
 private:
-    static Coordinates *fCoordinates[ECoordinatesIndex::End];
+    static Coordinates *fOffsets[ECoordinatesIndex::End];
+    static Coordinates fWorkPositionCoordinates;     // Non-persistent work position (replaces gc_state.position[])
 
-    static void InitializeCoordinate(ECoordinatesIndex index, const char *name);
+    static void InitializeOffset(ECoordinatesIndex index, const char *name, bool isPersistent);
 };

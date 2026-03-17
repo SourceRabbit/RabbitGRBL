@@ -23,16 +23,30 @@
 
 class Coordinates
 {
-private:
+protected:
     float fCurrentValue[MAX_N_AXIS];
     const char *fName;
 
 public:
-    Coordinates(const char *name) : fName(name) {}
+    Coordinates(const char *name) : fName(name)
+    {
+    }
 
-    bool LoadFromNVS();
+    virtual ~Coordinates()
+    {
+    }
 
-    const char *getName() { return fName; }
+    const char *getName()
+    {
+        return fName;
+    }
+
+    // Returns true if this coordinate system is persistent (saved to NVS).
+    // Base class returns false; PersistentCoordinates overrides to return true.
+    virtual bool isPersistent()
+    {
+        return false;
+    }
 
     void setDefault()
     {
@@ -40,13 +54,19 @@ public:
             0.0,
         };
         set(zeros);
-    };
+    }
 
     // Copy the value to an array
-    void get(float *value) { memcpy(value, fCurrentValue, sizeof(fCurrentValue)); }
+    void get(float *value)
+    {
+        memcpy(value, fCurrentValue, sizeof(fCurrentValue));
+    }
 
     // Return a pointer to the array
-    const float *get() { return fCurrentValue; }
+    const float *get()
+    {
+        return fCurrentValue;
+    }
 
-    void set(float *value);
+    virtual void set(const float *value);
 };

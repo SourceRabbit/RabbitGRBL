@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "InputBuffer/InputBuffer.h"
+#include "../Core/Utilities/InputBuffer/InputBuffer.h"
 #include "MessageSender/MessageSender.h"
 #include "Connection.h"
 

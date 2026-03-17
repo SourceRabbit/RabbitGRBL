@@ -322,12 +322,8 @@ typedef struct
     uint8_t tool;        // Tracks tool number. NOT USED.
     int32_t line_number; // Last line number sent
 
-    float position[MAX_N_AXIS]; // Where the interpreter considers the tool to be at this point in the code
-
     float coord_system[MAX_N_AXIS]; // Current work coordinate system (G54+). Stores offset from absolute machine
     // position in mm. Loaded from non-volatile storage when called.
-    float coord_offset[MAX_N_AXIS]; // Retains the G92 coordinate offset (work coordinates) relative to
-    // machine zero in mm. Non-persistent. Cleared upon reset and boot.
     float tool_length_offset; // Tracks tool length offset value when enabled.
 } parser_state_t;
 extern parser_state_t gc_state;
@@ -355,4 +351,4 @@ void gc_init();
 EError gc_execute_line(char *line);
 
 // Set g-code parser position. Input in steps.
-void gc_sync_position();
+

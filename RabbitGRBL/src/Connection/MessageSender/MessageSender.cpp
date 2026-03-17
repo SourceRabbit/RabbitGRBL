@@ -62,7 +62,7 @@ void MessageSender::SendMessage(EMessageLevel level, const char *format, ...)
  */
 void MessageSender::SendFeedbackMessage(EFeedbackMessage message)
 {
-    const char *text = nullptr;
+    const char *text = "Unkown feedback message";
 
     switch (message)
     {

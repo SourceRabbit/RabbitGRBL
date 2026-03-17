@@ -54,14 +54,7 @@ void gc_init()
     memset(&gc_canned_cycle, 0, sizeof(gc_canned_cycle_t));
     // Load default G54 coordinate system.
     gc_state.modal.coord_select = ECoordinatesIndex::G54;
-    CoordinatesManager::getCoordinates(gc_state.modal.coord_select)->get(gc_state.coord_system);
-}
-
-// Sets g-code parser position in mm. Input in steps. Called by the system abort and hard
-// limit pull-off routines.
-void gc_sync_position()
-{
-    system_convert_array_steps_to_mpos(gc_state.position, sys_position);
+    CoordinatesManager::getOffset(gc_state.modal.coord_select)->get(gc_state.coord_system);
 }
 
 // Edit GCode line in-place, removing whitespace and comments and
@@ -142,7 +135,7 @@ void collapseGCode(char *line)
 static void execute_g81_cycle(float *target, float r_plane, plan_line_data_t *pl_data)
 {
     float pos[MAX_N_AXIS];
-    memcpy(pos, gc_state.position, sizeof(pos));
+    CoordinatesManager::getWorkPositionCoordinates()->get(pos);
 
     // Build the first waypoint: target XY at current Z.
     float move[MAX_N_AXIS];
@@ -199,7 +192,7 @@ static void execute_g81_cycle(float *target, float r_plane, plan_line_data_t *pl
 static void execute_g83_peck_cycle(float *target, float r_plane, float q_depth, int32_t p_dwell_ms, plan_line_data_t *pl_data)
 {
     float pos[MAX_N_AXIS];
-    memcpy(pos, gc_state.position, sizeof(pos));
+    CoordinatesManager::getWorkPositionCoordinates()->get(pos);
 
     // Build the first waypoint: target XY at current Z.
     float move[MAX_N_AXIS];
@@ -304,7 +297,7 @@ static void execute_g83_peck_cycle(float *target, float r_plane, float q_depth, 
 static void execute_g73_peck_cycle(float *target, float r_plane, float q_depth, int32_t p_dwell_ms, plan_line_data_t *pl_data)
 {
     float pos[MAX_N_AXIS];
-    memcpy(pos, gc_state.position, sizeof(pos));
+    CoordinatesManager::getWorkPositionCoordinates()->get(pos);
 
     // Build the first waypoint: target XY at current Z.
     float move[MAX_N_AXIS];
@@ -1380,7 +1373,7 @@ EError gc_execute_line(char *line)
         }
         if (gc_state.modal.coord_select != gc_block.modal.coord_select)
         {
-            CoordinatesManager::getCoordinates(gc_block.modal.coord_select)->get(block_coord_system);
+            CoordinatesManager::getOffset(gc_block.modal.coord_select)->get(block_coord_system);
         }
     }
     // [16. Set path control mode ]: N/A. Only G61. G61.1 and G64 NOT SUPPORTED.
@@ -1436,7 +1429,7 @@ EError gc_execute_line(char *line)
             FAIL(EError::GcodeUnsupportedCoordSys); // [Greater than N sys]
         }
         bit_false(value_words, (bit(GCodeWord::L) | bit(GCodeWord::P)));
-        CoordinatesManager::getCoordinates(coord_select)->get(coord_data);
+        CoordinatesManager::getOffset(coord_select)->get(coord_data);
 
         // Pre-calculate the coordinate data changes.
         for (idx = 0; idx < n_axis; idx++)
@@ -1448,7 +1441,7 @@ EError gc_execute_line(char *line)
                 {
                     // L20: Update coordinate system axis at current position (with modifiers) with programmed value
                     // WPos = MPos - WCS - G92 - TLO  ->  WCS = MPos - G92 - TLO - WPos
-                    coord_data[idx] = gc_state.position[idx] - gc_state.coord_offset[idx] - gc_block.values.xyz[idx];
+                    coord_data[idx] = CoordinatesManager::getWorkPositionCoordinates()->get()[idx] - CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx] - gc_block.values.xyz[idx];
                     if (idx == TOOL_LENGTH_OFFSET_AXIS)
                     {
                         coord_data[idx] -= gc_state.tool_length_offset;
@@ -1475,7 +1468,7 @@ EError gc_execute_line(char *line)
             if (bit_istrue(axis_words, bit(idx)))
             {
                 // WPos = MPos - WCS - G92 - TLO  ->  G92 = MPos - WCS - TLO - WPos
-                gc_block.values.xyz[idx] = gc_state.position[idx] - block_coord_system[idx] - gc_block.values.xyz[idx];
+                gc_block.values.xyz[idx] = CoordinatesManager::getWorkPositionCoordinates()->get()[idx] - block_coord_system[idx] - gc_block.values.xyz[idx];
                 if (idx == TOOL_LENGTH_OFFSET_AXIS)
                 {
                     gc_block.values.xyz[idx] -= gc_state.tool_length_offset;
@@ -1483,7 +1476,7 @@ EError gc_execute_line(char *line)
             }
             else
             {
-                gc_block.values.xyz[idx] = gc_state.coord_offset[idx];
+                gc_block.values.xyz[idx] = CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
             }
         }
         break;
@@ -1500,7 +1493,7 @@ EError gc_execute_line(char *line)
                 { // Axes indices are consistent, so loop may be used to save flash space.
                     if (bit_isfalse(axis_words, bit(idx)))
                     {
-                        gc_block.values.xyz[idx] = gc_state.position[idx]; // No axis word in block. Keep same axis position.
+                        gc_block.values.xyz[idx] = CoordinatesManager::getWorkPositionCoordinates()->get()[idx]; // No axis word in block. Keep same axis position.
                     }
                     else
                     {
@@ -1511,7 +1504,7 @@ EError gc_execute_line(char *line)
                             // Apply coordinate offsets based on distance mode.
                             if (gc_block.modal.distance == Distance::Absolute)
                             {
-                                gc_block.values.xyz[idx] += block_coord_system[idx] + gc_state.coord_offset[idx];
+                                gc_block.values.xyz[idx] += block_coord_system[idx] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
                                 if (idx == TOOL_LENGTH_OFFSET_AXIS)
                                 {
                                     gc_block.values.xyz[idx] += gc_state.tool_length_offset;
@@ -1519,7 +1512,7 @@ EError gc_execute_line(char *line)
                             }
                             else
                             { // Incremental mode
-                                gc_block.values.xyz[idx] += gc_state.position[idx];
+                                gc_block.values.xyz[idx] += CoordinatesManager::getWorkPositionCoordinates()->get()[idx];
                             }
                         }
                     }
@@ -1535,11 +1528,11 @@ EError gc_execute_line(char *line)
             // Retreive G28/30 go-home position data (in machine coordinates) from non-volatile storage
             if (gc_block.non_modal_command == NonModal::GoHome0)
             {
-                CoordinatesManager::getCoordinates(ECoordinatesIndex::G28)->get(coord_data);
+                CoordinatesManager::getOffset(ECoordinatesIndex::G28)->get(coord_data);
             }
             else
             { // == NonModal::GoHome1
-                CoordinatesManager::getCoordinates(ECoordinatesIndex::G30)->get(coord_data);
+                CoordinatesManager::getOffset(ECoordinatesIndex::G30)->get(coord_data);
             }
             if (axis_words)
             {
@@ -1548,7 +1541,7 @@ EError gc_execute_line(char *line)
                 {
                     if (!(axis_words & bit(idx)))
                     {
-                        coord_data[idx] = gc_state.position[idx];
+                        coord_data[idx] = CoordinatesManager::getWorkPositionCoordinates()->get()[idx];
                     }
                 }
             }
@@ -1642,12 +1635,12 @@ EError gc_execute_line(char *line)
                 }
                 // Calculate the change in position along each selected axis
                 float x, y;
-                x = gc_block.values.xyz[axis_0] - gc_state.position[axis_0]; // Delta x between current position and target
-                y = gc_block.values.xyz[axis_1] - gc_state.position[axis_1]; // Delta y between current position and target
+                x = gc_block.values.xyz[axis_0] - CoordinatesManager::getWorkPositionCoordinates()->get()[axis_0]; // Delta x between current position and target
+                y = gc_block.values.xyz[axis_1] - CoordinatesManager::getWorkPositionCoordinates()->get()[axis_1]; // Delta y between current position and target
                 if (value_words & bit(GCodeWord::R))
                 { // Arc Radius Mode
                     bit_false(value_words, bit(GCodeWord::R));
-                    if (isequal_position_vector(gc_state.position, gc_block.values.xyz))
+                    if (isequal_position_vector(CoordinatesManager::getWorkPositionCoordinates()->get(), gc_block.values.xyz))
                     {
                         FAIL(EError::GcodeInvalidTarget); // [Invalid target]
                     }
@@ -1799,7 +1792,7 @@ EError gc_execute_line(char *line)
                         float r_machine = gc_block.values.r;
                         if (gc_block.modal.distance == Distance::Absolute)
                         {
-                            r_machine += block_coord_system[Z_AXIS] + gc_state.coord_offset[Z_AXIS];
+                            r_machine += block_coord_system[Z_AXIS] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[Z_AXIS];
                             if (TOOL_LENGTH_OFFSET_AXIS == Z_AXIS)
                             {
                                 r_machine += gc_state.tool_length_offset;
@@ -1807,7 +1800,7 @@ EError gc_execute_line(char *line)
                         }
                         else
                         { // Incremental mode
-                            r_machine += gc_state.position[Z_AXIS];
+                            r_machine += CoordinatesManager::getWorkPositionCoordinates()->get()[Z_AXIS];
                         }
                         gc_canned_cycle.r = r_machine;
                         bit_false(value_words, bit(GCodeWord::R)); // consume R word
@@ -1858,7 +1851,7 @@ EError gc_execute_line(char *line)
                         float r_machine = gc_block.values.r;
                         if (gc_block.modal.distance == Distance::Absolute)
                         {
-                            r_machine += block_coord_system[Z_AXIS] + gc_state.coord_offset[Z_AXIS];
+                            r_machine += block_coord_system[Z_AXIS] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[Z_AXIS];
                             if (TOOL_LENGTH_OFFSET_AXIS == Z_AXIS)
                             {
                                 r_machine += gc_state.tool_length_offset;
@@ -1866,7 +1859,7 @@ EError gc_execute_line(char *line)
                         }
                         else
                         { // Incremental mode
-                            r_machine += gc_state.position[Z_AXIS];
+                            r_machine += CoordinatesManager::getWorkPositionCoordinates()->get()[Z_AXIS];
                         }
                         gc_canned_cycle.r = r_machine;
                         bit_false(value_words, bit(GCodeWord::R)); // consume R word
@@ -1950,7 +1943,7 @@ EError gc_execute_line(char *line)
                         float r_machine = gc_block.values.r;
                         if (gc_block.modal.distance == Distance::Absolute)
                         {
-                            r_machine += block_coord_system[Z_AXIS] + gc_state.coord_offset[Z_AXIS];
+                            r_machine += block_coord_system[Z_AXIS] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[Z_AXIS];
                             if (TOOL_LENGTH_OFFSET_AXIS == Z_AXIS)
                             {
                                 r_machine += gc_state.tool_length_offset;
@@ -1958,7 +1951,7 @@ EError gc_execute_line(char *line)
                         }
                         else
                         { // Incremental mode
-                            r_machine += gc_state.position[Z_AXIS];
+                            r_machine += CoordinatesManager::getWorkPositionCoordinates()->get()[Z_AXIS];
                         }
                         gc_canned_cycle.r = r_machine;
                         bit_false(value_words, bit(GCodeWord::R)); // consume R word
@@ -2046,7 +2039,7 @@ EError gc_execute_line(char *line)
                 {
                     FAIL(EError::GcodeNoAxisWords); // [No axis words]
                 }
-                if (isequal_position_vector(gc_state.position, gc_block.values.xyz))
+                if (isequal_position_vector(CoordinatesManager::getWorkPositionCoordinates()->get(), gc_block.values.xyz))
                 {
                     FAIL(EError::GcodeInvalidTarget); // [Invalid target]
                 }
@@ -2109,7 +2102,7 @@ EError gc_execute_line(char *line)
         EError status = jog_execute(pl_data, &gc_block);
         if (status == EError::Ok)
         {
-            memcpy(gc_state.position, gc_block.values.xyz, sizeof(gc_block.values.xyz));
+            CoordinatesManager::getWorkPositionCoordinates()->set(gc_block.values.xyz);
         }
         return status;
     }
@@ -2350,7 +2343,7 @@ EError gc_execute_line(char *line)
     switch (gc_block.non_modal_command)
     {
     case NonModal::SetCoordinateData:
-        CoordinatesManager::getCoordinates(coord_select)->set(coord_data);
+        CoordinatesManager::getOffset(coord_select)->set(coord_data);
         // Update system coordinate system if currently active.
         if (gc_state.modal.coord_select == coord_select)
         {
@@ -2368,20 +2361,20 @@ EError gc_execute_line(char *line)
             mc_line(gc_block.values.xyz, pl_data);
         }
         mc_line(coord_data, pl_data);
-        memcpy(gc_state.position, coord_data, sizeof(gc_state.position));
+        CoordinatesManager::getWorkPositionCoordinates()->set(coord_data);
         break;
     case NonModal::SetHome0:
-        CoordinatesManager::getCoordinates(ECoordinatesIndex::G28)->set(gc_state.position);
+        CoordinatesManager::getOffset(ECoordinatesIndex::G28)->set(CoordinatesManager::getWorkPositionCoordinates()->get());
         break;
     case NonModal::SetHome1:
-        CoordinatesManager::getCoordinates(ECoordinatesIndex::G30)->set(gc_state.position);
+        CoordinatesManager::getOffset(ECoordinatesIndex::G30)->set(CoordinatesManager::getWorkPositionCoordinates()->get());
         break;
     case NonModal::SetCoordinateOffset:
-        memcpy(gc_state.coord_offset, gc_block.values.xyz, sizeof(gc_block.values.xyz));
+        CoordinatesManager::getOffset(ECoordinatesIndex::G92)->set(gc_block.values.xyz);
         system_flag_wco_change();
         break;
     case NonModal::ResetCoordinateOffset:
-        clear_vector(gc_state.coord_offset); // Disable G92 offsets by zeroing offset vector.
+        CoordinatesManager::getOffset(ECoordinatesIndex::G92)->setDefault(); // Disable G92 offsets by zeroing offset vector.
         system_flag_wco_change();
         break;
     default:
@@ -2412,9 +2405,11 @@ EError gc_execute_line(char *line)
             }
             else if ((gc_state.modal.motion == Motion::CwArc) || (gc_state.modal.motion == Motion::CcwArc))
             {
+                float startPosition[MAX_N_AXIS];
+                CoordinatesManager::getWorkPositionCoordinates()->get(startPosition);
                 mc_arc(gc_block.values.xyz,
                        pl_data,
-                       gc_state.position,
+                       startPosition,
                        gc_block.values.ijk,
                        gc_block.values.r,
                        axis_0,
@@ -2470,11 +2465,11 @@ EError gc_execute_line(char *line)
             // in any intermediate location.
             if (gc_update_pos == GCUpdatePos::Target)
             {
-                memcpy(gc_state.position, gc_block.values.xyz, sizeof(gc_block.values.xyz)); // gc_state.position[] = gc_block.values.xyz[]
+                CoordinatesManager::getWorkPositionCoordinates()->set(gc_block.values.xyz); // Update work position to target
             }
             else if (gc_update_pos == GCUpdatePos::System)
             {
-                gc_sync_position(); // gc_state.position[] = sys_position
+                CoordinatesManager::UpdateWorkPositionFromSystemPosition(); // Update work position from system position
             } // == GCUpdatePos::None
         }
     }
@@ -2530,7 +2525,7 @@ EError gc_execute_line(char *line)
         // Execute coordinate change and spindle/coolant stop.
         if (sys.state != State::CheckMode)
         {
-            CoordinatesManager::getCoordinates(gc_state.modal.coord_select)->get(gc_state.coord_system);
+            CoordinatesManager::getOffset(gc_state.modal.coord_select)->get(gc_state.coord_system);
             system_flag_wco_change(); // Set to refresh immediately just in case something altered.
             Controller::getSpindle()->setState(SpindleState::Disable, 0);
             Controller::getCoolantManager().TurnAllCoolantsOff();

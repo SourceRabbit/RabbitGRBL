@@ -293,6 +293,8 @@ void system_exec_control_pin(ControlPins pins)
 
     There are still possible issues if requested channels use different frequencies
     TODO: Make this more robust.
+
+    TODO: Make this thread safe and move it to new PWMManager class
 */
 int8_t sys_get_next_PWM_chan_num()
 {

@@ -144,18 +144,17 @@ void report_ngc_parameters()
 {
     String ngc_rpt = "";
 
-    // Print persistent offsets G54 - G59, G28, and G30
+    // Print persistent and non persistent offsets (G92, G54 - G59, G28, and G30)
+    // Example message: [G92:0.000,0.000,0.000,0.000]\r\n
     for (auto coord_select = ECoordinatesIndex::Begin; coord_select < ECoordinatesIndex::End; ++coord_select)
     {
         ngc_rpt += "[";
-        ngc_rpt += CoordinatesManager::getCoordinates(coord_select)->getName();
+        ngc_rpt += CoordinatesManager::getOffset(coord_select)->getName();
         ngc_rpt += ":";
-        ngc_rpt += report_util_axis_values(CoordinatesManager::getCoordinates(coord_select)->get());
+        ngc_rpt += report_util_axis_values(CoordinatesManager::getOffset(coord_select)->get());
         ngc_rpt += "]\r\n";
     }
-    ngc_rpt += "[G92:"; // Print non-persistent G92,G92.1
-    ngc_rpt += report_util_axis_values(gc_state.coord_offset);
-    ngc_rpt += "]\r\n";
+
     ngc_rpt += "[TLO:"; // Print tool length offset
     float tlo = gc_state.tool_length_offset;
     if (report_inches->get())
@@ -370,39 +369,39 @@ void report_build_info()
     ConnectionManager::WriteFormatted("[VER:%s.%s]\r\n", GRBL_VERSION, GRBL_VERSION_BUILD);
     ConnectionManager::Write("[OPT:"
 #ifdef COOLANT_MIST_PIN
-                                      "M"
+                             "M"
 #endif
 #ifdef PARKING_ENABLE
-                                      "P"
+                             "P"
 #endif
 #ifdef HOMING_SINGLE_AXIS_COMMANDS
-                                      "H"
+                             "H"
 #endif
 #ifdef LIMITS_TWO_SWITCHES_ON_AXES
-                                      "L"
+                             "L"
 #endif
 #ifdef ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES
-                                      "A"
+                             "A"
 #endif
 #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
-                                      "R"
+                             "R"
 #endif
 #ifndef ENABLE_RESTORE_WIPE_ALL
-                                      "*"
+                             "*"
 #endif
 #ifndef ENABLE_RESTORE_DEFAULT_SETTINGS
-                                      "$"
+                             "$"
 #endif
 #ifndef ENABLE_RESTORE_CLEAR_PARAMETERS
-                                      "#"
+                             "#"
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_NVS_WRITE
-                                      "E"
+                             "E"
 #endif
 #ifndef FORCE_BUFFER_SYNC_DURING_WCO_CHANGE
-                                      "W"
+                             "W"
 #endif
-                                      "]\r\n");
+                             "]\r\n");
 }
 
 // Prints the character string line Grbl has received from the user, which has been pre-parsed,
@@ -429,7 +428,7 @@ void report_calc_status_position(float *print_position, float *wco, bool wpos)
         for (uint8_t idx = 0; idx < n_axis; idx++)
         {
             // Apply work coordinate offsets and tool length offset to current position.
-            wco[idx] = gc_state.coord_system[idx] + gc_state.coord_offset[idx];
+            wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
 
             if (idx == TOOL_LENGTH_OFFSET_AXIS)
             {
@@ -819,7 +818,7 @@ float *get_wco()
     for (int idx = 0; idx < n_axis; idx++)
     {
         // Apply work coordinate offsets and tool length offset to current position.
-        wco[idx] = gc_state.coord_system[idx] + gc_state.coord_offset[idx];
+        wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
         if (idx == TOOL_LENGTH_OFFSET_AXIS)
         {
             wco[idx] += gc_state.tool_length_offset;
