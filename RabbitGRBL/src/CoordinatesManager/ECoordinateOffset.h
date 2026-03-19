@@ -1,5 +1,5 @@
 /*
-  Coordinates.cpp
+  ECoordinateOffset.h
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
@@ -19,29 +19,34 @@
   along with Rabbit GRBL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../Grbl.h"
+#pragma once
 
-// Copy the new value into the current value array
-void Coordinates::set(const float *value)
+enum class ECoordinateOffset : uint8_t
 {
-    memcpy(&fCurrentValue, value, sizeof(fCurrentValue));
-}
+    Begin = 0,
 
-// Returns a formatted string in the form "[<name>:<x>,<y>,<z>,...]\r\n"
-String Coordinates::toString()
-{
-    char axisValues[MAX_AXES_STRING_LENGTH];
+    // Persistent Coordinate Offsets
+    G54 = Begin, // G54 always takes value 0
+    G55,
+    G56,
+    G57,
+    G58,
+    G59,
 
-    // Use a local non-const copy because report_util_axis_values expects float* (not const float*)
-    float values[MAX_N_AXIS];
-    memcpy(values, fCurrentValue, sizeof(fCurrentValue));
+    // TODO : To support 9 work coordinate systems it would be necessary to define
+    // the following 3 and modify GCode.cpp to support G59.1, G59.2, G59.3
+    // G59_1,
+    // G59_2,
+    // G59_3,
 
-    report_util_axis_values(values, axisValues);
+    G92, // Non-Persistent Coordinate Offset
 
-    String result = "[";
-    result += fName;
-    result += ":";
-    result += axisValues;
-    result += "]";
-    return result;
-}
+    NWCSystems,
+    G28 = NWCSystems,
+    G30,
+
+    End,
+};
+
+// Allow iteration over ECoordinateOffset values
+ECoordinateOffset &operator++(ECoordinateOffset &i);

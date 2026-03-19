@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "CoordinatesManager/ECoordinatesIndex.h"
+#include "CoordinatesManager/ECoordinateOffset.h"
 
 // Modal group internal numbers for checking multiple command violations and tracking the
 // type of command that is called in the block. A modal group is a group of g-code commands that are
@@ -288,7 +288,7 @@ typedef struct
     Plane plane_select; // {G17,G18,G19}
     // CutterCompensation cutter_comp;  // {G40} NOTE: Don't track. Only default supported.
     ToolLengthOffset tool_length;   // {G43.1,G49}
-    ECoordinatesIndex coord_select; // {G54,G55,G56,G57,G58,G59}
+    ECoordinateOffset coord_select; // {G54,G55,G56,G57,G58,G59}
     // uint8_t control;      // {G61} NOTE: Don't track. Only default supported.
     ProgramFlow program_flow; // {M0,M1,M2,M30}
     CoolantState coolant;     // {M7,M8,M9}

@@ -120,7 +120,7 @@ static void reset_variables()
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
     Controller::getBacklashManager().ResetTargets();
-    CoordinatesManager::UpdateWorkPositionFromSystemPosition();
+    CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::WPos);
     report_init_message();
 }
 

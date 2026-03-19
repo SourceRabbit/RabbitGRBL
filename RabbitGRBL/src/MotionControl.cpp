@@ -354,7 +354,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
     // Homing cycle complete! Setup system for normal operation.
     // -------------------------------------------------------------------------------------
     // Sync gcode parser and planner positions to homed position.
-    CoordinatesManager::UpdateWorkPositionFromSystemPosition();
+    CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::WPos);
     plan_sync_position();
     Controller::getBacklashManager().ResetTargets();
 

@@ -112,7 +112,7 @@
 #endif
 
 #ifndef DEFAULT_HOMING_FEED_RATE
-#define DEFAULT_HOMING_FEED_RATE 200.0 // $24 mm/min
+#define DEFAULT_HOMING_FEED_RATE 60.0 // $24 mm/min
 #endif
 
 #ifndef DEFAULT_HOMING_SEEK_RATE

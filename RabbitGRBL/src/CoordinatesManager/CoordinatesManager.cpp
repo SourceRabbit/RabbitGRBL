@@ -21,47 +21,41 @@
 
 #include "../Grbl.h"
 
-// Static array holding pointers to all offets (coordinate systems)
-Coordinates *CoordinatesManager::fOffsets[ECoordinatesIndex::End];
+// Static array holding pointers to all non-persistent named coordinates (WPos, PRB)
+Coordinates *CoordinatesManager::fCoordinates[static_cast<uint8_t>(ECoordinate::Ended)];
 
-// Non-persistent work position - initialized inline with name "WPos"
-Coordinates CoordinatesManager::fWorkPositionCoordinates("WPos");
+// Static array holding pointers to all offsets (coordinate systems)
+Coordinates *CoordinatesManager::fOffsets[static_cast<uint8_t>(ECoordinateOffset::End)];
 
 void CoordinatesManager::Initialize()
 {
+    // Initialize non-persistent named coordinates (WPos, PRB)
+    CoordinatesManager::InitializeCoordinate(ECoordinate::WPos, "WPos"); // Work Position
+    CoordinatesManager::InitializeCoordinate(ECoordinate::PRB, "PRB");   // Probe Position
+
     // Initialize all standard GRBL work coordinate systems (G54-G59)
     // and predefined positions (G28, G30) as PersistentCoordinates,
     // so their values are automatically saved and loaded from NVS.
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G28, "G28", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G30, "G30", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G54, "G54", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G55, "G55", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G56, "G56", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G57, "G57", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G58, "G58", true);
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G59, "G59", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G28, "G28", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G30, "G30", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G54, "G54", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G55, "G55", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G56, "G56", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G57, "G57", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G58, "G58", true);
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G59, "G59", true);
 
-    // Non persistent offets (coordinate systems)
-    CoordinatesManager::InitializeOffset(ECoordinatesIndex::G92, "G92", false);
-
-    // Initialize work position to defaults (all zeros)
-    // This is non-persistent and never saved to NVS
-    fWorkPositionCoordinates.setDefault();
+    // Non-persistent offsets (coordinate systems)
+    CoordinatesManager::InitializeOffset(ECoordinateOffset::G92, "G92", false);
 }
 
-// Reset all persistent offsets (coordinate systems) to their default values and notify the user
-void CoordinatesManager::ResetPersistentOffsets()
+// Create a plain Coordinates object for the given ECoordinate index and name.
+// Coordinates created here are always non-persistent and are never saved to NVS.
+void CoordinatesManager::InitializeCoordinate(ECoordinate index, const char *name)
 {
-    for (auto idx = ECoordinatesIndex::Begin; idx < ECoordinatesIndex::End; ++idx)
-    {
-        // Only reset coordinates that are persistent (PersistentCoordinates instances)
-        if (CoordinatesManager::getOffset(idx)->isPersistent())
-        {
-            CoordinatesManager::getOffset(idx)->setDefault();
-        }
-    }
-
-    MessageSender::SendMessage(EMessageLevel::Info, "Position offsets reset done");
+    Coordinates *coord = new Coordinates(name);
+    coord->setDefault();
+    fCoordinates[static_cast<uint8_t>(index)] = coord;
 }
 
 // Create a Coordinates or PersistentCoordinates object for the given index and name,
@@ -69,7 +63,7 @@ void CoordinatesManager::ResetPersistentOffsets()
 // If isPersistent is true, a PersistentCoordinates is created and its values are
 // restored from NVS (falling back to defaults on failure).
 // If isPersistent is false, a plain Coordinates is created and set to defaults.
-void CoordinatesManager::InitializeOffset(ECoordinatesIndex index, const char *name, bool isPersistent)
+void CoordinatesManager::InitializeOffset(ECoordinateOffset index, const char *name, bool isPersistent)
 {
     Coordinates *coord;
 
@@ -83,7 +77,7 @@ void CoordinatesManager::InitializeOffset(ECoordinatesIndex index, const char *n
     }
 
     // Store the coordinate pointer in the static array
-    fOffsets[index] = coord;
+    fOffsets[static_cast<uint8_t>(index)] = coord;
 
     // For persistent coordinates, try to restore from NVS; fall back to defaults on failure.
     // For non-persistent coordinates, always initialize to defaults.
@@ -100,23 +94,39 @@ void CoordinatesManager::InitializeOffset(ECoordinatesIndex index, const char *n
     }
 }
 
-// Returns a pointer to the Coordinates object at the given index
-Coordinates *CoordinatesManager::getOffset(ECoordinatesIndex index)
+// Reset all persistent offsets (coordinate systems) to their default values and notify the user
+void CoordinatesManager::ResetPersistentOffsets()
 {
-    return fOffsets[index];
+    for (auto idx = ECoordinateOffset::Begin; idx < ECoordinateOffset::End; ++idx)
+    {
+        // Only reset coordinates that are persistent (PersistentCoordinates instances)
+        if (CoordinatesManager::getOffset(idx)->isPersistent())
+        {
+            CoordinatesManager::getOffset(idx)->setDefault();
+        }
+    }
+
+    MessageSender::SendMessage(EMessageLevel::Info, "Position offsets reset done");
 }
 
-// Returns the non-persistent work position coordinates
-Coordinates *CoordinatesManager::getWorkPositionCoordinates()
-{
-    return &fWorkPositionCoordinates;
-}
-
-// Sets g-code parser position in mm from system position in steps.
-// Called by the system abort and hard limit pull-off routines.
-void CoordinatesManager::UpdateWorkPositionFromSystemPosition()
+// Updates the given coordinate in mm from the current system position (in steps).
+// Called by the system abort and hard limit pull-off routines (WPos),
+// and by Probe::StateMonitor() when the probe is triggered (PRB).
+void CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate coordinate)
 {
     float pos[MAX_N_AXIS];
     system_convert_array_steps_to_mpos(pos, sys_position);
-    CoordinatesManager::getWorkPositionCoordinates()->set(pos);
+    CoordinatesManager::getCoordinates(coordinate)->set(pos);
+}
+
+// Returns a pointer to the Coordinates object at the given offset index
+Coordinates *CoordinatesManager::getOffset(ECoordinateOffset index)
+{
+    return fOffsets[static_cast<uint8_t>(index)];
+}
+
+// Returns a pointer to the non-persistent Coordinates object at the given coordinate index
+Coordinates *CoordinatesManager::getCoordinates(ECoordinate coordinate)
+{
+    return fCoordinates[static_cast<uint8_t>(coordinate)];
 }

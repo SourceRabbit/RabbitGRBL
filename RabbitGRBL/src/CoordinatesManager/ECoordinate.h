@@ -1,5 +1,5 @@
 /*
-  ECoordinatesIndex.h
+  ECoordinate.h
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
@@ -21,32 +21,19 @@
 
 #pragma once
 
-enum ECoordinatesIndex : uint8_t
+// Enum representing the non-persistent coordinate slots managed by CoordinatesManager.
+// These are not saved to NVS and are reset on every power cycle.
+enum class ECoordinate : uint8_t
 {
-    Begin = 0,
+    WPos = 0, // Current work position (tracked by the G-code interpreter)
+    PRB,      // Last triggered probe position (updated on probe trigger)
 
-    // Persistent Coordinate Offsets
-    G54 = Begin, // G54 always takes value 0
-    G55,
-    G56,
-    G57,
-    G58,
-    G59,
-
-    // TODO : To support 9 work coordinate systems it would be necessary to define
-    // the following 3 and modify GCode.cpp to support G59.1, G59.2, G59.3
-    // G59_1,
-    // G59_2,
-    // G59_3,
-
-    G92, // Non-Persistent Coordinate Offset
-
-    NWCSystems,
-    G28 = NWCSystems,
-    G30,
-
-    End,
+    Ended,      // Sentinel value - equals the total number of ECoordinate slots
 };
 
-// Allow iteration over ECoordinatesIndex values
-ECoordinatesIndex &operator++(ECoordinatesIndex &i);
+// Allow iteration over ECoordinate values
+inline ECoordinate &operator++(ECoordinate &i)
+{
+    i = static_cast<ECoordinate>(static_cast<uint8_t>(i) + 1);
+    return i;
+}

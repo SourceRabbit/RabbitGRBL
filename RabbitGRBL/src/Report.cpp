@@ -71,11 +71,7 @@ void report_util_axis_values(float *axis_value, char *rpt)
     float unit_conv = 1.0;        // unit conversion multiplier..default is mm
     const char *format = "%4.3f"; // Default - report mm to 3 decimal places
     rpt[0] = '\0';
-    if (report_inches->get())
-    {
-        unit_conv = 1.0 / MM_PER_INCH;
-        format = "%4.4f"; // Report inches to 4 decimal places
-    }
+
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
     {
@@ -98,11 +94,7 @@ static String report_util_axis_values(const float *axis_value)
     char axisVal[MAX_COORD_STRING_LENGTH];
     float unit_conv = 1.0; // unit conversion multiplier..default is mm
     int decimals = 3;      // Default - report mm to 3 decimal places
-    if (report_inches->get())
-    {
-        unit_conv = 1.0 / MM_PER_INCH;
-        decimals = 4; // Report inches to 4 decimal places
-    }
+
     auto n_axis = number_axis->get();
     for (idx = 0; idx < n_axis; idx++)
     {
@@ -145,24 +137,18 @@ void report_ngc_parameters()
     String ngc_rpt = "";
 
     // Print persistent and non persistent offsets (G92, G54 - G59, G28, and G30)
-    // Example message: [G92:0.000,0.000,0.000,0.000]\r\n
-    for (auto coord_select = ECoordinatesIndex::Begin; coord_select < ECoordinatesIndex::End; ++coord_select)
+    // Example message: [G54:0.000,0.000,0.000]\r\n
+    for (auto coord_select = ECoordinateOffset::Begin; coord_select < ECoordinateOffset::End; ++coord_select)
     {
-        ngc_rpt += "[";
-        ngc_rpt += CoordinatesManager::getOffset(coord_select)->getName();
-        ngc_rpt += ":";
-        ngc_rpt += report_util_axis_values(CoordinatesManager::getOffset(coord_select)->get());
-        ngc_rpt += "]\r\n";
+        ngc_rpt += CoordinatesManager::getOffset(coord_select)->toString();
+        ngc_rpt += "\r\n";
     }
 
     ngc_rpt += "[TLO:"; // Print tool length offset
     float tlo = gc_state.tool_length_offset;
-    if (report_inches->get())
-    {
-        tlo *= INCH_PER_MM;
-    }
     ngc_rpt += String(tlo, 3);
     ngc_rpt += "]\r\n";
+
     ConnectionManager::Write(ngc_rpt.c_str());
     Controller::getProbe().ReportProbeParameters();
 
@@ -218,7 +204,7 @@ void report_gcode_modes()
     }
     strcat(modes_rpt, mode);
 
-    sprintf(temp, " G%d", gc_state.modal.coord_select + 54);
+    sprintf(temp, " G%d", static_cast<uint8_t>(gc_state.modal.coord_select) + 54);
     strcat(modes_rpt, temp);
 
     switch (gc_state.modal.plane_select)
@@ -343,7 +329,7 @@ void report_gcode_modes()
 
     sprintf(temp, " T%d", gc_state.tool);
     strcat(modes_rpt, temp);
-    sprintf(temp, report_inches->get() ? " F%.1f" : " F%.0f", gc_state.feed_rate);
+    sprintf(temp, " F%.0f", gc_state.feed_rate);
     strcat(modes_rpt, temp);
     sprintf(temp, " S%d", uint32_t(gc_state.spindle_speed));
     strcat(modes_rpt, temp);
@@ -428,7 +414,7 @@ void report_calc_status_position(float *print_position, float *wco, bool wpos)
         for (uint8_t idx = 0; idx < n_axis; idx++)
         {
             // Apply work coordinate offsets and tool length offset to current position.
-            wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
+            wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinateOffset::G92)->get()[idx];
 
             if (idx == TOOL_LENGTH_OFFSET_AXIS)
             {
@@ -496,14 +482,7 @@ void report_realtime_status()
 #endif
     // Report realtime feed speed
 #ifdef REPORT_FIELD_CURRENT_FEED_SPEED
-    if (report_inches->get())
-    {
-        sprintf(temp, "|FS:%.1f,%d", st_get_realtime_rate() / MM_PER_INCH, sys.spindle_speed);
-    }
-    else
-    {
-        sprintf(temp, "|FS:%.0f,%d", st_get_realtime_rate(), sys.spindle_speed);
-    }
+    sprintf(temp, "|FS:%.0f,%d", st_get_realtime_rate(), sys.spindle_speed);
     strcat(status, temp);
 #endif
 
@@ -818,7 +797,7 @@ float *get_wco()
     for (int idx = 0; idx < n_axis; idx++)
     {
         // Apply work coordinate offsets and tool length offset to current position.
-        wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinatesIndex::G92)->get()[idx];
+        wco[idx] = gc_state.coord_system[idx] + CoordinatesManager::getOffset(ECoordinateOffset::G92)->get()[idx];
         if (idx == TOOL_LENGTH_OFFSET_AXIS)
         {
             wco[idx] += gc_state.tool_length_offset;

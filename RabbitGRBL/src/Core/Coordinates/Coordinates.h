@@ -69,4 +69,7 @@ public:
     }
 
     virtual void set(const float *value);
+
+    // Returns a formatted string in the form "[<name>:<x>,<y>,<z>,...]\r\n"
+    String toString();
 };

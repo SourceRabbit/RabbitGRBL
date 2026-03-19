@@ -67,6 +67,7 @@ void Probe::StateMonitor()
     {
         fSystemIsUsingProbe = false;
         memcpy(sys_probe_position, sys_position, sizeof(sys_position));
+        CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::PRB);
         sys_rt_exec_state.bit.motionCancel = true;
     }
 }
@@ -78,19 +79,25 @@ void Probe::StateMonitor()
  */
 void Probe::ReportProbeParameters()
 {
-    // Report in terms of machine position.
     float print_position[MAX_N_AXIS];
     char probe_rpt[(MAX_AXES_STRING_LENGTH + 13 + 6 + 1)]; // the probe report we are building here
     char temp[MAX_AXES_STRING_LENGTH];
-    strcpy(probe_rpt, "[PRB:"); // initialize the string with the first characters
-    // get the machine position and put them into a string and append to the probe report
-    system_convert_array_steps_to_mpos(print_position, sys_probe_position);
+
+    // Initialize the string with the first characters
+    strcpy(probe_rpt, "[PRB:");
+
+    // Copy probe position from CoordinatesManager into a local float array
+    // (required because report_util_axis_values expects float*, not const float*)
+    CoordinatesManager::getCoordinates(ECoordinate::PRB)->get(print_position);
     report_util_axis_values(print_position, temp);
     strcat(probe_rpt, temp);
-    // add the success indicator and add closing characters
+
+    // Add the success indicator and closing characters
     sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
     strcat(probe_rpt, temp);
-    ConnectionManager::Write(probe_rpt); // send the report
+
+    // Send the report
+    ConnectionManager::Write(probe_rpt);
 }
 
 /**

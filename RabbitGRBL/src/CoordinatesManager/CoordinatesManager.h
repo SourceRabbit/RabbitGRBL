@@ -33,20 +33,25 @@
  * Non-persistent coordinates (e.g. G92) are stored as plain Coordinates instances
  * and are not saved to NVS.
  *
- * fWorkPositionCoordinates holds the current work position as tracked by the
- * G-code interpreter. It is non-persistent and never saved to NVS.
+ * fCoordinates holds all non-persistent named coordinates (WPos, PRB).
+ * These are indexed via the ECoordinate enum and are never saved to NVS.
  *
  * Usage:
- *   CoordinatesManager::Initialize();                   // Call once at startup
- *   CoordinatesManager::getOffset()[CoordIndex::G54];   // Access a WCS
- *   CoordinatesManager::getWorkPositionCoordinates();   // Access the work position
+ *   CoordinatesManager::Initialize();                                              // Call once at startup
+ *   CoordinatesManager::getOffset(ECoordinateOffset::G54);                        // Access a WCS offset
+ *   CoordinatesManager::getCoordinates(ECoordinate::WPos);                        // Access the work position
+ *   CoordinatesManager::getCoordinates(ECoordinate::PRB);                         // Access the probe position
+ *   CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::WPos);    // Update work position from sys_position (steps -> mm)
+ *   CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::PRB);     // Update probe position from sys_position (steps -> mm)
+
  */
 
 #pragma once
 
 #include "../Core/Coordinates/Coordinates.h"
 #include "../Core/Coordinates/PersistentCoordinates.h"
-#include "ECoordinatesIndex.h"
+#include "ECoordinateOffset.h"
+#include "ECoordinate.h"
 
 class CoordinatesManager
 {
@@ -55,14 +60,17 @@ public:
 
     static void ResetPersistentOffsets();
 
-    static Coordinates *getOffset(ECoordinatesIndex index);
-    static Coordinates *getWorkPositionCoordinates(); // Returns the non-persistent work position
+    static void UpdateCoordinateFromSystemPosition(ECoordinate coordinate); // Updates the given coordinate in mm from sys_position (steps)
 
-    static void UpdateWorkPositionFromSystemPosition(); // Sets work position in mm from system position (steps)
+    static Coordinates *getOffset(ECoordinateOffset index);
+    static Coordinates *getCoordinates(ECoordinate coordinate); // Returns the non-persistent coordinate at the given index
+
+
 
 private:
-    static Coordinates *fOffsets[ECoordinatesIndex::End];
-    static Coordinates fWorkPositionCoordinates;     // Non-persistent work position (replaces gc_state.position[])
+    static Coordinates *fOffsets[static_cast<uint8_t>(ECoordinateOffset::End)];
+    static Coordinates *fCoordinates[static_cast<uint8_t>(ECoordinate::Ended)]; // Non-persistent named coordinates (WPos, PRB)
 
-    static void InitializeOffset(ECoordinatesIndex index, const char *name, bool isPersistent);
+    static void InitializeCoordinate(ECoordinate index, const char *name); // Always non-persistent
+    static void InitializeOffset(ECoordinateOffset index, const char *name, bool isPersistent);
 };

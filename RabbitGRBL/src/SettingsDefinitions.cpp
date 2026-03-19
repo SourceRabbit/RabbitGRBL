@@ -19,7 +19,6 @@ AxisMaskSetting *homing_squared_axes;
 FlagSetting *step_enable_invert;
 FlagSetting *limit_invert;
 FlagSetting *probe_invert;
-FlagSetting *report_inches;
 FlagSetting *soft_limits;
 // TODO Settings - need to check for HOMING_ENABLE
 FlagSetting *hard_limits;
@@ -318,7 +317,7 @@ void make_settings()
     settings_wifi_password = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "75", "WiFi/Password", DEFAULT_WIFI_PASSWORD, 0, 64, NULL);
     settings_wifi_ssid = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "74", "WiFi/SSID", DEFAULT_WIFI_SSID, 0, 32, NULL);
     settings_wifi_mode = new IntSetting(ERabbitGRBLItemType::SETTING, "73", "WiFi/Mode", DEFAULT_WIFI_MODE, 0, 2);
-    
+
     // Coolant Settings
     settings_coolant_flood_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
     settings_coolant_mist_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
@@ -361,8 +360,6 @@ void make_settings()
     // TODO Settings - need to check for HOMING_ENABLE
     hard_limits = new FlagSetting(ERabbitGRBLItemType::SETTING, "21", "Limits/Hard", DEFAULT_HARD_LIMIT_ENABLE);
     soft_limits = new FlagSetting(ERabbitGRBLItemType::SETTING, "20", "Limits/Soft", DEFAULT_SOFT_LIMIT_ENABLE, NULL);
-
-    report_inches = new FlagSetting(ERabbitGRBLItemType::SETTING, "13", "Report/Inches", DEFAULT_REPORT_INCHES);
 
     // TODO Settings - also need to clear, but not set, soft_limits
     arc_tolerance = new FloatSetting(ERabbitGRBLItemType::SETTING, "12", "GCode/ArcTolerance", DEFAULT_ARC_TOLERANCE, 0, 1);

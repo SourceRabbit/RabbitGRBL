@@ -550,7 +550,7 @@ void protocol_exec_rt_system()
                     sys.step_control = {};
                     plan_reset();
                     st_reset();
-                    CoordinatesManager::UpdateWorkPositionFromSystemPosition();
+                    CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::WPos);
                     plan_sync_position();
                 }
                 if (sys.suspend.bit.safetyDoorAjar)
