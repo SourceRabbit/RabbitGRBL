@@ -66,7 +66,6 @@ void Probe::StateMonitor()
     if (isTriggered() ^ fIsProbeAway)
     {
         fSystemIsUsingProbe = false;
-        memcpy(sys_probe_position, sys_position, sizeof(sys_position));
         CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::PRB);
         sys_rt_exec_state.bit.motionCancel = true;
     }
@@ -93,7 +92,7 @@ void Probe::ReportProbeParameters()
     strcat(probe_rpt, temp);
 
     // Add the success indicator and closing characters
-    sprintf(temp, ":%d]\r\n", sys.probe_succeeded);
+    sprintf(temp, ":%d]\r\n", fProbeSucceeded);
     strcat(probe_rpt, temp);
 
     // Send the report
@@ -115,4 +114,20 @@ bool Probe::isSystemUsingProbe()
 void Probe::setSystemProbeState(bool state)
 {
     fSystemIsUsingProbe = state;
+}
+
+/**
+ * Returns true if the last probing cycle was successful.
+ */
+bool Probe::getProbeSucceeded()
+{
+    return fProbeSucceeded;
+}
+
+/**
+ * Sets the probe succeeded flag.
+ */
+void Probe::setProbeSucceeded(bool succeeded)
+{
+    fProbeSucceeded = succeeded;
 }

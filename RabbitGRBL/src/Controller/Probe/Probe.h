@@ -34,7 +34,11 @@ public:
     bool isSystemUsingProbe();
     void setSystemProbeState(bool state);
 
+    bool getProbeSucceeded();
+    void setProbeSucceeded(bool succeeded);
+
 private:
     bool fIsProbeAway = false;
     volatile bool fSystemIsUsingProbe = false;
+    bool fProbeSucceeded = false; // Tracks if last probing cycle was successful
 };

@@ -84,16 +84,13 @@ static void reset_variables()
     // TODO: Implement a Controller::Reset() method
     // and call it here !
 
-    // Reset system variables.
+    // Reset system variables.F
     State prior_state = sys.state;
     memset(&sys, 0, sizeof(system_t)); // Clear system struct variable.
     sys.state = prior_state;
-    sys.f_override = FeedOverride::Default;                    // Set to 100%
-    sys.r_override = RapidOverride::Default;                   // Set to 100%
-    sys.spindle_speed_ovr = SpindleSpeedOverride::Default;     // Set to 100%
-    memset(sys_probe_position, 0, sizeof(sys_probe_position)); // Clear probe position.
-
-    Controller::getProbe().setSystemProbeState(false);
+    sys.f_override = FeedOverride::Default;                // Set to 100%
+    sys.r_override = RapidOverride::Default;               // Set to 100%
+    sys.spindle_speed_ovr = SpindleSpeedOverride::Default; // Set to 100%
 
     sys_rt_exec_state.value = 0;
     sys_rt_exec_accessory_override.value = 0;
@@ -105,17 +102,21 @@ static void reset_variables()
     sys_rt_r_override = RapidOverride::Default;
     sys_rt_s_override = SpindleSpeedOverride::Default;
 
+    // Clear probe
+    CoordinatesManager::getCoordinates(ECoordinate::PRB)->setDefault(); // Clear probe position.
+    Controller::getProbe().setProbeSucceeded(false);                    // Re-initialize probe history before beginning cycle.
+    Controller::getProbe().setSystemProbeState(false);
+
     // Reset Grbl primary systems.
     ConnectionManager::ResetReadBuffer();
 
     gc_init(); // Set g-code parser to default state
 
-    Controller::getSpindle()->Stop();
-    Controller::Initialize();
+    Controller::Initialize(); // Initialize controller
 
-    limits_init();
-    plan_reset(); // Clear block buffer and planner variables
-    st_reset();   // Clear stepper subsystem variables
+    limits_init(); // Initialize limits
+    plan_reset();  // Clear block buffer and planner variables
+    st_reset();    // Clear stepper subsystem variables
 
     // Sync cleared gcode and planner positions to current system position.
     plan_sync_position();
@@ -134,4 +135,3 @@ void run_once()
 }
 
 void __attribute__((weak)) machine_init() {}
-

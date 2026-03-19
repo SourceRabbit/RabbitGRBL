@@ -105,7 +105,6 @@ typedef struct
     Suspend suspend;              // System suspend bitflag variable that manages holds, cancels, and safety door.
     bool soft_limit;              // Tracks soft limit errors for the state machine. (boolean)
     StepControl step_control;     // Governs the step segment generator depending on system state.
-    bool probe_succeeded;         // Tracks if last probing cycle was successful.
     AxisMask homing_axis_lock;    // Locks axes when limits engage. Used as an axis motion mask in the stepper ISR.
     Percent f_override;           // Feed rate override value in percent
     Percent r_override;           // Rapids override value in percent
@@ -139,8 +138,7 @@ union ControlPins
 };
 
 // NOTE: These position variables may need to be declared as volatiles, if problems arise.
-extern int32_t sys_position[MAX_N_AXIS];       // Real-time machine (aka home) position vector in steps.
-extern int32_t sys_probe_position[MAX_N_AXIS]; // Last probe position in machine coordinates and steps.
+extern int32_t sys_position[MAX_N_AXIS]; // Real-time machine (aka home) position vector in steps.
 
 extern volatile ExecState sys_rt_exec_state;                  // Global realtime executor bitflag variable for state management. See EXEC bitmasks.
 extern volatile EAlarm sys_rt_exec_alarm;                     // Global realtime executor bitflag variable for setting various alarms.

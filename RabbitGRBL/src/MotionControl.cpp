@@ -388,7 +388,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     // Initialize probing control variables
     uint8_t is_probe_away = bit_istrue(parser_flags, GCParserProbeIsAway);
     uint8_t is_no_error = bit_istrue(parser_flags, GCParserProbeIsNoError);
-    sys.probe_succeeded = false; // Re-initialize probe history before beginning cycle.
+    Controller::getProbe().setProbeSucceeded(false); // Re-initialize probe history before beginning cycle.
     Controller::getProbe().setDirection(is_probe_away == 1);
 
     // After syncing, check if probe is already triggered. If so, halt and issue alarm.
@@ -430,7 +430,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     {
         if (is_no_error)
         {
-            memcpy(sys_probe_position, sys_position, sizeof(sys_position));
+            CoordinatesManager::UpdateCoordinateFromSystemPosition(ECoordinate::PRB);
         }
         else
         {
@@ -439,7 +439,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     }
     else
     {
-        sys.probe_succeeded = true; // Indicate to system the probing cycle completed successfully.
+        Controller::getProbe().setProbeSucceeded(true); // Indicate to system the probing cycle completed successfully.
     }
 
     Controller::getProbe().setSystemProbeState(false); // Ensure probe state monitor is disabled.
@@ -456,7 +456,7 @@ GCUpdatePos mc_probe_cycle(float *target, plan_line_data_t *pl_data, uint8_t par
     Controller::getProbe().ReportProbeParameters();
 #endif
 
-    if (sys.probe_succeeded)
+    if (Controller::getProbe().getProbeSucceeded())
     {
         return GCUpdatePos::System; // Successful probe cycle.
     }

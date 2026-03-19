@@ -48,6 +48,7 @@ void Controller::Initialize()
 
     // Select the Spindle !
     selectSpindle();
+    getSpindle()->Stop();
 
     fCoolantManagerInstance.Initialize();
     fProbeInstance.Initialize();
