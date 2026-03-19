@@ -315,10 +315,10 @@ void make_settings()
 
     // WiFi Settings
     // $73 - WiFi Mode (0 = Off, 1 = Station mode, 2 = Access Point mode)
-    settings_wifi_mode = new IntSetting(ERabbitGRBLItemType::SETTING, "73", "WiFi/Mode", DEFAULT_WIFI_MODE, 0, 2);
-    settings_wifi_ssid = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "74", "WiFi/SSID", DEFAULT_WIFI_SSID, 0, 32, NULL);
     settings_wifi_password = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "75", "WiFi/Password", DEFAULT_WIFI_PASSWORD, 0, 64, NULL);
-
+    settings_wifi_ssid = new StringSetting(NULL, ERabbitGRBLItemType::SETTING, "74", "WiFi/SSID", DEFAULT_WIFI_SSID, 0, 32, NULL);
+    settings_wifi_mode = new IntSetting(ERabbitGRBLItemType::SETTING, "73", "WiFi/Mode", DEFAULT_WIFI_MODE, 0, 2);
+    
     // Coolant Settings
     settings_coolant_flood_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "60", "Coolant/Flood/Delay/TurnOn", DEFAULT_COOLANT_FLOOD_DELAY_TURNON, 0, 10);
     settings_coolant_mist_start_delay = new FloatSetting(ERabbitGRBLItemType::SETTING, "61", "Coolant/Mist/Delay/TurnOn", DEFAULT_COOLANT_MIST_DELAY_TURNON, 0, 10);
