@@ -28,7 +28,7 @@
 
 class InputBuffer;
 
-// Serial-based connection implementation.
+// Serial-based (UART) connection implementation.
 class SerialConnection final : public Connection
 {
 
@@ -52,6 +52,10 @@ private:
 
     static void ClientCheckTaskThunk(void *pvParameters);
     void ClientCheckTaskLoop();
+
+    // Internal raw byte write without mutex — must only be called
+    // from the public Write() methods that have already locked fSendDataMutex.
+    size_t WriteRaw(const uint8_t *data, size_t len);
 
 private:
     TaskHandle_t fTaskHandle = nullptr;

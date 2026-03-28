@@ -35,8 +35,14 @@ void SerialConnection::Init()
     fSendDataMutex = xSemaphoreCreateMutex();
 
     Serial.begin(BAUD_RATE, SERIAL_8N1, 3, 1, false);
+
+    // Increase the ESP32 UART hardware RX buffer.
+    // 512 bytes is enough for several GCode lines while
+    // conserving RAM compared to a larger buffer.
+    Serial.setRxBufferSize(512);
+
     ResetReadBuffer();
-    this->Write("\r\n"); // create some white space after ESP32 boot info
+    this->Write("\r\n"); // Create some white space after ESP32 boot info
 
     // Create a task to check for incoming data.
     xTaskCreatePinnedToCore(SerialConnection::ClientCheckTaskThunk, "clientCheckTask", 4096, this, 1, &fTaskHandle, SUPPORT_TASK_CORE);
@@ -61,7 +67,7 @@ bool SerialConnection::GetClientChar(uint8_t *data)
         return true;
     }
 
-    // Buffer is full - byte is intentionally discarded.
+    // Buffer is full — byte is intentionally discarded.
     return false;
 }
 
@@ -78,6 +84,7 @@ void SerialConnection::ClientCheckTaskLoop()
 
     while (true)
     {
+        // Read all available bytes without delay.
         while (GetClientChar(&data))
         {
             if (ConnectionManager::IsRealtimeCommand(data))
@@ -92,8 +99,12 @@ void SerialConnection::ClientCheckTaskLoop()
             }
         }
 
-        // Yield CPU to allow other tasks to run.
-        vTaskDelay(pdMS_TO_TICKS(1));
+        // Yield CPU to other tasks.
+        // Using taskYIELD() instead of vTaskDelay(1ms) so we return
+        // immediately when no other task of the same priority is ready —
+        // this reduces the average read latency from ~1ms to a few
+        // microseconds.
+        taskYIELD();
     }
 }
 
@@ -123,6 +134,20 @@ uint8_t SerialConnection::GetRxBufferAvailable()
 }
 
 /**
+ * Internal method that writes raw bytes without acquiring the mutex.
+ * Must only be called from the public Write() methods that have
+ * already locked fSendDataMutex.
+ *
+ * @param data Pointer to the bytes to write.
+ * @param len  Number of bytes to write.
+ * @return The number of bytes written.
+ */
+size_t SerialConnection::WriteRaw(const uint8_t *data, size_t len)
+{
+    return Serial.write(data, len);
+}
+
+/**
  * Writes raw bytes to the Serial transport in a thread-safe manner.
  *
  * This method serializes TX access using a FreeRTOS mutex because Serial.write()
@@ -141,18 +166,15 @@ size_t SerialConnection::Write(const uint8_t *data, size_t len)
     }
 
     // Serialize TX access across tasks.
-    // NOTE: We use a FreeRTOS mutex (not a critical section) because Serial.write()
-    // may block and can take a non-trivial amount of time.
+    // NOTE: We use a FreeRTOS mutex (not a critical section) because
+    // Serial.write() may block and can take a non-trivial amount of time.
     if (fSendDataMutex)
     {
-        // Wait indefinitely until the TX mutex becomes available.
         xSemaphoreTake(fSendDataMutex, portMAX_DELAY);
     }
 
-    // Write raw bytes to the Arduino Serial transport.
-    size_t result = Serial.write(data, len);
+    size_t result = WriteRaw(data, len);
 
-    // Release the TX mutex so other tasks can write.
     if (fSendDataMutex)
     {
         xSemaphoreGive(fSendDataMutex);
@@ -164,11 +186,12 @@ size_t SerialConnection::Write(const uint8_t *data, size_t len)
 /**
  * Writes a null-terminated C string to the Serial transport in a thread-safe manner.
  *
- * This method serializes TX access using a FreeRTOS mutex to prevent interleaved
- * output when multiple tasks write concurrently.
+ * Instead of calling Serial.write(text) directly, this method computes the
+ * length once and delegates to WriteRaw(), avoiding an internal strlen
+ * inside the Arduino framework.
  *
  * @param text Null-terminated string to write.
- * @return The number of bytes written (as reported by Serial.write()).
+ * @return The number of bytes written.
  */
 size_t SerialConnection::Write(const char *text)
 {
@@ -178,17 +201,21 @@ size_t SerialConnection::Write(const char *text)
         return 0;
     }
 
+    size_t len = strlen(text);
+    if (len == 0)
+    {
+        return 0;
+    }
+
     // Serialize TX access across tasks.
     if (fSendDataMutex)
     {
-        // Wait indefinitely until the TX mutex becomes available.
         xSemaphoreTake(fSendDataMutex, portMAX_DELAY);
     }
 
-    // Write a null-terminated string to the Arduino Serial transport.
-    size_t result = Serial.write(text);
+    // Call WriteRaw with a known length — avoids a second strlen internally.
+    size_t result = WriteRaw(reinterpret_cast<const uint8_t *>(text), len);
 
-    // Release the TX mutex so other tasks can write.
     if (fSendDataMutex)
     {
         xSemaphoreGive(fSendDataMutex);
