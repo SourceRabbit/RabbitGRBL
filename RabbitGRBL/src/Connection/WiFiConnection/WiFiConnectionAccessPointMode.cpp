@@ -1,5 +1,5 @@
 /*
-  WiFiConnectionStationMode.cpp
+  WiFiConnectionAccessPointMode.cpp
 
   Copyright (c) 2026 Nikolaos Siatras
   Twitter: nsiatras
@@ -21,36 +21,27 @@
 */
 
 #include "../../Grbl.h"
-#include "WiFiConnectionStationMode.h"
+#include "WiFiConnectionAccessPointMode.h"
 
 enum class Cmd : uint8_t;
 
-WiFiConnectionStationMode::WiFiConnectionStationMode(const char *ssid, const char *password, uint16_t serverPort)
+WiFiConnectionAccessPointMode::WiFiConnectionAccessPointMode(const char *ssid, const char *password, uint16_t serverPort)
     : fSsid(ssid), fPassword(password), fServerPort(serverPort), fServer(serverPort)
 {
 }
 
-void WiFiConnectionStationMode::Init()
+void WiFiConnectionAccessPointMode::Init()
 {
     // Create a FreeRTOS mutex for TX serialization.
     fSendDataMutex = xSemaphoreCreateMutex();
 
-    // Connect to the WiFi Access Point using the provided SSID and password.
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(fSsid.c_str(), fPassword.c_str());
+    // Configure the ESP32 as a WiFi Access Point.
+    WiFi.mode(WIFI_AP);
+    bool apStarted = WiFi.softAP(fSsid.c_str(), fPassword.c_str());
 
-    // Wait up to 30 seconds for the connection to be established (60 x 500 ms).
-    const int maxAttempts = 60;
-    int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts)
+    if (!apStarted)
     {
-        vTaskDelay(pdMS_TO_TICKS(500));
-        attempts++;
-    }
-
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        // WiFi connection failed within the timeout - do not start the TCP server.
+        // Access Point could not be started - do not start the TCP server.
         return;
     }
 
@@ -64,7 +55,7 @@ void WiFiConnectionStationMode::Init()
 
     // Create a task for accepting incoming TCP client connections.
     xTaskCreatePinnedToCore(
-        WiFiConnectionStationMode::AcceptClientTaskThunk,
+        WiFiConnectionAccessPointMode::AcceptClientTaskThunk,
         "wifiAcceptTask",
         4096,
         this,
@@ -74,7 +65,7 @@ void WiFiConnectionStationMode::Init()
 
     // Create a task to poll for incoming data from the TCP client.
     xTaskCreatePinnedToCore(
-        WiFiConnectionStationMode::ClientCheckTaskThunk,
+        WiFiConnectionAccessPointMode::ClientCheckTaskThunk,
         "wifiClientCheckTask",
         4096,
         this,
@@ -83,31 +74,31 @@ void WiFiConnectionStationMode::Init()
         SUPPORT_TASK_CORE);
 }
 
-void WiFiConnectionStationMode::ResetReadBuffer()
+void WiFiConnectionAccessPointMode::ResetReadBuffer()
 {
     fInputBuffer.begin();
 }
 
-bool WiFiConnectionStationMode::IsWifiConnected() const
+bool WiFiConnectionAccessPointMode::IsWifiConnected() const
 {
     return fWifiConnected;
 }
 
-bool WiFiConnectionStationMode::IsClientConnected()
+bool WiFiConnectionAccessPointMode::IsClientConnected()
 {
     return fClient && fClient.connected();
 }
 
 // --- AcceptClient Task ---
 
-void WiFiConnectionStationMode::AcceptClientTaskThunk(void *pvParameters)
+void WiFiConnectionAccessPointMode::AcceptClientTaskThunk(void *pvParameters)
 {
     // NOTE: pvParameters is expected to be `this`.
-    auto *self = static_cast<WiFiConnectionStationMode *>(pvParameters);
+    auto *self = static_cast<WiFiConnectionAccessPointMode *>(pvParameters);
     self->AcceptClientTaskLoop();
 }
 
-void WiFiConnectionStationMode::AcceptClientTaskLoop()
+void WiFiConnectionAccessPointMode::AcceptClientTaskLoop()
 {
     while (true)
     {
@@ -135,7 +126,7 @@ void WiFiConnectionStationMode::AcceptClientTaskLoop()
 
 // --- RX Task ---
 
-bool WiFiConnectionStationMode::GetClientChar(uint8_t *data)
+bool WiFiConnectionAccessPointMode::GetClientChar(uint8_t *data)
 {
     // Do nothing if no client is connected or no data is available.
     if (!IsClientConnected() || !fClient.available())
@@ -159,14 +150,14 @@ bool WiFiConnectionStationMode::GetClientChar(uint8_t *data)
     return false;
 }
 
-void WiFiConnectionStationMode::ClientCheckTaskThunk(void *pvParameters)
+void WiFiConnectionAccessPointMode::ClientCheckTaskThunk(void *pvParameters)
 {
     // NOTE: pvParameters is expected to be `this`.
-    auto *self = static_cast<WiFiConnectionStationMode *>(pvParameters);
+    auto *self = static_cast<WiFiConnectionAccessPointMode *>(pvParameters);
     self->ClientCheckTaskLoop();
 }
 
-void WiFiConnectionStationMode::ClientCheckTaskLoop()
+void WiFiConnectionAccessPointMode::ClientCheckTaskLoop()
 {
     uint8_t data = 0;
 
@@ -194,7 +185,7 @@ void WiFiConnectionStationMode::ClientCheckTaskLoop()
 
 // --- Read / Push / GetRxBufferAvailable ---
 
-int WiFiConnectionStationMode::Read()
+int WiFiConnectionAccessPointMode::Read()
 {
     taskENTER_CRITICAL(&fInputBufferMutex);
     int data = fInputBuffer.read();
@@ -202,7 +193,7 @@ int WiFiConnectionStationMode::Read()
     return data;
 }
 
-bool WiFiConnectionStationMode::Push(const char *data)
+bool WiFiConnectionAccessPointMode::Push(const char *data)
 {
     // Protect the shared input buffer from concurrent access by the client check task.
     taskENTER_CRITICAL(&fInputBufferMutex);
@@ -211,7 +202,7 @@ bool WiFiConnectionStationMode::Push(const char *data)
     return result;
 }
 
-uint8_t WiFiConnectionStationMode::GetRxBufferAvailable()
+uint8_t WiFiConnectionAccessPointMode::GetRxBufferAvailable()
 {
     taskENTER_CRITICAL(&fInputBufferMutex);
     uint8_t available = static_cast<uint8_t>(fInputBuffer.availableforwrite());
@@ -221,7 +212,7 @@ uint8_t WiFiConnectionStationMode::GetRxBufferAvailable()
 
 // --- Write ---
 
-size_t WiFiConnectionStationMode::Write(const uint8_t *data, size_t len)
+size_t WiFiConnectionAccessPointMode::Write(const uint8_t *data, size_t len)
 {
     if (!IsClientConnected())
     {
@@ -235,7 +226,7 @@ size_t WiFiConnectionStationMode::Write(const uint8_t *data, size_t len)
     return written;
 }
 
-size_t WiFiConnectionStationMode::Write(const char *text)
+size_t WiFiConnectionAccessPointMode::Write(const char *text)
 {
     return Write(reinterpret_cast<const uint8_t *>(text), strlen(text));
 }
