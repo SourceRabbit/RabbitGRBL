@@ -37,7 +37,7 @@ making it suitable for real CNC machines — not experimental setups.
 - **Backlash compensation**
 - **Canned Cycles** [G73](https://github.com/SourceRabbit/RabbitGRBL/wiki/G%E2%80%90Code-Commands#g73--peck-drilling-chip-breaking), [G81](https://github.com/SourceRabbit/RabbitGRBL/wiki/G%E2%80%90Code-Commands#g81--drilling-canned-cycle), [G83](https://github.com/SourceRabbit/RabbitGRBL/wiki/G%E2%80%90Code-Commands#g83--peck-drilling-chip-removing)
 - **User-defined homing sequences**
-- **USB / Serial connectivity**
+- **WiFi, Bluetooth & USB / Serial connectivity**
 - Optimized for **ESP32 dual-core architecture**
 
 
