@@ -14,7 +14,7 @@ engineered for continuous operation, low latency, accuracy, robustness, scalabil
 
 ## Introduction
 
-Rabbit GRBL is a **Motion control firmware for ESP32**, originally developed as a fork of **Grbl_Esp32**.
+Rabbit GRBL is a **Motion control firmware for ESP32**.
 
 This repository is maintained to provide a **professional-grade**, fast and predictable firmware that remains  
 **100% backward compatible with the original Grbl v1.1h for AVR processors** command set and works with **all standard GRBL G-code senders**.
